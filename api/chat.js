@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   try {
     const groq = new Groq({ apiKey });
     const completion = await groq.chat.completions.create({
-      model: 'llama3-8b-8192',
+      model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: message }]
     });
     const reply = completion.choices[0]?.message?.content || 'Pas de réponse.';
