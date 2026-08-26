@@ -2,8 +2,10 @@ const https = require('https');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
+  
   const { message } = req.body || {};
   const apiKey = process.env.GEMINI_API_KEY;
+  
   if (!apiKey) return res.status(500).json({ error: 'Clé GEMINI_API_KEY manquante sur Vercel' });
 
   const data = JSON.stringify({
@@ -12,7 +14,7 @@ module.exports = async (req, res) => {
 
   const options = {
     hostname: 'generativelanguage.googleapis.com',
-    path: '/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey,
+    path: '/v1beta/models/gemini-3.6-flash:generateContent?key=' + apiKey,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
