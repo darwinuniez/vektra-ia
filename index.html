@@ -1,430 +1,156 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VEKTRA // SECURE CORE - Ervin Corp</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-deep: #030008;
-            --primary-glow: #8b5cf6;
-            --secondary-glow: #ec4899;
-            --glass-bg: rgba(15, 10, 30, 0.65);
-            --glass-border: rgba(139, 92, 246, 0.2);
-            --text-main: #f3f4f6;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-deep);
-            color: var(--text-main);
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* --- 1. INTRO SPLASH SCREEN --- */
-        #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #020005;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 1s cubic-bezier(0.77, 0, 0.175, 1), visibility 1s;
-        }
-
-        .splash-content {
-            text-align: center;
-            animation: textZoomIntro 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .splash-content h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            letter-spacing: 4px;
-            background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, #f472b6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
-        }
-
-        .splash-content p {
-            margin-top: 10px;
-            font-size: 1rem;
-            color: #9ca3af;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        @keyframes textZoomIntro {
-            0% {
-                transform: scale(0.6);
-                opacity: 0;
-                filter: blur(10px);
-            }
-            50% {
-                transform: scale(1.05);
-                opacity: 1;
-                filter: blur(0px);
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .fade-out {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        /* --- 2. ARRIÈRE-PLAN ANIMÉ & LUMIÈRES --- */
-        .ambient-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: -1;
-        }
-
-        .blob {
-            position: absolute;
-            width: 550px;
-            height: 550px;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(236, 72, 153, 0.2));
-            filter: blur(90px);
-            border-radius: 50%;
-            animation: floatBlob 12s infinite alternate ease-in-out;
-        }
-
-        .blob:nth-child(2) {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(147, 51, 234, 0.25));
-            bottom: -150px;
-            right: -150px;
-            animation-duration: 16s;
-            animation-direction: alternate-reverse;
-        }
-
-        @keyframes floatBlob {
-            0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(100px, 150px) scale(1.15); }
-            100% { transform: translate(-80px, 80px) scale(0.9); }
-        }
-
-        /* --- 3. MENU LATÉRAL GAUCHE (HOVER SLIDE-IN) --- */
-        .sidebar-trigger-zone {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 30px;
-            height: 100vh;
-            z-index: 100;
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: -300px;
-            width: 280px;
-            height: 100vh;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--glass-border);
-            box-shadow: 15px 0 40px rgba(0, 0, 0, 0.6);
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            z-index: 101;
-            transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        /* Apparition au survol de la zone ou de la sidebar elle-même */
-        .sidebar-trigger-zone:hover ~ .sidebar,
-        .sidebar:hover {
-            left: 0;
-        }
-
-        .sidebar-header h2 {
-            font-size: 1.4rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
-        }
-
-        .sidebar-header span {
-            font-size: 0.75rem;
-            color: #9ca3af;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .nav-item {
-            position: relative;
-            padding: 14px 18px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            color: var(--text-main);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-
-        /* Effets de mouvement et lueur sur les onglets */
-        .nav-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.2), transparent);
-            transition: 0.5s;
-        }
-
-        .nav-item:hover {
-            transform: translateX(8px) scale(1.02);
-            background: rgba(139, 92, 246, 0.15);
-            border-color: rgba(139, 92, 246, 0.4);
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-            color: #fff;
-        }
-
-        .nav-item:hover::before {
-            left: 100%;
-        }
-
-        /* --- 4. INTERFACE PRINCIPALE (GLASSMORPHISM) --- */
-        .main-container {
-            max-width: 900px;
-            margin: 0 auto;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .chat-card {
-            width: 100%;
-            height: 80vh;
-            background: var(--glass-bg);
-            backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chat-header {
-            padding: 20px 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .chat-header h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: #e2e8f0;
-        }
-
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            color: #34d399;
-            background: rgba(52, 211, 153, 0.1);
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(52, 211, 153, 0.2);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #34d399;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #34d399;
-            animation: pulseDot 2s infinite;
-        }
-
-        @keyframes pulseDot {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 15px #34d399; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .message {
-            max-width: 75%;
-            padding: 16px 20px;
-            border-radius: 16px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            animation: fadeInMessage 0.4s ease-out forwards;
-        }
-
-        @keyframes fadeInMessage {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .message.bot {
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.2);
-            align-self: flex-start;
-            color: #e2e8f0;
-        }
-
-        .chat-input-area {
-            padding: 20px 30px;
-            background: rgba(0, 0, 0, 0.3);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            gap: 15px;
-        }
-
-        .chat-input-area input {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 14px 20px;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 0.95rem;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .chat-input-area input:focus {
-            border-color: var(--primary-glow);
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.25);
-            background: rgba(255, 255, 255, 0.07);
-        }
-
-        .chat-input-area button {
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
-            border: none;
-            color: white;
-            padding: 0 25px;
-            border-radius: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-        }
-
-        .chat-input-area button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEKTRA // Ervin Digital Corp — IA Sécurisée</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 1. INTRO SPLASH SCREEN -->
-    <div id="splash-screen">
-        <div class="splash-content">
-            <h1>VEKTRA</h1>
-            <p>by Ervin Corp</p>
-        </div>
+  <!-- GRAIN / TEXTURE OVERLAY -->
+  <div id="noise-overlay" aria-hidden="true"></div>
+
+  <!-- ============ BOOT SEQUENCE (signature moment) ============ -->
+  <div id="boot-sequence" aria-hidden="true">
+    <div class="boot-terminal" id="boot-terminal">
+      <div class="boot-lines" id="boot-lines"></div>
+      <div class="boot-progress"><div class="boot-progress-fill" id="boot-progress-fill"></div></div>
     </div>
 
-    <!-- 2. ARRIÈRE-PLAN LUMINEUX ANIMÉ -->
-    <div class="ambient-background">
-        <div class="blob" style="top: -100px; left: -100px;"></div>
-        <div class="blob"></div>
+    <div class="boot-logo-wrap" id="boot-logo-wrap">
+      <div class="boot-logo">
+        <span class="glitch-layer layer-cyan">VEKTRA</span>
+        <span class="glitch-layer layer-pink">VEKTRA</span>
+        <span class="glitch-main">VEKTRA</span>
+      </div>
+      <p class="boot-tagline">NOYAU IA — ERVIN DIGITAL CORP</p>
     </div>
 
-    <!-- 3. ZONE DE DÉCLENCHEMENT & MENU LATÉRAL GAUCHE -->
-    <div class="sidebar-trigger-zone"></div>
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h2>VEKTRA // CORE</h2>
-            <span>Ervin Digital Corp</span>
-        </div>
-        <div class="nav-links">
-            <a href="#" class="nav-item">⚡ Secure Dashboard</a>
-            <a href="#" class="nav-item">🛡️ Protocoles IA</a>
-            <a href="#" class="nav-item">📂 Archives Réseau</a>
-            <a href="#" class="nav-item">⚙️ Paramètres Système</a>
-        </div>
-    </aside>
+    <div class="boot-skip" id="boot-skip">cliquer pour passer</div>
+  </div>
+  <div id="wipe-transition" aria-hidden="true"></div>
 
-    <!-- 4. CONTENU PRINCIPAL (GLASSMORPHISM) -->
-    <main class="main-container">
-        <div class="chat-card">
-            <div class="chat-header">
-                <h3>VEKTRA // SECURE CORE</h3>
-                <div class="status-badge">
-                    <div class="status-dot"></div>
-                    <span>SYSTÈME EN LIGNE</span>
-                </div>
-            </div>
-            
-            <div class="chat-messages">
-                <div class="message bot">
-                    Bienvenue dans l'espace sécurisé de l'Ervin Digital Corporation. Le réseau est actif, pose tes instructions l'associé.
-                </div>
-            </div>
+  <!-- ============ AMBIENT BACKGROUND ============ -->
+  <div class="ambient-background" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
 
-            <div class="chat-input-area">
-                <input type="text" placeholder="Envoyer un message à Vektra IA...">
-                <button>Envoyer</button>
-            </div>
+  <!-- ============ APP SHELL ============ -->
+  <div class="app-shell" id="app">
+
+    <div class="ticker-wrapper">
+      <div class="ticker-track">
+        <span>SYSTÈME EN LIGNE&nbsp;&nbsp;•&nbsp;&nbsp;NOYAU VEKTRA — LATENCE 9MS&nbsp;&nbsp;•&nbsp;&nbsp;PROTOCOLES DE SÉCURITÉ : NOMINAL&nbsp;&nbsp;•&nbsp;&nbsp;ACCÈS CHIFFRÉ END-TO-END&nbsp;&nbsp;•&nbsp;&nbsp;ERVIN DIGITAL CORP © 2026&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+        <span>SYSTÈME EN LIGNE&nbsp;&nbsp;•&nbsp;&nbsp;NOYAU VEKTRA — LATENCE 9MS&nbsp;&nbsp;•&nbsp;&nbsp;PROTOCOLES DE SÉCURITÉ : NOMINAL&nbsp;&nbsp;•&nbsp;&nbsp;ACCÈS CHIFFRÉ END-TO-END&nbsp;&nbsp;•&nbsp;&nbsp;ERVIN DIGITAL CORP © 2026&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+      </div>
+    </div>
+
+    <header class="app-header">
+      <div class="header-left">
+        <span class="pirate-logo">🏴‍☠️</span>
+        <span class="header-title">VEKTRA <span class="highlight">// CORE</span></span>
+      </div>
+      <div class="header-right">
+        <a href="#" class="btn-discord">Discord</a>
+        <button class="btn-account" onclick="openVekModal()">
+          <span id="header-user-badge">Compte VEK</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="main-layout">
+
+      <aside class="sidebar">
+        <button class="btn-new-chat" onclick="createNewChat()">+ Nouvelle conversation</button>
+
+        <div class="side-section">
+          <span class="section-title">HISTORIQUE</span>
+          <div class="conv-list" id="conv-list">
+            <div class="conv-item active" onclick="switchConv(this, 'Conversation #1')">Conversation #1</div>
+          </div>
         </div>
-    </main>
 
-    <script>
-        // Disparition fluide du splash screen après l'animation de démarrage
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                splash.classList.add('fade-out');
-            }, 2200); // Temps de la cinématique d'intro
-        });
-    </script>
+        <div class="side-card ultimate-card">
+          <span class="badge-dev">DEV</span>
+          <h3>VEKTRA ULTIME</h3>
+          <p>Accès illimité au noyau, latence prioritaire et modèles étendus. Débloque la puissance complète du réseau.</p>
+        </div>
+
+        <div class="side-card edc-card" onclick="openEdcModal()">
+          <div class="edc-header">
+            <span>RÉSEAU ED-CORP</span>
+            <div class="pulsing-dot"></div>
+          </div>
+          <p class="edc-teaser">« Ce que le noyau ne te dit pas encore. »</p>
+        </div>
+
+        <div class="sidebar-footer">
+          <p class="legal-notice">Vektra est un système d'IA expérimental. Vérifie toute information critique. Ervin Digital Corp, tous droits réservés.</p>
+        </div>
+      </aside>
+
+      <main class="chat-area">
+        <div class="typing-box" id="typing-indicator">
+          <span class="pirate-mini">🏴‍☠️</span>
+          <span>Vektra réfléchit</span>
+          <div class="dots-anim"><span></span><span></span><span></span></div>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg bot">
+            <div class="msg-avatar">🏴‍☠️</div>
+            <div class="msg-content">
+              <span class="msg-author">VEKTRA // SECURE CORE</span>
+              <p>Bienvenue dans l'espace sécurisé de l'Ervin Digital Corporation. Le réseau est actif, pose tes instructions l'associé.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-container">
+          <form id="chat-form" onsubmit="sendMessage(event)">
+            <input type="text" id="user-input" placeholder="Envoyer un message à Vektra IA…" autocomplete="off">
+            <button type="submit" class="btn-send" aria-label="Envoyer">➤</button>
+          </form>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- ============ MODALS ============ -->
+  <div class="modal-backdrop" id="vek-modal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeVekModal()">×</button>
+      <h2>Ton identité Vektra</h2>
+      <p class="modal-sub">Choisis le nom qui apparaîtra dans le noyau. Il ne quitte jamais cet appareil.</p>
+      <div class="form-group">
+        <label for="vek-username-input">Nom d'associé</label>
+        <input type="text" id="vek-username-input" placeholder="Compte VEK">
+      </div>
+      <button class="btn-action-modal" onclick="saveVekAccount()">Enregistrer</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="edc-modal">
+    <div class="modal-box edc-box">
+      <button class="modal-close" onclick="closeEdcModal()">×</button>
+      <span class="edc-modal-header">RÉSEAU ED-CORP</span>
+      <h2>Un niveau au-delà du noyau</h2>
+      <p class="edc-modal-desc">ED-Corp est le réseau parallèle d'Ervin Digital Corp : accès anticipé aux modèles, canaux privés et outils encore fermés au public.</p>
+      <div class="cyber-badge-grid">
+        <span class="c-badge">IA AVANCÉE</span>
+        <span class="c-badge">SÉCURITÉ</span>
+        <span class="c-badge">ACCÈS ANTICIPÉ</span>
+      </div>
+      <button class="btn-action-modal" onclick="closeEdcModal()" style="margin-top:20px;">Compris</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
