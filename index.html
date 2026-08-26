@@ -3,192 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vektra IA</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .chat-container {
-      width: 100%;
-      max-width: 600px;
-      height: 80vh;
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-      overflow: hidden;
-    }
-
-    .chat-header {
-      padding: 20px;
-      background: rgba(15, 23, 42, 0.8);
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: bold;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      color: #38bdf8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .chat-box {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .message {
-      max-width: 80%;
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      line-height: 1.4;
-      word-wrap: break-word;
-    }
-
-    .message.bot {
-      background: rgba(255, 255, 255, 0.1);
-      align-self: flex-start;
-      border-bottom-left-radius: 2px;
-    }
-
-    .message.user {
-      background: #0ea5e9;
-      color: #fff;
-      align-self: flex-end;
-      border-bottom-right-radius: 2px;
-    }
-
-    .message.error {
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid #ef4444;
-      color: #fca5a5;
-      align-self: flex-start;
-    }
-
-    .input-container {
-      padding: 15px;
-      background: rgba(15, 23, 42, 0.8);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      gap: 10px;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      padding: 12px 16px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(30, 41, 59, 0.5);
-      color: #fff;
-      outline: none;
-      font-size: 0.95rem;
-    }
-
-    input[type="text"]:focus {
-      border-color: #0ea5e9;
-    }
-
-    button {
-      padding: 12px 20px;
-      border-radius: 8px;
-      border: none;
-      background: #0ea5e9;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    button:hover {
-      background: #0284c7;
-    }
-  </style>
+  <title>VEKTRA IA // Ervin Digital Corporation</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Three.js pour le globe 3D -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-  <div class="chat-container">
-    <div class="chat-header">
-      ⚡ VEKTRA IA
+  <!-- Écran de démarrage Cyberpunk -->
+  <div id="start-screen">
+    <div class="cyber-card">
+      <div class="glitch-title" data-text="VEKTRA IA">VEKTRA IA</div>
+      <p class="welcome-txt">SYS_INIT // BIENVENUE DANS L'INTERFACE QUANTIQUE</p>
+      <button id="start-btn" onclick="enterSystem()">INITIALISER LE SYSTÈME</button>
     </div>
-    
-    <div class="chat-box" id="chatBox">
-      <div class="message bot">Salut ! Je suis Vektra IA. Pose-moi une question !</div>
-    </div>
-
-    <form class="input-container" id="chatForm">
-      <input type="text" id="userInput" placeholder="Écris ton message..." autocomplete="off" required />
-      <button type="submit">Envoyer</button>
-    </form>
   </div>
 
-  <script>
-    const chatBox = document.getElementById('chatBox');
-    const chatForm = document.getElementById('chatForm');
-    const userInput = document.getElementById('userInput');
+  <!-- Globe 3D en arrière-plan -->
+  <canvas id="bg-globe"></canvas>
+  <div class="scanline"></div>
 
-    function appendMessage(text, type) {
-      const msgDiv = document.createElement('div');
-      msgDiv.classList.add('message', type);
-      msgDiv.textContent = text;
-      chatBox.appendChild(msgDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-      return msgDiv;
-    }
+  <!-- Bandeau défilant supérieur -->
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span>SYSTEM STATUS: ONLINE // VEKTRA IA v3.6 BETA // POWERED BY ERVIN DIGITAL CORPORATION (EDC) // PROTOCOLE SÉCURISÉ NEURAL-LINK // ALL SYSTEMS NOMINAL //</span>
+      <span>SYSTEM STATUS: ONLINE // VEKTRA IA v3.6 BETA // POWERED BY ERVIN DIGITAL CORPORATION (EDC) // PROTOCOLE SÉCURISÉ NEURAL-LINK // ALL SYSTEMS NOMINAL //</span>
+    </div>
+  </div>
 
-    chatForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const text = userInput.value.trim();
-      if (!text) return;
+  <!-- Container principal -->
+  <div class="app-container">
+    
+    <!-- Sidebar / Catégories Pro -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-neon">EDC</span> // VEKTRA
+      </div>
 
-      appendMessage(text, 'user');
-      userInput.value = '';
+      <nav class="nav-menu">
+        <div class="nav-title">MODULES IA</div>
+        <button class="nav-btn active">💬 Core Neural Chat</button>
+        <button class="nav-btn">⚡ Cyber Code Generator</button>
+        <button class="nav-btn">🎨 Matrix Image Synthesis</button>
+        <button class="nav-btn">🔍 Data Analytics</button>
 
-      const loadingMsg = appendMessage('Réflexion en cours...', 'bot');
+        <div class="nav-title">PARAMÈTRES</div>
+        <button class="nav-btn">🛡️ Security Protocol</button>
+        <button class="nav-btn">⚙️ Neural Core Config</button>
+      </nav>
 
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text })
-        });
+      <div class="system-stats">
+        <div class="stat-item">
+          <span>CPU CORE:</span>
+          <div class="bar"><div class="fill" style="width: 78%;"></div></div>
+        </div>
+        <div class="stat-item">
+          <span>LATENCE:</span>
+          <span class="neon-green">12ms</span>
+        </div>
+      </div>
+    </div>
 
-        const data = await res.json();
-        chatBox.removeChild(loadingMsg);
+    <!-- Interface Chat Principal -->
+    <main class="chat-main">
+      <header class="chat-header">
+        <div class="status-indicator">
+          <span class="dot"></span> NODE_01: ONLINE
+        </div>
+        <div class="model-badge">MODEL: GEMINI 3.6 FLASH CORE</div>
+      </header>
 
-        if (!res.ok) {
-          appendMessage(`Erreur (${res.status}): ${data.error || JSON.stringify(data)}`, 'error');
-        } else {
-          appendMessage(data.reply, 'bot');
-        }
-      } catch (err) {
-        chatBox.removeChild(loadingMsg);
-        appendMessage(`Erreur réseau : ${err.message}`, 'error');
-      }
-    });
-  </script>
+      <div id="chat-box" class="chat-box">
+        <div class="message bot">
+          <div class="msg-author">VEKTRA_AI</div>
+          <div class="msg-content">Système initialisé. Je suis **Vektra IA**, développée par Ervin Digital Corporation. Quelle est votre requête ?</div>
+        </div>
+      </div>
 
+      <footer class="chat-input-area">
+        <form id="chat-form" onsubmit="sendMessage(event)">
+          <input type="text" id="user-input" placeholder="Entrez un ordre ou une question..." autocomplete="off">
+          <button type="submit" id="send-btn">ENVOYER</button>
+        </form>
+      </footer>
+    </main>
+
+  </div>
+
+  <!-- Mentions légales en bas -->
+  <footer class="legal-footer">
+    VEKTRA IA © 2026 — TOUS DROITS RÉSERVÉS // PROPRIÉTÉ DE <strong>ERVIN DIGITAL CORPORATION (EDC)</strong>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
