@@ -1,153 +1,123 @@
-let currentUsername = "Invité Beta";
-let currentSlideIndex = 0;
+let currentUsername = "Compte VEK";
 
-// Splash Screen Timer
-window.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => {
-    const splash = document.getElementById("splash-screen");
-    splash.style.opacity = "0";
-    setTimeout(() => { splash.style.display = "none"; }, 800);
-  }, 2200);
-});
-
-// Modals
-function openCarouselModal() {
-  document.getElementById("carousel-modal").style.display = "flex";
+// Gestion modals compte
+function openVekModal() {
+  document.getElementById("vek-modal").style.display = "flex";
 }
-
-function closeCarouselModal() {
-  document.getElementById("carousel-modal").style.display = "none";
+function closeVekModal() {
+  document.getElementById("vek-modal").style.display = "none";
 }
-
-function openAccountModal() {
-  document.getElementById("account-modal").style.display = "flex";
-}
-
-function closeAccountModal() {
-  document.getElementById("account-modal").style.display = "none";
-}
-
-function saveAccount() {
-  const inputVal = document.getElementById("input-username").value.trim();
-  if (inputVal) {
-    currentUsername = inputVal;
-    document.getElementById("user-display-name").innerText = currentUsername;
-    document.getElementById("user-btn-label").innerText = currentUsername;
-    document.getElementById("avatar-initial").innerText = currentUsername.charAt(0).toUpperCase();
+function saveVekAccount() {
+  const val = document.getElementById("vek-username-input").value.trim();
+  if (val) {
+    currentUsername = val;
+    document.getElementById("header-user-badge").innerText = currentUsername;
   }
-  closeAccountModal();
+  closeVekModal();
 }
 
-// Carousel Controls
-function showSlide(index) {
-  const slides = document.querySelectorAll(".carousel-slide");
-  if (index >= slides.length) currentSlideIndex = 0;
-  else if (index < 0) currentSlideIndex = slides.length - 1;
-  else currentSlideIndex = index;
-
-  slides.forEach((slide, i) => {
-    slide.classList.toggle("active", i === currentSlideIndex);
-  });
+// Gestion modal ED-Corp
+function openEdcModal() {
+  document.getElementById("edc-modal").style.display = "flex";
+}
+function closeEdcModal() {
+  document.getElementById("edc-modal").style.display = "none";
 }
 
-function nextSlide() { showSlide(currentSlideIndex + 1); }
-function prevSlide() { showSlide(currentSlideIndex - 1); }
-
-// Sessions
-function createNewSession() {
-  const list = document.getElementById("sessions-list");
+// Gestion des conversations
+function createNewChat() {
+  const list = document.getElementById("conv-list");
   const count = list.children.length + 1;
-  const sessionName = `Session Vice #${count}`;
+  const name = `Conversation #${count}`;
 
   const item = document.createElement("div");
-  item.className = "session-item active";
-  item.onclick = function() { switchSession(this, sessionName); };
-  item.innerHTML = `<span>${sessionName}</span>`;
+  item.className = "conv-item active";
+  item.onclick = function() { switchConv(this, name); };
+  item.innerText = name;
 
-  document.querySelectorAll(".session-item").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".conv-item").forEach(el => el.classList.remove("active"));
   list.appendChild(item);
 
-  const workspace = document.getElementById("chat-messages");
-  workspace.innerHTML = `
-    <div class="msg-row bot">
-      <div class="avatar-bot">V</div>
-      <div class="msg-bubble">
-        <div class="msg-author">VEKTRA IA // VICE CORE</div>
-        <div class="msg-text">Nouvelle **${sessionName}** initialisée. Je t'écoute, ${currentUsername}.</div>
+  const messagesBox = document.getElementById("chat-messages");
+  messagesBox.innerHTML = `
+    <div class="msg bot">
+      <div class="msg-avatar">🏴‍☠️</div>
+      <div class="msg-content">
+        <span class="msg-author">VEKTRA // SECURE CORE</span>
+        <p>Nouvelle ${name} initialisée par ${currentUsername}. Prêt pour les instructions.</p>
       </div>
     </div>
   `;
 }
 
-function switchSession(el, name) {
-  document.querySelectorAll(".session-item").forEach(item => item.classList.remove("active"));
+function switchConv(el, name) {
+  document.querySelectorAll(".conv-item").forEach(item => item.classList.remove("active"));
   el.classList.add("active");
 }
 
-// Sending Message
-async function handleSend(e) {
+// Envoi de message avec simulation de réflexion du robot
+async function sendMessage(e) {
   e.preventDefault();
   const input = document.getElementById("user-input");
-  const msg = input.value.trim();
-  if (!msg) return;
+  const text = input.value.trim();
+  if (!text) return;
 
-  const chatBox = document.getElementById("chat-messages");
-  const indicator = document.getElementById("ai-typing");
+  const messagesBox = document.getElementById("chat-messages");
+  const indicator = document.getElementById("typing-indicator");
 
-  // User Message
-  const userRow = document.createElement("div");
-  userRow.className = "msg-row user";
-  userRow.innerHTML = `
-    <div class="avatar-user">${currentUsername.charAt(0).toUpperCase()}</div>
-    <div class="msg-bubble">
-      <div class="msg-author">${currentUsername.toUpperCase()}</div>
-      <div class="msg-text">${escapeHtml(msg)}</div>
+  // Affichage message utilisateur
+  const userMsg = document.createElement("div");
+  userMsg.className = "msg user";
+  userMsg.innerHTML = `
+    <div class="msg-avatar">🏴‍☠️</div>
+    <div class="msg-content">
+      <span class="msg-author">${currentUsername.toUpperCase()}</span>
+      <p>${escapeHtml(text)}</p>
     </div>
   `;
-  chatBox.appendChild(userRow);
-
+  messagesBox.appendChild(userMsg);
   input.value = "";
-  chatBox.scrollTop = chatBox.scrollHeight;
+  messagesBox.scrollTop = messagesBox.scrollHeight;
 
+  // Affichage de l'animation de réflexion du robot
   indicator.style.display = "flex";
 
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: msg })
+      body: JSON.stringify({ message: text })
     });
     const data = await res.json();
 
     indicator.style.display = "none";
 
-    // Bot Message
-    const botRow = document.createElement("div");
-    botRow.className = "msg-row bot";
-    botRow.innerHTML = `
-      <div class="avatar-bot">V</div>
-      <div class="msg-bubble">
-        <div class="msg-author">VEKTRA IA // VICE CORE</div>
-        <div class="msg-text">${data.reply || data.error}</div>
+    const botMsg = document.createElement("div");
+    botMsg.className = "msg bot";
+    botMsg.innerHTML = `
+      <div class="msg-avatar">🏴‍☠️</div>
+      <div class="msg-content">
+        <span class="msg-author">VEKTRA // SECURE CORE</span>
+        <p>${data.reply || data.error}</p>
       </div>
     `;
-    chatBox.appendChild(botRow);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    messagesBox.appendChild(botMsg);
+    messagesBox.scrollTop = messagesBox.scrollHeight;
   } catch (err) {
     indicator.style.display = "none";
-    const errRow = document.createElement("div");
-    errRow.className = "msg-row bot";
-    errRow.innerHTML = `
-      <div class="avatar-bot">V</div>
-      <div class="msg-bubble">
-        <div class="msg-author">SYSTEM ERROR</div>
-        <div class="msg-text">Erreur de connexion au noyau.</div>
+    const errMsg = document.createElement("div");
+    errMsg.className = "msg bot";
+    errMsg.innerHTML = `
+      <div class="msg-avatar">🏴‍☠️</div>
+      <div class="msg-content">
+        <span class="msg-author">SYSTEM ERROR</span>
+        <p>Erreur de liaison avec le noyau EDC.</p>
       </div>
     `;
-    chatBox.appendChild(errRow);
+    messagesBox.appendChild(errMsg);
   }
 }
 
-function escapeHtml(text) {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
