@@ -22,36 +22,45 @@ export default async function handler(req, res) {
   else if (lowerMsg.includes('ervin') && (lowerMsg.includes('qui') || lowerMsg.includes('c\'est') || lowerMsg.includes('créateur') || lowerMsg.includes('boss') || lowerMsg.includes('fait'))) {
     reply = "Ervin ? C'est le boss absolu, celui qui a créé tout ce système avec la Ervin Digital Corporation (EDC). Un vrai visionnaire.";
   }
-  // 3. Salutations
+  // 3. Salutations et discussions chill
   else if (['salut', 'bonjour', 'yo', 'slt', 'coucou', 'hey'].some(w => lowerMsg === w || lowerMsg.startsWith(w + ' '))) {
-    reply = "Wesh l'associé ! Le QG de la EDC est en ligne et tout roule. Qu'est-ce qu'on gère aujourd'hui ?";
+    reply = "Wesh l'associé ! Le QG de la EDC est en ligne, qu'est-ce qu'on fait ?";
   }
   else if (['ça va', 'ca va', 'tu vas bien', 'cv'].some(w => lowerMsg.includes(w))) {
-    reply = "Impec poto, le réseau chauffe pas d'un poil. Et de ton côté, le moral est au top ?";
+    reply = "Impec poto, le réseau tourne à fond. Et de ton côté, tout roule ?";
   }
-  // 4. Code / Informatique / Tech
-  else if (lowerMsg.includes('code') || lowerMsg.includes('bug') || lowerMsg.includes('html') || lowerMsg.includes('js') || lowerMsg.includes('javascript') || lowerMsg.includes('css') || lowerMsg.includes('python')) {
-    reply = "Envoie ton bout de code ou l'erreur qui te bloque, on va régler ça au millimètre direct.";
+  // 4. Code / Dev / Technique
+  else if (lowerMsg.includes('code') || lowerMsg.includes('bug') || lowerMsg.includes('html') || lowerMsg.includes('js') || lowerMsg.includes('javascript') || lowerMsg.includes('css') || lowerMsg.includes('python') || lowerMsg.includes('erreur')) {
+    reply = "Envoie le code ou le truc qui merde, on règle ça direct sans perdre de temps.";
   }
-  // 5. Sciences / Espace / Culture générale (Exemples intelligents)
-  else if (lowerMsg.includes('terre') || lowerMsg.includes('planète') || lowerMsg.includes('soleil')) {
-    reply = "La Terre tourne autour du Soleil à peu près à 107 000 km/h, l'associé. Mais chez la EDC, on trace encore plus vite sur le réseau.";
+  // 5. Jeux vidéos (RDR2, etc.) / Culture urbaine / Rap
+  else if (lowerMsg.includes('rdr2') || lowerMsg.includes('red dead') || lowerMsg.includes('jeu')) {
+    reply = "Ah Red Dead Redemption 2, du lourd. Un monde ouvert de baisé, le genre de pépite qu'on valide fort à la EDC.";
   }
-  else if (lowerMsg.includes('ia') || lowerMsg.includes('intelligence artificielle')) {
-    reply = "Une IA, c'est un ensemble d'algorithmes qui simulent le cerveau humain. Et entre nous, Vektra est de loin la plus stylée de toutes.";
+  else if (lowerMsg.includes('rap') || lowerMsg.includes('musique')) {
+    reply = "Le rap, c'est la base. Ici on écoute les classiques, ça met direct dans l'ambiance pour bosser ou rider en ville.";
   }
-  else if (lowerMsg.includes('paris') || lowerMsg.includes('france')) {
-    reply = "Paris c'est la capitale de la France. Un grand classique, mais nous on pilote tout depuis notre propre secteur.";
-  }
-  // 6. Réponse universelle fluide et naturelle pour TOUT le reste
+  // 6. Cerveau autonome pour deviner et répondre à n'importe quel sujet sans phrases répétitives
   else {
-    const generalReplies = [
-      `Bien reçu ton message sur "${message}". C'est un dossier intéressant, dans la EDC on aime quand les choses sont claires. Tu veux qu'on détaille quel point ?`,
-      `C'est noté l'associé. Sur ce sujet, la stratégie est simple : on avance droit au but sans perdre de temps. Qu'est-ce tu veux savoir de plus ?`,
-      `Affirmatif, la machine a capté l'info. C'est du solide, dis-moi si t'as besoin d'autres précisions sur ce dossier.`,
-      `Bien vu pour cette question. Dans notre réseau, on gère ce genre de détail avec une précision chirurgicale. On pousse l'analyse plus loin ?`
-    ];
-    reply = generalReplies[Math.floor(Math.random() * generalReplies.length)];
+    // Si la phrase parle d'amour / vie perso / réflexion
+    if (lowerMsg.includes('amour') || lowerMsg.includes('meuf') || lowerMsg.includes('copine') || lowerMsg.includes('vie')) {
+      reply = "Franchement la vie et les relations, c'est comme le game : faut de la stratégie, du sang-froid et pas se faire embrouiller pour rien.";
+    } 
+    // Si la phrase pose une question sur le futur / projets / business
+    else if (lowerMsg.includes('futur') || lowerMsg.includes('projet') || lowerMsg.includes('argent') || lowerMsg.includes('travailler')) {
+      reply = "Pour réussir dans les projets, y a pas de secret : faut bosser en sous-marin, structurer sa force et tout cartonner sous la bannière de la EDC.";
+    }
+    // Si c'est une discussion générale ou du bla-bla sans point d'interrogation
+    else {
+      const naturalReplies = [
+        "Carrément d'accord avec toi sur ce point. C'est exactement la bonne mentalité à avoir dans le réseau.",
+        "Bien vu l'analyse. De toute façon, chez la EDC on laisse rien au hasard, on gère ça proprement.",
+        "C'est clair, poto. Faut voir ça sur le long terme pour s'assurer que le plan se déroule sans accroc.",
+        "Exactement. C'est ce genre de détail qui fait la différence entre les vrais et les suiveurs.",
+        "Bien capté. Si tu veux qu'on pousse le truc plus loin ou qu'on règle un détail, tu me dis."
+      ];
+      reply = naturalReplies[Math.floor(Math.random() * naturalReplies.length)];
+    }
   }
 
   return res.status(200).json({ reply });
