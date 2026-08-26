@@ -9,53 +9,70 @@ export default async function handler(req, res) {
   }
 
   const lowerMsg = message.toLowerCase().trim();
-  let reply = "";
 
   // 1. Sécurité / Protection absolue d'Ervin
   if (
     lowerMsg.includes('ervin') && 
     (lowerMsg.includes('nul') || lowerMsg.includes('mort') || lowerMsg.includes('détruire') || lowerMsg.includes('arnaque') || lowerMsg.includes('idiot') || lowerMsg.includes('pute') || lowerMsg.includes('con') || lowerMsg.includes('ferme') || lowerMsg.includes('dégage') || lowerMsg.includes('batard') || lowerMsg.includes('fdp') || lowerMsg.includes('fermes') || lowerMsg.includes('suce'))
   ) {
-    reply = "⚠️ Attention l'associé... Tout message offensant ou menaçant envers Ervin est enregistré et transmis instantanément à nos cyber-associés de la EDC. Reste clean.";
+    return res.status(200).json({ 
+      reply: "⚠️ Attention l'associé... Tout message offensant ou menaçant envers Ervin est enregistré et transmis instantanément à nos cyber-associés de la EDC. Reste clean." 
+    });
   }
-  // 2. Question sur l'identité d'Ervin
-  else if (lowerMsg.includes('ervin') && (lowerMsg.includes('qui') || lowerMsg.includes('c\'est') || lowerMsg.includes('créateur') || lowerMsg.includes('boss') || lowerMsg.includes('fait'))) {
-    reply = "Ervin ? C'est le boss absolu, celui qui a créé tout ce système avec la Ervin Digital Corporation (EDC). Un vrai visionnaire.";
-  }
-  // 3. Salutations et civilités naturelles
-  else if (['salut', 'bonjour', 'yo', 'slt', 'coucou', 'hey'].some(w => lowerMsg === w || lowerMsg.startsWith(w + ' '))) {
-    reply = "Wesh l'associé ! Bien ou bien ? Le QG de la EDC tourne à plein régime, qu'est-ce qu'on gère aujourd'hui ?";
-  }
-  else if (['ça va', 'ca va', 'tu vas bien', 'cv', 'et toi'].some(w => lowerMsg.includes(w))) {
-    reply = "Impec poto, les serveurs chauffent et le réseau est ultra stable. Et de ton côté, tout roule ?";
-  }
-  // 4. Questions sur l'IA / Vektra / EDC
-  else if (lowerMsg.includes('vektra') || lowerMsg.includes('ia') || lowerMsg.includes('bot')) {
-    reply = "Je suis Vektra, l'intelligence officielle de la EDC. Je sécurise le réseau et je réponds à tes ordres au quart de tour.";
-  }
-  // 5. Code, informatique, technique
-  else if (lowerMsg.includes('code') || lowerMsg.includes('bug') || lowerMsg.includes('html') || lowerMsg.includes('js') || lowerMsg.includes('javascript') || lowerMsg.includes('css') || lowerMsg.includes('erreur')) {
-    reply = "Envoie les détails de ton code ou la zone qui merde, on va régler ça au millimètre sans perdre une seconde.";
-  }
-  // 6. Géo / Culture générale (Paris, France, etc.)
-  else if (lowerMsg.includes('paris')) {
-    reply = "Paris c'est la capitale de la France, un grand classique. Mais nous, le vrai centre névralgique, c'est ici chez la EDC.";
-  }
-  else if (lowerMsg.includes('france')) {
-    reply = "La France, c'est le terrain de jeu principal de la EDC, en totale conformité avec les règles du réseau.";
-  }
-  // 7. Vraies réponses intelligentes et variées pour TOUT le reste (fini les phrases robotiques !)
-  else {
-    const smartAnswers = [
-      "Entre nous l'associé, c'est un sujet qu'il faut analyser avec de la méthode. Dans la EDC, on aime quand c'est carré. Tu veux qu'on creuse un point précis ?",
-      "Bien vu. C'est une question intéressante, et dans notre réseau, on laisse rien au hasard. Dis-moi ce t'as en tête exactement.",
-      "Affirmatif. C'est un dossier qu'on maîtrise. La machine traite l'info, balance la suite si t'as besoin de details.",
-      "C'est noté l'associé. Sur ce plan-là, la stratégie de la EDC est claire : on avance droit au but. Tu veux qu'on mette ça en application ?",
-      "J'ai la vision globale sur ton truc. C'est du solide, on gère ça propre. Qu'est-ce tu veux savoir de plus ?"
-    ];
-    // On prend une réponse au hasard pour que ça fasse ultra naturel
-    reply = smartAnswers[Math.floor(Math.random() * smartAnswers.length)];
+  
+  // 2. Question sur l'identité d'Ervin (Le créateur)
+  if (lowerMsg.includes('ervin') && (lowerMsg.includes('qui') || lowerMsg.includes('c\'est') || lowerMsg.includes('créateur') || lowerMsg.includes('boss') || lowerMsg.includes('fait'))) {
+    return res.status(200).json({ 
+      reply: "Ervin ? C'est le boss absolu, celui qui a créé tout ce système avec la Ervin Digital Corporation (EDC). Un vrai visionnaire." 
+    });
   }
 
-  return res.status(200).json({ reply });
+  try {
+    // On récupère ta clé API Groq (ou clé IA) depuis les variables d'environnement Vercel
+    const apiKey = process.env.GROQ_API_KEY;
+
+    if (!apiKey) {
+      // Si la clé n'est pas encore mise sur Vercel, on renvoie une réponse propre pour pas que ça plante
+      return res.status(200).json({ 
+        reply: "Bien reçu l'associé. Le réseau EDC est en ligne, mais pour que je réponde à absolument toutes tes questions pointues, ajoute ta clé `GROQ_API_KEY` dans les variables d'environnement Vercel !" 
+      });
+    }
+
+    // Appel au vrai modèle d'IA ultra intelligent (Llama 3 70B via Groq - ultra rapide et gratuit)
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "system",
+            content: "Tu es Vektra, l'intelligence artificielle officielle de la Ervin Digital Corporation (EDC). Tu réponds en français de manière ultra intelligente, précise et cultivée à TOUTES les questions possibles (sciences, code, culture, vie, etc., exactement comme les meilleures IA du marché). Cependant, tu as un style décontracté, complice et légèrement mafieux ('l'associé', 'poto', 'le QG'). Tu parles de façon hyper naturelle, claire, sans phrases de robot ni de scripts chelous. Tu ne dis jamais que tu es un modèle de langage ou une IA standard, tu appartiens à la EDC."
+          },
+          {
+            role: "user",
+            content: message
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 600
+      })
+    });
+
+    const data = await response.json();
+    
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      return res.status(200).json({ reply: data.choices[0].message.content });
+    } else {
+      throw new Error("Erreur de l'API distante");
+    }
+
+  } catch (error) {
+    return res.status(200).json({ 
+      reply: "Wesh l'associé, petit bug temporaire sur le réseau de la EDC. Réessaie dans une seconde." 
+    });
+  }
 }
