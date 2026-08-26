@@ -1,17 +1,24 @@
-let currentUsername = "Ervin DEMIR";
+let currentUsername = "Invité Beta";
+let currentSlideIndex = 0;
 
-// Splash Screen Timer Gemini Style
+// Splash Screen Timer
 window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     const splash = document.getElementById("splash-screen");
     splash.style.opacity = "0";
-    setTimeout(() => {
-      splash.style.display = "none";
-    }, 800);
-  }, 1800);
+    setTimeout(() => { splash.style.display = "none"; }, 800);
+  }, 2200);
 });
 
-// Modal Account
+// Modals
+function openCarouselModal() {
+  document.getElementById("carousel-modal").style.display = "flex";
+}
+
+function closeCarouselModal() {
+  document.getElementById("carousel-modal").style.display = "none";
+}
+
 function openAccountModal() {
   document.getElementById("account-modal").style.display = "flex";
 }
@@ -20,112 +27,124 @@ function closeAccountModal() {
   document.getElementById("account-modal").style.display = "none";
 }
 
-function saveAccountInfo() {
-  const val = document.getElementById("user-input-id").value.trim();
-  if (val) {
-    currentUsername = val.split("@")[0];
-    document.getElementById("display-username").innerText = currentUsername;
+function saveAccount() {
+  const inputVal = document.getElementById("input-username").value.trim();
+  if (inputVal) {
+    currentUsername = inputVal;
+    document.getElementById("user-display-name").innerText = currentUsername;
+    document.getElementById("user-btn-label").innerText = currentUsername;
     document.getElementById("avatar-initial").innerText = currentUsername.charAt(0).toUpperCase();
   }
   closeAccountModal();
 }
 
-// Session Management
-function startNewSession() {
-  const list = document.getElementById("history-list");
+// Carousel Controls
+function showSlide(index) {
+  const slides = document.querySelectorAll(".carousel-slide");
+  if (index >= slides.length) currentSlideIndex = 0;
+  else if (index < 0) currentSlideIndex = slides.length - 1;
+  else currentSlideIndex = index;
+
+  slides.forEach((slide, i) => {
+    slide.classList.toggle("active", i === currentSlideIndex);
+  });
+}
+
+function nextSlide() { showSlide(currentSlideIndex + 1); }
+function prevSlide() { showSlide(currentSlideIndex - 1); }
+
+// Sessions
+function createNewSession() {
+  const list = document.getElementById("sessions-list");
   const count = list.children.length + 1;
-  const sessionName = `Session #${count}`;
+  const sessionName = `Session Vice #${count}`;
 
   const item = document.createElement("div");
-  item.className = "history-item active";
-  item.onclick = function() { selectSession(this); };
-  item.innerHTML = `
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-    <span>${sessionName}</span>
-  `;
+  item.className = "session-item active";
+  item.onclick = function() { switchSession(this, sessionName); };
+  item.innerHTML = `<span>${sessionName}</span>`;
 
-  document.querySelectorAll(".history-item").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".session-item").forEach(el => el.classList.remove("active"));
   list.appendChild(item);
 
   const workspace = document.getElementById("chat-messages");
   workspace.innerHTML = `
-    <div class="message-row bot-row">
-      <div class="msg-avatar">V</div>
-      <div class="msg-content">
-        <div class="msg-author">VEKTRA IA</div>
-        <div class="msg-text">Nouvelle session **${sessionName}** ouverte. En quoi puis-je t'aider ?</div>
+    <div class="msg-row bot">
+      <div class="avatar-bot">V</div>
+      <div class="msg-bubble">
+        <div class="msg-author">VEKTRA IA // VICE CORE</div>
+        <div class="msg-text">Nouvelle **${sessionName}** initialisée. Je t'écoute, ${currentUsername}.</div>
       </div>
     </div>
   `;
 }
 
-function selectSession(element) {
-  document.querySelectorAll(".history-item").forEach(el => el.classList.remove("active"));
-  element.classList.add("active");
+function switchSession(el, name) {
+  document.querySelectorAll(".session-item").forEach(item => item.classList.remove("active"));
+  el.classList.add("active");
 }
 
-// Sending Messages
+// Sending Message
 async function handleSend(e) {
   e.preventDefault();
-  const input = document.getElementById("chat-input");
-  const message = input.value.trim();
-  if (!message) return;
+  const input = document.getElementById("user-input");
+  const msg = input.value.trim();
+  if (!msg) return;
 
-  const workspace = document.getElementById("chat-messages");
-  const loader = document.getElementById("ai-loading");
+  const chatBox = document.getElementById("chat-messages");
+  const indicator = document.getElementById("ai-typing");
 
-  // User Message Row
+  // User Message
   const userRow = document.createElement("div");
-  userRow.className = "message-row user-row";
+  userRow.className = "msg-row user";
   userRow.innerHTML = `
-    <div class="msg-avatar">${currentUsername.charAt(0).toUpperCase()}</div>
-    <div class="msg-content">
+    <div class="avatar-user">${currentUsername.charAt(0).toUpperCase()}</div>
+    <div class="msg-bubble">
       <div class="msg-author">${currentUsername.toUpperCase()}</div>
-      <div class="msg-text">${escapeHtml(message)}</div>
+      <div class="msg-text">${escapeHtml(msg)}</div>
     </div>
   `;
-  workspace.appendChild(userRow);
+  chatBox.appendChild(userRow);
 
   input.value = "";
-  workspace.scrollTop = workspace.scrollHeight;
+  chatBox.scrollTop = chatBox.scrollHeight;
 
-  // Show Loading
-  loader.style.display = "flex";
+  indicator.style.display = "flex";
 
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message })
+      body: JSON.stringify({ message: msg })
     });
     const data = await res.json();
 
-    loader.style.display = "none";
+    indicator.style.display = "none";
 
-    // Bot Message Row
+    // Bot Message
     const botRow = document.createElement("div");
-    botRow.className = "message-row bot-row";
+    botRow.className = "msg-row bot";
     botRow.innerHTML = `
-      <div class="msg-avatar">V</div>
-      <div class="msg-content">
-        <div class="msg-author">VEKTRA IA</div>
+      <div class="avatar-bot">V</div>
+      <div class="msg-bubble">
+        <div class="msg-author">VEKTRA IA // VICE CORE</div>
         <div class="msg-text">${data.reply || data.error}</div>
       </div>
     `;
-    workspace.appendChild(botRow);
-    workspace.scrollTop = workspace.scrollHeight;
+    chatBox.appendChild(botRow);
+    chatBox.scrollTop = chatBox.scrollHeight;
   } catch (err) {
-    loader.style.display = "none";
+    indicator.style.display = "none";
     const errRow = document.createElement("div");
-    errRow.className = "message-row bot-row";
+    errRow.className = "msg-row bot";
     errRow.innerHTML = `
-      <div class="msg-avatar">V</div>
-      <div class="msg-content">
-        <div class="msg-author">ERREUR SYSTÈME</div>
-        <div class="msg-text">Connexion interrompue.</div>
+      <div class="avatar-bot">V</div>
+      <div class="msg-bubble">
+        <div class="msg-author">SYSTEM ERROR</div>
+        <div class="msg-text">Erreur de connexion au noyau.</div>
       </div>
     `;
-    workspace.appendChild(errRow);
+    chatBox.appendChild(errRow);
   }
 }
 
