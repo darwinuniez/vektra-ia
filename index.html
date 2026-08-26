@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vektra IA</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .chat-container { width: 100%; max-width: 700px; height: 85vh; background: #1e293b; border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); border: 1px solid #334155; }
+    .chat-header { padding: 20px; border-bottom: 1px solid #334155; text-align: center; font-size: 1.2rem; font-weight: bold; color: #38bdf8; letter-spacing: 1px; }
+    .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+    .message { max-width: 80%; padding: 12px 16px; border-radius: 12px; line-height: 1.5; font-size: 0.95rem; word-break: break-word; }
+    .user { align-self: flex-end; background-color: #0284c7; color: white; border-bottom-right-radius: 2px; }
+    .bot { align-self: flex-start; background-color: #334155; color: #f1f5f9; border-bottom-left-radius: 2px; }
+    .chat-input { padding: 15px; border-top: 1px solid #334155; display: flex; gap: 10px; background: #0f172a; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
+    input { flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid #334155; background-color: #1e293b; color: white; outline: none; font-size: 1rem; }
+    input:focus { border-color: #38bdf8; }
+    button { padding: 12px 24px; border-radius: 8px; border: none; background-color: #0284c7; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    button:hover { background-color: #0369a1; }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">⚡ VEKTRA IA</div>
+    <div class="chat-messages" id="messages">
+      <div class="message bot">Salut ! Je suis Vektra IA. Pose-moi une question !</div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Écris ton message..." onkeydown="if(event.key==='Enter') send()">
+      <button onclick="send()">Envoyer</button>
+    </div>
+  </div>
+
+  <script>
+    async function send() {
+      const input = document.getElementById('userInput');
+      const container = document.getElementById('messages');
+      const text = input.value.trim();
+      if (!text) return;
+
+      container.innerHTML += `<div class="message user">${text}</div>`;
+      input.value = '';
+      container.scrollTop = container.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        container.innerHTML += `<div class="message bot">${data.reply || data.error}</div>`;
+      } catch (err) {
+        container.innerHTML += `<div class="message bot" style="color: #ef4444;">Erreur de connexion.</div>`;
+      }
+      container.scrollTop = container.scrollHeight;
+    }
+  </script>
+</body>
+</html>
