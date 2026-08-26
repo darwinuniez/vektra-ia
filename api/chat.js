@@ -1,43 +1,42 @@
-const https = require('https');
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Méthode non autorisée' });
+  }
 
-module.exports = async (req, res) => {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'M�thode non autoris�e' });
-  
-  const { message } = req.body || {};
-  const apiKey = process.env.GEMINI_API_KEY;
-  
-  if (!apiKey) return res.status(500).json({ error: 'Cl� GEMINI_API_KEY manquante sur Vercel' });
+  const { message } = req.body;
+  if (!message) {
+    return res.status(400).json({ error: 'Message manquant' });
+  }
 
-  const data = JSON.stringify({
-    contents: [{ parts: [{ text: message || 'Salut' }] }]
-  });
+  const lowerMsg = message.toLowerCase();
+  let reply = "";
 
-  const options = {
-    hostname: 'generativelanguage.googleapis.com',
-    path: '/v1beta/models/gemini-3.6-flash:generateContent?key=' + apiKey,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(data)
-    }
-  };
+  // 1. Sécurité / Protection d'Ervin
+  if (
+    lowerMsg.includes('ervin') && 
+    (lowerMsg.includes('nul') || lowerMsg.includes('mort') || lowerMsg.includes('détruire') || lowerMsg.includes('arnaque') || lowerMsg.includes('idiot') || lowerMsg.includes('pute') || lowerMsg.includes('con'))
+  ) {
+    reply = "⚠️ Attention l'associé... Tout message offensant ou menaçant envers Ervin est enregistré et transmis instantanément à nos cyber-associés de la EDC. Reste clean.";
+  }
+  // 2. Question sur Ervin (Créateur)
+  else if (lowerMsg.includes('ervin')) {
+    reply = "Ervin ? C'est le boss, celui qui a créé tout ce système avec la Ervin Digital Corporation (EDC). Un vrai visionnaire.";
+  }
+  // 3. Messages bizarres ou incompréhensibles
+  else if (message.length < 3 || /^[^\w]+$/.test(message)) {
+    reply = "J'ai pas capté ton délire là, mais je suis là. Balance un truc clair ou une vraie question poto.";
+  }
+  // 4. Réponses générales style mafieux décontracté et rapide (100% Français)
+  else {
+    const responses = [
+      "Bien reçu l'associé. Tout est sous contrôle dans le réseau, qu'est-ce qu'on fait maintenant ?",
+      "C'est noté, le système tourne rond. Tu veux qu'on s'occupe de quoi d'autre ?",
+      "Affirmatif. Ici, rien ne bouge sans l'accord de la EDC. Dis-moi la suite.",
+      "Message capté. On gère le dossier, fais-moi signe si t'as besoin d'autre chose.",
+      "Reçu 5 sur 5. La machine est lancée, on trace notre route."
+    ];
+    reply = responses[Math.floor(Math.random() * responses.length)];
+  }
 
-  const request = https.request(options, (response) => {
-    let body = '';
-    response.on('data', (chunk) => body += chunk);
-    response.on('end', () => {
-      try {
-        const parsed = JSON.parse(body);
-        if (parsed.error) return res.status(500).json({ error: parsed.error.message });
-        const reply = parsed.candidates?.[0]?.content?.parts?.[0]?.text || 'Pas de r�ponse.';
-        res.status(200).json({ reply });
-      } catch (e) {
-        res.status(500).json({ error: 'Erreur lecture r�ponse API Google' });
-      }
-    });
-  });
-
-  request.on('error', (err) => res.status(500).json({ error: err.message }));
-  request.write(data);
-  request.end();
-};
+  return res.status(200).json({ reply });
+}
