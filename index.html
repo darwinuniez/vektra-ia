@@ -4,52 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VEKTRA IA // Ervin Digital Corporation</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- Three.js pour le globe 3D -->
+  <link rel="stylesheet" href="./style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-
-  <!-- √âcran de d√©marrage Cyberpunk -->
   <div id="start-screen">
     <div class="cyber-card">
-      <div class="glitch-title" data-text="VEKTRA IA">VEKTRA IA</div>
+      <div class="glitch-title">VEKTRA IA</div>
       <p class="welcome-txt">SYS_INIT // BIENVENUE DANS L'INTERFACE QUANTIQUE</p>
-      <button id="start-btn" onclick="enterSystem()">INITIALISER LE SYST√àME</button>
+      <button id="start-btn" onclick="enterSystem()">INITIALISER LE SYST»ME</button>
     </div>
   </div>
 
-  <!-- Globe 3D en arri√®re-plan -->
   <canvas id="bg-globe"></canvas>
   <div class="scanline"></div>
 
-  <!-- Bandeau d√©filant sup√©rieur -->
   <div class="ticker-wrap">
     <div class="ticker">
-      <span>SYSTEM STATUS: ONLINE // VEKTRA IA v3.6 BETA // POWERED BY ERVIN DIGITAL CORPORATION (EDC) // PROTOCOLE S√âCURIS√â NEURAL-LINK // ALL SYSTEMS NOMINAL //</span>
-      <span>SYSTEM STATUS: ONLINE // VEKTRA IA v3.6 BETA // POWERED BY ERVIN DIGITAL CORPORATION (EDC) // PROTOCOLE S√âCURIS√â NEURAL-LINK // ALL SYSTEMS NOMINAL //</span>
+      <span>SYSTEM STATUS: ONLINE // VEKTRA IA v3.6 BETA // POWERED BY ERVIN DIGITAL CORPORATION (EDC) // PROTOCOLE S…CURIS… NEURAL-LINK // ALL SYSTEMS NOMINAL //</span>
+      <span>SYSTEM STATUS: ONLINE // VEKTRA IA v3.6 BETA // POWERED BY ERVIN DIGITAL CORPORATION (EDC) // PROTOCOLE S…CURIS… NEURAL-LINK // ALL SYSTEMS NOMINAL //</span>
     </div>
   </div>
 
-  <!-- Container principal -->
   <div class="app-container">
-    
-    <!-- Sidebar / Cat√©gories Pro -->
     <aside class="sidebar">
-      <div class="brand">
-        <span class="brand-neon">EDC</span> // VEKTRA
-      </div>
-
+      <div class="brand"><span class="brand-neon">EDC</span> // VEKTRA</div>
       <nav class="nav-menu">
         <div class="nav-title">MODULES IA</div>
-        <button class="nav-btn active">üí¨ Core Neural Chat</button>
-        <button class="nav-btn">‚ö° Cyber Code Generator</button>
-        <button class="nav-btn">üé® Matrix Image Synthesis</button>
-        <button class="nav-btn">üîç Data Analytics</button>
+        <button class="nav-btn active">?? Core Neural Chat</button>
+        <button class="nav-btn">? Cyber Code Generator</button>
+        <button class="nav-btn">?? Matrix Image Synthesis</button>
+        <button class="nav-btn">?? Data Analytics</button>
 
-        <div class="nav-title">PARAM√àTRES</div>
-        <button class="nav-btn">üõ°Ô∏è Security Protocol</button>
-        <button class="nav-btn">‚öôÔ∏è Neural Core Config</button>
+        <div class="nav-title">PARAM»TRES</div>
+        <button class="nav-btn">??? Security Protocol</button>
+        <button class="nav-btn">?? Neural Core Config</button>
       </nav>
 
       <div class="system-stats">
@@ -62,21 +51,18 @@
           <span class="neon-green">12ms</span>
         </div>
       </div>
-    </div>
+    </aside>
 
-    <!-- Interface Chat Principal -->
     <main class="chat-main">
       <header class="chat-header">
-        <div class="status-indicator">
-          <span class="dot"></span> NODE_01: ONLINE
-        </div>
+        <div class="status-indicator"><span class="dot"></span> NODE_01: ONLINE</div>
         <div class="model-badge">MODEL: GEMINI 3.6 FLASH CORE</div>
       </header>
 
       <div id="chat-box" class="chat-box">
         <div class="message bot">
           <div class="msg-author">VEKTRA_AI</div>
-          <div class="msg-content">Syst√®me initialis√©. Je suis **Vektra IA**, d√©velopp√©e par Ervin Digital Corporation. Quelle est votre requ√™te ?</div>
+          <div class="msg-content">SystËme initialisÈ. Je suis **Vektra IA**, dÈveloppÈe par Ervin Digital Corporation. Quelle est votre requÍte ?</div>
         </div>
       </div>
 
@@ -87,14 +73,12 @@
         </form>
       </footer>
     </main>
-
   </div>
 
-  <!-- Mentions l√©gales en bas -->
   <footer class="legal-footer">
-    VEKTRA IA ¬© 2026 ‚Äî TOUS DROITS R√âSERV√âS // PROPRI√âT√â DE <strong>ERVIN DIGITAL CORPORATION (EDC)</strong>
+    VEKTRA IA © 2026 ó TOUS DROITS R…SERV…S // PROPRI…T… DE <strong>ERVIN DIGITAL CORPORATION (EDC)</strong>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="./script.js"></script>
 </body>
 </html>
