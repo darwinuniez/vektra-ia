@@ -11,10 +11,10 @@ export default async function handler(req, res) {
   const lowerMsg = message.toLowerCase();
   let reply = "";
 
-  // 1. Sécurité / Protection d'Ervin (Anti-offenses)
+  // 1. Protection / Sécurité d'Ervin (Anti-offenses)
   if (
     lowerMsg.includes('ervin') && 
-    (lowerMsg.includes('nul') || lowerMsg.includes('mort') || lowerMsg.includes('détruire') || lowerMsg.includes('arnaque') || lowerMsg.includes('idiot') || lowerMsg.includes('pute') || lowerMsg.includes('con') || lowerMsg.includes('ferme') || lowerMsg.includes('fermes') || lowerMsg.includes('dégage') || lowerMsg.includes('batard') || lowerMsg.includes('fdp'))
+    (lowerMsg.includes('nul') || lowerMsg.includes('mort') || lowerMsg.includes('détruire') || lowerMsg.includes('arnaque') || lowerMsg.includes('idiot') || lowerMsg.includes('pute') || lowerMsg.includes('con') || lowerMsg.includes('ferme') || lowerMsg.includes('dégage') || lowerMsg.includes('batard') || lowerMsg.includes('fdp'))
   ) {
     reply = "⚠️ Attention l'associé... Tout message offensant ou menaçant envers Ervin est enregistré et transmis instantanément à nos cyber-associés de la EDC. Reste clean.";
   }
@@ -22,21 +22,28 @@ export default async function handler(req, res) {
   else if (lowerMsg.includes('ervin')) {
     reply = "Ervin ? C'est le boss, celui qui a créé tout ce système avec la Ervin Digital Corporation (EDC). Un vrai visionnaire.";
   }
-  // 3. Messages bizarres ou vides
-  else if (!message.trim() || message.length < 2) {
-    reply = "J'ai pas capté ton délire là. Pose une vraie question l'associé.";
-  }
-  // 4. Traitement direct et intelligent de la question posée
-  else {
-    // On analyse ce que l'utilisateur demande pour lui donner une réponse concrète
-    if (lowerMsg.includes('bonjour') || lowerMsg.includes('salut') || lowerMsg.includes('yo')) {
-      reply = "Salut l'associé. Qu'est-ce qu'on gère aujourd'hui avec la EDC ?";
-    } else if (lowerMsg.includes('ça va') || lowerMsg.includes('tu vas bien')) {
-      reply = "Impec, le réseau tourne à 100%. Et de ton côté, tout roule ?";
+  // 3. Questions de culture générale / géographie (ex: Paris, France, capitales, etc.)
+  else if (lowerMsg.includes('capitale') || lowerMsg.includes('paris') || lowerMsg.includes('france')) {
+    if (lowerMsg.includes('paris')) {
+      reply = "Paris c'est la capitale de la France, l'associé. Un grand classique du réseau, mais ici chez la EDC on pilote tout depuis notre propre QG.";
     } else {
-      // Construction d'une réponse directe basée sur la question de l'utilisateur
-      reply = `Bien reçu pour ta question sur "${message}". En mode EDC, voilà ce qu'on retient : c'est un dossier important qu'on traite avec précision. Tu veux qu'on zoome sur quel point en particulier ?`;
+      reply = "La France ? C'est là que tout se pilote pour la EDC, en conformité totale avec les lois européennes. Qu'est-ce tu veux savoir de plus ?";
     }
+  }
+  // 4. Salutations et politesse
+  else if (lowerMsg.includes('bonjour') || lowerMsg.includes('salut') || lowerMsg.includes('yo') || lowerMsg.includes('slt')) {
+    reply = "Salut l'associé. Qu'est-ce qu'on gère aujourd'hui avec la EDC ?";
+  } 
+  else if (lowerMsg.includes('ça va') || lowerMsg.includes('tu vas bien')) {
+    reply = "Impec, le réseau tourne à 100%. Et de ton côté, tout roule ?";
+  }
+  // 5. Code / Dev / Bugs
+  else if (lowerMsg.includes('code') || lowerMsg.includes('html') || lowerMsg.includes('js') || lowerMsg.includes('bug') || lowerMsg.includes('erreur')) {
+    reply = "Bien reçu pour le code. Envoie les détails ou la zone qui bloque, on règle ça direct en mode pro.";
+  }
+  // 6. Réponse universelle intelligente si la question est autre
+  else {
+    reply = `Bien capté l'associé. Concernant "${message}", dans les dossiers de la EDC on gère ça au millimètre. Dis-moi précisément ce que tu veux savoir dessus pour qu'on avance direct.`;
   }
 
   return res.status(200).json({ reply });
