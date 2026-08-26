@@ -5,43 +5,168 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vektra IA</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .chat-container { width: 100%; max-width: 700px; height: 85vh; background: #1e293b; border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); border: 1px solid #334155; }
-    .chat-header { padding: 20px; border-bottom: 1px solid #334155; text-align: center; font-size: 1.2rem; font-weight: bold; color: #38bdf8; letter-spacing: 1px; }
-    .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-    .message { max-width: 80%; padding: 12px 16px; border-radius: 12px; line-height: 1.5; font-size: 0.95rem; word-break: break-word; }
-    .user { align-self: flex-end; background-color: #0284c7; color: white; border-bottom-right-radius: 2px; }
-    .bot { align-self: flex-start; background-color: #334155; color: #f1f5f9; border-bottom-left-radius: 2px; }
-    .chat-input { padding: 15px; border-top: 1px solid #334155; display: flex; gap: 10px; background: #0f172a; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
-    input { flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid #334155; background-color: #1e293b; color: white; outline: none; font-size: 1rem; }
-    input:focus { border-color: #38bdf8; }
-    button { padding: 12px 24px; border-radius: 8px; border: none; background-color: #0284c7; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    button:hover { background-color: #0369a1; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 600px;
+      height: 80vh;
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 20px;
+      background: rgba(15, 23, 42, 0.8);
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .chat-box {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+
+    .message.bot {
+      background: rgba(255, 255, 255, 0.1);
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+    }
+
+    .message.user {
+      background: #0ea5e9;
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+
+    .message.error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      align-self: flex-start;
+    }
+
+    .input-container {
+      padding: 15px;
+      background: rgba(15, 23, 42, 0.8);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(30, 41, 59, 0.5);
+      color: #fff;
+      outline: none;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"]:focus {
+      border-color: #0ea5e9;
+    }
+
+    button {
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: none;
+      background: #0ea5e9;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #0284c7;
+    }
   </style>
 </head>
 <body>
+
   <div class="chat-container">
-    <div class="chat-header">⚡ VEKTRA IA</div>
-    <div class="chat-messages" id="messages">
+    <div class="chat-header">
+      ⚡ VEKTRA IA
+    </div>
+    
+    <div class="chat-box" id="chatBox">
       <div class="message bot">Salut ! Je suis Vektra IA. Pose-moi une question !</div>
     </div>
-    <div class="chat-input">
-      <input type="text" id="userInput" placeholder="Écris ton message..." onkeydown="if(event.key==='Enter') send()">
-      <button onclick="send()">Envoyer</button>
-    </div>
+
+    <form class="input-container" id="chatForm">
+      <input type="text" id="userInput" placeholder="Écris ton message..." autocomplete="off" required />
+      <button type="submit">Envoyer</button>
+    </form>
   </div>
 
   <script>
-    async function send() {
-      const input = document.getElementById('userInput');
-      const container = document.getElementById('messages');
-      const text = input.value.trim();
+    const chatBox = document.getElementById('chatBox');
+    const chatForm = document.getElementById('chatForm');
+    const userInput = document.getElementById('userInput');
+
+    function appendMessage(text, type) {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message', type);
+      msgDiv.textContent = text;
+      chatBox.appendChild(msgDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return msgDiv;
+    }
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = userInput.value.trim();
       if (!text) return;
 
-      container.innerHTML += `<div class="message user">${text}</div>`;
-      input.value = '';
-      container.scrollTop = container.scrollHeight;
+      appendMessage(text, 'user');
+      userInput.value = '';
+
+      const loadingMsg = appendMessage('Réflexion en cours...', 'bot');
 
       try {
         const res = await fetch('/api/chat', {
@@ -49,13 +174,21 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: text })
         });
+
         const data = await res.json();
-        container.innerHTML += `<div class="message bot">${data.reply || data.error}</div>`;
+        chatBox.removeChild(loadingMsg);
+
+        if (!res.ok) {
+          appendMessage(`Erreur (${res.status}): ${data.error || JSON.stringify(data)}`, 'error');
+        } else {
+          appendMessage(data.reply, 'bot');
+        }
       } catch (err) {
-        container.innerHTML += `<div class="message bot" style="color: #ef4444;">Erreur de connexion.</div>`;
+        chatBox.removeChild(loadingMsg);
+        appendMessage(`Erreur réseau : ${err.message}`, 'error');
       }
-      container.scrollTop = container.scrollHeight;
-    }
+    });
   </script>
+
 </body>
 </html>
