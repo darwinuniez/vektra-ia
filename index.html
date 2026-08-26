@@ -3,70 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vektra IA // Ervin Digital Corp</title>
+  <title>VEKTRA IA // Ervin Digital Corporation</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- Background glow -->
-  <div class="ambient-glow glow-1"></div>
-  <div class="ambient-glow glow-2"></div>
-  <div class="ambient-glow glow-3"></div>
+  <!-- Custom Glow Cursor -->
+  <div id="custom-cursor"></div>
+  <div id="cursor-blur"></div>
 
-  <!-- Ticker discret -->
+  <!-- Ambient Animated Light Orbs -->
+  <div class="light-orb orb-1"></div>
+  <div class="light-orb orb-2"></div>
+  <div class="light-orb orb-3"></div>
+  <div class="grid-overlay"></div>
+
+  <!-- Top Bar Ticker -->
   <div class="top-bar">
     <div class="ticker-text">
-      <span>⚡ VEKTRA IA v3.6 CORE // PROPRIÉTÉ DE ERVIN DIGITAL CORPORATION (EDC) // NEURAL SYSTEM ONLINE //</span>
-      <span>⚡ VEKTRA IA v3.6 CORE // PROPRIÉTÉ DE ERVIN DIGITAL CORPORATION (EDC) // NEURAL SYSTEM ONLINE //</span>
+      <span>⚡ VEKTRA IA v3.6 core // ERVIN DIGITAL CORPORATION (EDC) // NEURAL INTERFACE ONLINE // SYSTEM STATUS: NOMINAL //</span>
+      <span>⚡ VEKTRA IA v3.6 core // ERVIN DIGITAL CORPORATION (EDC) // NEURAL INTERFACE ONLINE // SYSTEM STATUS: NOMINAL //</span>
     </div>
   </div>
 
-  <!-- Top Navigation Header -->
+  <!-- Main Header -->
   <header class="main-header">
-    <div class="brand-logo">
+    <div class="brand-logo tilt-element">
       <div class="logo-icon">V</div>
       <div class="brand-name">
-        <span>VEKTRA <small>IA</small></span>
+        <span class="brand-title">VEKTRA <small>IA</small></span>
         <span class="sub-brand">BY ERVIN DIGITAL CORP</span>
       </div>
     </div>
 
     <div class="header-center">
       <span class="pulse-dot"></span>
-      <span class="status-txt">Système Opérationnel</span>
+      <span id="system-status-text">Système Opérationnel • Gemini 3.6</span>
     </div>
 
     <div class="header-right">
-      <button class="account-btn" onclick="openModal()">
+      <button class="nav-extra-btn tilt-element" onclick="openRoadmapModal()">
+        <span class="star-icon">✨</span> Nouveautés
+      </button>
+      <button class="account-btn tilt-element" onclick="openModal('login')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        <span>Compte VEK</span>
+        <span id="account-btn-text">Espace VEK</span>
       </button>
     </div>
   </header>
 
-  <!-- App Wrapper -->
+  <!-- Main Workspace -->
   <div class="app-wrapper">
 
-    <!-- Sidebar moderne -->
-    <aside class="sidebar-card">
-      <button class="new-chat-btn" onclick="clearChat()">
+    <!-- Sidebar Left -->
+    <aside class="sidebar-card tilt-element">
+      <button class="new-chat-btn" onclick="startNewSession()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         <span>Nouvelle session</span>
       </button>
 
       <div class="sidebar-section">
-        <div class="section-title">HISTORIQUE DES DISCUSSIONS</div>
-        <div class="chat-list">
-          <div class="chat-item active">
+        <div class="section-title">DISCUSSIONS RÉCENTES</div>
+        <div class="chat-list" id="chat-list">
+          <div class="chat-item active" onclick="switchSession(this, 'Session Principale')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             <span>Session Principale</span>
-          </div>
-          <div class="chat-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            <span>Analyse de données</span>
           </div>
         </div>
       </div>
@@ -74,51 +78,78 @@
       <div class="sidebar-section">
         <div class="section-title">MODÈLES NEURONAUX</div>
         <div class="model-selector">
-          <div class="model-option active">
-            <div class="model-name">Gemini 3.6 Flash Core</div>
-            <div class="model-desc">Réponse ultra-rapide & précision élevée</div>
+          <div class="model-option active" onclick="selectModel(this, 'Gemini 3.6 Flash')">
+            <div class="model-header">
+              <span class="model-name">Gemini 3.6 Flash Core</span>
+              <span class="badge-mini">ULTRA FAST</span>
+            </div>
+            <div class="model-desc">Réponses instantanées & raisonnement avancé</div>
           </div>
         </div>
       </div>
 
+      <div class="sidebar-section">
+        <div class="section-title">MON ÉCOSYSTÈME</div>
+        <div class="menu-nav">
+          <button class="menu-item-btn" onclick="openRoadmapModal()">
+            <span class="icon">🚀</span>
+            <div class="menu-info">
+              <span class="m-title">À venir</span>
+              <span class="m-sub">Prochains modules EDC</span>
+            </div>
+          </button>
+          <button class="menu-item-btn highlight-btn" onclick="openSubscriptionModal()">
+            <span class="icon">👑</span>
+            <div class="menu-info">
+              <span class="m-title">Abonnement VIP</span>
+              <span class="m-sub">Bientôt disponible</span>
+            </div>
+            <span class="badge-soon">SOON</span>
+          </button>
+        </div>
+      </div>
+
       <div class="sidebar-footer">
-        <div class="user-pill">
-          <div class="avatar">E</div>
+        <div class="user-pill" onclick="openModal('profile')">
+          <div class="avatar" id="user-avatar-initial">E</div>
           <div class="user-info">
-            <div class="u-name">Ervin DEMIR</div>
+            <div class="u-name" id="user-display-name">Ervin DEMIR</div>
             <div class="u-status">EDC Premium Partner</div>
           </div>
         </div>
       </div>
     </aside>
 
-    <!-- Main Chat Workspace -->
-    <main class="chat-workspace">
+    <!-- Main Chat Container -->
+    <main class="chat-workspace tilt-element">
 
-      <!-- Ondes d animation de l IA -->
+      <!-- AI Visualizer Wave Header -->
       <div id="ai-waves" class="ai-waves-container">
-        <div class="wave wave1"></div>
-        <div class="wave wave2"></div>
-        <div class="wave wave3"></div>
-        <span class="wave-text">Vektra IA réfléchit...</span>
+        <div class="equalizer">
+          <span class="bar bar-1"></span>
+          <span class="bar bar-2"></span>
+          <span class="bar bar-3"></span>
+          <span class="bar bar-4"></span>
+        </div>
+        <span class="wave-text">VEKTRA_AI orchestre une réponse...</span>
       </div>
 
       <div id="chat-box" class="chat-messages">
         <div class="msg-row bot">
           <div class="msg-avatar">V</div>
           <div class="msg-bubble">
-            <div class="msg-sender">VEKTRA IA</div>
-            <div class="msg-text">Bonjour Ervin. Je suis **Vektra IA**, le système d’intelligence artificielle d’Ervin Digital Corporation. En quoi puis-je vous assister aujourd’hui ?</div>
+            <div class="msg-sender">VEKTRA IA // EDC CORE</div>
+            <div class="msg-text">Bonjour Ervin. Je suis **Vektra IA**, l’intelligence artificielle propriétaire d’Ervin Digital Corporation. Quelle tâche souhaitez-vous exécuter aujourd’hui ?</div>
           </div>
         </div>
       </div>
 
-      <!-- Zone de frappe -->
+      <!-- Input Bar -->
       <div class="chat-input-wrapper">
         <form id="chat-form" onsubmit="sendMessage(event)">
-          <input type="text" id="user-input" placeholder="Pose ta question à Vektra IA..." autocomplete="off">
-          <button type="submit" id="send-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          <input type="text" id="user-input" placeholder="Pose ta question ou donne un ordre à Vektra IA..." autocomplete="off">
+          <button type="submit" id="send-btn" class="tilt-element">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
           </button>
         </form>
       </div>
@@ -126,27 +157,129 @@
 
   </div>
 
-  <!-- Modal Connexion VEK Account -->
+  <!-- MODAL: VEK Account -->
   <div id="account-modal" class="modal-backdrop">
-    <div class="modal-card">
-      <button class="modal-close" onclick="closeModal()">×</button>
-      <h2>Espace VEK Account</h2>
-      <p class="modal-sub">Connecte-toi à l'écosystème Ervin Digital Corporation</p>
+    <div class="modal-card tilt-element">
+      <button class="modal-close" onclick="closeModal('account-modal')">×</button>
       
-      <div class="input-group">
-        <label>Identifiant EDC</label>
-        <input type="text" placeholder="ex: ervin@edc.com">
-      </div>
-      <div class="input-group">
-        <label>Mot de passe</label>
-        <input type="password" placeholder="••••••••">
+      <div class="modal-tabs">
+        <button id="tab-login-btn" class="tab-btn active" onclick="switchModalTab('login')">Connexion</button>
+        <button id="tab-register-btn" class="tab-btn" onclick="switchModalTab('register')">Créer un compte</button>
       </div>
 
-      <button class="modal-submit-btn" onclick="closeModal()">Se connecter</button>
+      <div id="login-form-view">
+        <h2>Espace VEK Account</h2>
+        <p class="modal-sub">Connecte-toi à l’écosystème Ervin Digital Corporation</p>
+        
+        <div class="input-group">
+          <label>Identifiant ou Email EDC</label>
+          <input type="text" id="login-id" placeholder="ex: ervin@edc.com">
+        </div>
+        <div class="input-group">
+          <label>Mot de passe</label>
+          <input type="password" placeholder="••••••••">
+        </div>
+
+        <button class="modal-submit-btn" onclick="handleAccountLogin()">Se connecter</button>
+      </div>
+
+      <div id="register-form-view" style="display: none;">
+        <h2>Rejoindre Ervin Digital Corp</h2>
+        <p class="modal-sub">Crée ton profil VEK Network instantanément</p>
+
+        <div class="input-group">
+          <label>Nom complet</label>
+          <input type="text" id="reg-name" placeholder="ex: Ervin DEMIR">
+        </div>
+        <div class="input-group">
+          <label>Adresse Email</label>
+          <input type="email" placeholder="votre.email@domaine.com">
+        </div>
+        <div class="input-group">
+          <label>Mot de passe</label>
+          <input type="password" placeholder="••••••••">
+        </div>
+
+        <button class="modal-submit-btn" onclick="handleAccountRegister()">Créer mon compte VEK</button>
+      </div>
     </div>
   </div>
 
-  <!-- Mentions légales footer -->
+  <!-- MODAL: VIP Subscription -->
+  <div id="subscription-modal" class="modal-backdrop">
+    <div class="modal-card sub-card tilt-element">
+      <button class="modal-close" onclick="closeModal('subscription-modal')">×</button>
+      
+      <div class="modal-badge-vip">👑 OFFRE VIP PROCHAINEMENT</div>
+      <h2>Abonnements VEKTRA PREMIUM</h2>
+      <p class="modal-sub">Débloquez la puissance maximale du réseau Ervin Digital Corporation.</p>
+
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="p-title">EDC FREE</div>
+          <div class="p-price">0€<span>/mois</span></div>
+          <ul class="p-features">
+            <li>Accès Gemini 3.6 Flash Core</li>
+            <li>Vitesse standard</li>
+            <li>Limité à 100 requêtes/jour</li>
+          </ul>
+          <button class="p-btn disabled">Actuel</button>
+        </div>
+
+        <div class="price-card featured">
+          <div class="popular-tag">RECOMMANDÉ</div>
+          <div class="p-title">EDC PRO</div>
+          <div class="p-price">19.99€<span>/mois</span></div>
+          <ul class="p-features">
+            <li>Accès prioritaire illimité</li>
+            <li>Génération Code & Visuels 4K</li>
+            <li>Temps de réponse de 5ms</li>
+            <li>Support VIP Ervin Digital Corp</li>
+          </ul>
+          <button class="p-btn highlight" onclick="notifySubscription()">Bientôt disponible</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Roadmap / À venir -->
+  <div id="roadmap-modal" class="modal-backdrop">
+    <div class="modal-card roadmap-card tilt-element">
+      <button class="modal-close" onclick="closeModal('roadmap-modal')">×</button>
+      <h2>🚀 Prochaines Innovations EDC</h2>
+      <p class="modal-sub">Découvrez la feuille de route du projet Vektra IA</p>
+
+      <div class="roadmap-timeline">
+        <div class="timeline-item">
+          <div class="t-dot glow-cyan"></div>
+          <div class="t-content">
+            <span class="t-date">Q3 2026</span>
+            <h4>Vektra Neural Voice</h4>
+            <p>Synthèse vocale en temps réel avec reconnaissance d'accent ultra-naturelle.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="t-dot glow-violet"></div>
+          <div class="t-content">
+            <span class="t-date">Q4 2026</span>
+            <h4>Matrix Image & Video Generator</h4>
+            <p>Moteur de rendu multimédia par IA entraîné sur les architectures EDC.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="t-dot glow-magenta"></div>
+          <div class="t-content">
+            <span class="t-date">2027</span>
+            <h4>Ecosystème VEK OS</h4>
+            <p>Integration complète dans vos appareils avec synchronisation Cloud.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer class="legal-bar">
     VEKTRA IA © 2026 — TOUS DROITS RÉSERVÉS // CONÇU ET DÉVELOPPÉ PAR <strong>ERVIN DIGITAL CORPORATION (EDC)</strong>
   </footer>
