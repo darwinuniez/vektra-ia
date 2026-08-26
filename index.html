@@ -3,80 +3,152 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VEKTRA IA // Ervin Digital Corporation</title>
+  <title>Vektra IA // Ervin Digital Corp</title>
   <link rel="stylesheet" href="./style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div id="start-screen">
-    <div class="cyber-card">
-      <div class="glitch-title">VEKTRA IA</div>
-      <p class="welcome-txt">SYS_INIT // BIENVENUE DANS L'INTERFACE QUANTIQUE</p>
-      <button id="start-btn" onclick="enterSystem()">INITIALISER LE SYST�ME</button>
+
+  <!-- Background glow -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- Ticker discret -->
+  <div class="top-bar">
+    <div class="ticker-text">
+      <span>⚡ VEKTRA IA v3.6 CORE // PROPRIÉTÉ DE ERVIN DIGITAL CORPORATION (EDC) // NEURAL SYSTEM ONLINE //</span>
+      <span>⚡ VEKTRA IA v3.6 CORE // PROPRIÉTÉ DE ERVIN DIGITAL CORPORATION (EDC) // NEURAL SYSTEM ONLINE //</span>
     </div>
   </div>
 
-  <canvas id="bg-globe"></canvas>
-  <div class="scanline"></div>
-
-  <div class="ticker-wrap">
-    <div class="ticker">
-      <span>SYSTEM STATUS: ONLINE // VEKTRA IA v3.6 BETA // POWERED BY ERVIN DIGITAL CORPORATION (EDC) // PROTOCOLE S�CURIS� NEURAL-LINK // ALL SYSTEMS NOMINAL //</span>
-      <span>SYSTEM STATUS: ONLINE // VEKTRA IA v3.6 BETA // POWERED BY ERVIN DIGITAL CORPORATION (EDC) // PROTOCOLE S�CURIS� NEURAL-LINK // ALL SYSTEMS NOMINAL //</span>
+  <!-- Top Navigation Header -->
+  <header class="main-header">
+    <div class="brand-logo">
+      <div class="logo-icon">V</div>
+      <div class="brand-name">
+        <span>VEKTRA <small>IA</small></span>
+        <span class="sub-brand">BY ERVIN DIGITAL CORP</span>
+      </div>
     </div>
-  </div>
 
-  <div class="app-container">
-    <aside class="sidebar">
-      <div class="brand"><span class="brand-neon">EDC</span> // VEKTRA</div>
-      <nav class="nav-menu">
-        <div class="nav-title">MODULES IA</div>
-        <button class="nav-btn active">?? Core Neural Chat</button>
-        <button class="nav-btn">? Cyber Code Generator</button>
-        <button class="nav-btn">?? Matrix Image Synthesis</button>
-        <button class="nav-btn">?? Data Analytics</button>
+    <div class="header-center">
+      <span class="pulse-dot"></span>
+      <span class="status-txt">Système Opérationnel</span>
+    </div>
 
-        <div class="nav-title">PARAM�TRES</div>
-        <button class="nav-btn">??? Security Protocol</button>
-        <button class="nav-btn">?? Neural Core Config</button>
-      </nav>
+    <div class="header-right">
+      <button class="account-btn" onclick="openModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span>Compte VEK</span>
+      </button>
+    </div>
+  </header>
 
-      <div class="system-stats">
-        <div class="stat-item">
-          <span>CPU CORE:</span>
-          <div class="bar"><div class="fill" style="width: 78%;"></div></div>
+  <!-- App Wrapper -->
+  <div class="app-wrapper">
+
+    <!-- Sidebar moderne -->
+    <aside class="sidebar-card">
+      <button class="new-chat-btn" onclick="clearChat()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span>Nouvelle session</span>
+      </button>
+
+      <div class="sidebar-section">
+        <div class="section-title">HISTORIQUE DES DISCUSSIONS</div>
+        <div class="chat-list">
+          <div class="chat-item active">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Session Principale</span>
+          </div>
+          <div class="chat-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Analyse de données</span>
+          </div>
         </div>
-        <div class="stat-item">
-          <span>LATENCE:</span>
-          <span class="neon-green">12ms</span>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-title">MODÈLES NEURONAUX</div>
+        <div class="model-selector">
+          <div class="model-option active">
+            <div class="model-name">Gemini 3.6 Flash Core</div>
+            <div class="model-desc">Réponse ultra-rapide & précision élevée</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-pill">
+          <div class="avatar">E</div>
+          <div class="user-info">
+            <div class="u-name">Ervin DEMIR</div>
+            <div class="u-status">EDC Premium Partner</div>
+          </div>
         </div>
       </div>
     </aside>
 
-    <main class="chat-main">
-      <header class="chat-header">
-        <div class="status-indicator"><span class="dot"></span> NODE_01: ONLINE</div>
-        <div class="model-badge">MODEL: GEMINI 3.6 FLASH CORE</div>
-      </header>
+    <!-- Main Chat Workspace -->
+    <main class="chat-workspace">
 
-      <div id="chat-box" class="chat-box">
-        <div class="message bot">
-          <div class="msg-author">VEKTRA_AI</div>
-          <div class="msg-content">Syst�me initialis�. Je suis **Vektra IA**, d�velopp�e par Ervin Digital Corporation. Quelle est votre requ�te ?</div>
+      <!-- Ondes d animation de l IA -->
+      <div id="ai-waves" class="ai-waves-container">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+        <span class="wave-text">Vektra IA réfléchit...</span>
+      </div>
+
+      <div id="chat-box" class="chat-messages">
+        <div class="msg-row bot">
+          <div class="msg-avatar">V</div>
+          <div class="msg-bubble">
+            <div class="msg-sender">VEKTRA IA</div>
+            <div class="msg-text">Bonjour Ervin. Je suis **Vektra IA**, le système d’intelligence artificielle d’Ervin Digital Corporation. En quoi puis-je vous assister aujourd’hui ?</div>
+          </div>
         </div>
       </div>
 
-      <footer class="chat-input-area">
+      <!-- Zone de frappe -->
+      <div class="chat-input-wrapper">
         <form id="chat-form" onsubmit="sendMessage(event)">
-          <input type="text" id="user-input" placeholder="Entrez un ordre ou une question..." autocomplete="off">
-          <button type="submit" id="send-btn">ENVOYER</button>
+          <input type="text" id="user-input" placeholder="Pose ta question à Vektra IA..." autocomplete="off">
+          <button type="submit" id="send-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
         </form>
-      </footer>
+      </div>
     </main>
+
   </div>
 
-  <footer class="legal-footer">
-    VEKTRA IA � 2026 � TOUS DROITS R�SERV�S // PROPRI�T� DE <strong>ERVIN DIGITAL CORPORATION (EDC)</strong>
+  <!-- Modal Connexion VEK Account -->
+  <div id="account-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <h2>Espace VEK Account</h2>
+      <p class="modal-sub">Connecte-toi à l'écosystème Ervin Digital Corporation</p>
+      
+      <div class="input-group">
+        <label>Identifiant EDC</label>
+        <input type="text" placeholder="ex: ervin@edc.com">
+      </div>
+      <div class="input-group">
+        <label>Mot de passe</label>
+        <input type="password" placeholder="••••••••">
+      </div>
+
+      <button class="modal-submit-btn" onclick="closeModal()">Se connecter</button>
+    </div>
+  </div>
+
+  <!-- Mentions légales footer -->
+  <footer class="legal-bar">
+    VEKTRA IA © 2026 — TOUS DROITS RÉSERVÉS // CONÇU ET DÉVELOPPÉ PAR <strong>ERVIN DIGITAL CORPORATION (EDC)</strong>
   </footer>
 
   <script src="./script.js"></script>

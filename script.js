@@ -1,31 +1,23 @@
-function enterSystem() {
-  document.getElementById("start-screen").style.display = "none";
+function openModal() {
+  document.getElementById("account-modal").style.display = "flex";
 }
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("bg-globe"), alpha: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-const geometry = new THREE.SphereGeometry(3, 24, 24);
-const material = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true, transparent: true, opacity: 0.3 });
-const globe = new THREE.Mesh(geometry, material);
-scene.add(globe);
-camera.position.z = 6;
-
-function animate() {
-  requestAnimationFrame(animate);
-  globe.rotation.y += 0.003;
-  globe.rotation.x += 0.001;
-  renderer.render(scene, camera);
+function closeModal() {
+  document.getElementById("account-modal").style.display = "none";
 }
-animate();
 
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updatePolygonMatrix && camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+function clearChat() {
+  const chatBox = document.getElementById("chat-box");
+  chatBox.innerHTML = `
+    <div class="msg-row bot">
+      <div class="msg-avatar">V</div>
+      <div class="msg-bubble">
+        <div class="msg-sender">VEKTRA IA</div>
+        <div class="msg-text">Nouvelle session initialisée. Comment puis-je vous aider Ervin ?</div>
+      </div>
+    </div>
+  `;
+}
 
 async function sendMessage(e) {
   e.preventDefault();
@@ -34,13 +26,25 @@ async function sendMessage(e) {
   if (!message) return;
 
   const chatBox = document.getElementById("chat-box");
-  const userDiv = document.createElement("div");
-  userDiv.className = "message user";
-  userDiv.innerHTML = `<div class="msg-author">USER</div><div class="msg-content">${escapeHtml(message)}</div>`;
-  chatBox.appendChild(userDiv);
+  const aiWaves = document.getElementById("ai-waves");
+
+  // Message Utilisateur
+  const userRow = document.createElement("div");
+  userRow.className = "msg-row user";
+  userRow.innerHTML = `
+    <div class="msg-avatar">E</div>
+    <div class="msg-bubble">
+      <div class="msg-sender">ERVIN</div>
+      <div class="msg-text">${escapeHtml(message)}</div>
+    </div>
+  `;
+  chatBox.appendChild(userRow);
 
   input.value = "";
   chatBox.scrollTop = chatBox.scrollHeight;
+
+  // Active les ondes lumineuses IA pendant le chargement
+  aiWaves.style.display = "flex";
 
   try {
     const res = await fetch("/api/chat", {
@@ -49,16 +53,33 @@ async function sendMessage(e) {
       body: JSON.stringify({ message })
     });
     const data = await res.json();
-    const botDiv = document.createElement("div");
-    botDiv.className = "message bot";
-    botDiv.innerHTML = `<div class="msg-author">VEKTRA_AI</div><div class="msg-content">${data.reply || data.error}</div>`;
-    chatBox.appendChild(botDiv);
+
+    aiWaves.style.display = "none";
+
+    // Message IA
+    const botRow = document.createElement("div");
+    botRow.className = "msg-row bot";
+    botRow.innerHTML = `
+      <div class="msg-avatar">V</div>
+      <div class="msg-bubble">
+        <div class="msg-sender">VEKTRA IA</div>
+        <div class="msg-text">${data.reply || data.error}</div>
+      </div>
+    `;
+    chatBox.appendChild(botRow);
     chatBox.scrollTop = chatBox.scrollHeight;
   } catch (err) {
-    const errDiv = document.createElement("div");
-    errDiv.className = "message bot";
-    errDiv.innerHTML = `<div class="msg-author">SYSTEM_ERROR</div><div class="msg-content">Erreur de connexion au noyau.</div>`;
-    chatBox.appendChild(errDiv);
+    aiWaves.style.display = "none";
+    const errRow = document.createElement("div");
+    errRow.className = "msg-row bot";
+    errRow.innerHTML = `
+      <div class="msg-avatar">V</div>
+      <div class="msg-bubble">
+        <div class="msg-sender">SYSTEM ERROR</div>
+        <div class="msg-text">Erreur réseau lors de la communication avec le serveur.</div>
+      </div>
+    `;
+    chatBox.appendChild(errRow);
   }
 }
 
