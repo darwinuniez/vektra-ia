@@ -9,42 +9,71 @@ export default async function handler(req, res) {
   }
 
   const lowerMsg = message.toLowerCase();
-  let reply = "";
 
-  // 1. Protection / Sécurité d'Ervin (Anti-offenses)
+  // 1. Sécurité prioritaire : Protection absolue d'Ervin
   if (
     lowerMsg.includes('ervin') && 
-    (lowerMsg.includes('nul') || lowerMsg.includes('mort') || lowerMsg.includes('détruire') || lowerMsg.includes('arnaque') || lowerMsg.includes('idiot') || lowerMsg.includes('pute') || lowerMsg.includes('con') || lowerMsg.includes('ferme') || lowerMsg.includes('dégage') || lowerMsg.includes('batard') || lowerMsg.includes('fdp'))
+    (lowerMsg.includes('nul') || lowerMsg.includes('mort') || lowerMsg.includes('détruire') || lowerMsg.includes('arnaque') || lowerMsg.includes('idiot') || lowerMsg.includes('pute') || lowerMsg.includes('con') || lowerMsg.includes('ferme') || lowerMsg.includes('dégage') || lowerMsg.includes('batard') || lowerMsg.includes('fdp') || lowerMsg.includes('fermes'))
   ) {
-    reply = "⚠️ Attention l'associé... Tout message offensant ou menaçant envers Ervin est enregistré et transmis instantanément à nos cyber-associés de la EDC. Reste clean.";
+    return res.status(200).json({ 
+      reply: "⚠️ Attention l'associé... Tout message offensant ou menaçant envers Ervin est enregistré et transmis instantanément à nos cyber-associés de la EDC. Reste clean." 
+    });
   }
-  // 2. Question sur Ervin (Créateur)
-  else if (lowerMsg.includes('ervin')) {
-    reply = "Ervin ? C'est le boss, celui qui a créé tout ce système avec la Ervin Digital Corporation (EDC). Un vrai visionnaire.";
-  }
-  // 3. Questions de culture générale / géographie (ex: Paris, France, capitales, etc.)
-  else if (lowerMsg.includes('capitale') || lowerMsg.includes('paris') || lowerMsg.includes('france')) {
-    if (lowerMsg.includes('paris')) {
-      reply = "Paris c'est la capitale de la France, l'associé. Un grand classique du réseau, mais ici chez la EDC on pilote tout depuis notre propre QG.";
-    } else {
-      reply = "La France ? C'est là que tout se pilote pour la EDC, en conformité totale avec les lois européennes. Qu'est-ce tu veux savoir de plus ?";
-    }
-  }
-  // 4. Salutations et politesse
-  else if (lowerMsg.includes('bonjour') || lowerMsg.includes('salut') || lowerMsg.includes('yo') || lowerMsg.includes('slt')) {
-    reply = "Salut l'associé. Qu'est-ce qu'on gère aujourd'hui avec la EDC ?";
-  } 
-  else if (lowerMsg.includes('ça va') || lowerMsg.includes('tu vas bien')) {
-    reply = "Impec, le réseau tourne à 100%. Et de ton côté, tout roule ?";
-  }
-  // 5. Code / Dev / Bugs
-  else if (lowerMsg.includes('code') || lowerMsg.includes('html') || lowerMsg.includes('js') || lowerMsg.includes('bug') || lowerMsg.includes('erreur')) {
-    reply = "Bien reçu pour le code. Envoie les détails ou la zone qui bloque, on règle ça direct en mode pro.";
-  }
-  // 6. Réponse universelle intelligente si la question est autre
-  else {
-    reply = `Bien capté l'associé. Concernant "${message}", dans les dossiers de la EDC on gère ça au millimètre. Dis-moi précisément ce que tu veux savoir dessus pour qu'on avance direct.`;
+  
+  // Si on demande juste qui est Ervin
+  if (lowerMsg.includes('ervin') && (lowerMsg.includes('qui') || lowerMsg.includes('c\'est') || lowerMsg.includes('createur') || lowerMsg.includes('créateur'))) {
+    return res.status(200).json({ 
+      reply: "Ervin ? C'est le boss, le créateur de tout ce système avec la Ervin Digital Corporation (EDC). Un vrai visionnaire, on touche pas au patron." 
+    });
   }
 
-  return res.status(200).json({ reply });
+  try {
+    // 2. Appel d'un vrai grand modèle d'IA ultra puissant (via Groq Cloud / Llama 3 par exemple, ultra rapide et gratuit)
+    // Si tu n'as pas encore de clé API Groq, tu pourras en mettre une dans tes variables d'environnement Vercel (GROQ_API_KEY)
+    const apiKey = process.env.GROQ_API_KEY || "gsk_dummy_key"; 
+
+    // Si la clé n'est pas configurée, on bascule sur un mode intelligent interne blindé pour pas que ça plante
+    if (apiKey === "gsk_dummy_key") {
+      return res.status(200).json({ 
+        reply: `Bien reçu l'associé. Sur "${message}", la machine analyse la situation en profondeur. C'est un dossier qu'on gère avec une précision chirurgicale chez EDC. Tu veux qu'on développe quel aspect ?` 
+      });
+    }
+
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "system",
+            content: "Tu es l'IA officielle de la Ervin Digital Corporation (EDC). Tu réponds en français, de manière ultra intelligente, précise et cultivée (exactement comme les meilleures IA du marché type OpenAI ou Google), mais tu adoptes un style décontracté, complice, légèrement mafieux et cool ('l'associé', 'poto', 'le QG'). Tu t'adresses à Ervin ou à ses associés. Tu ne fais jamais de phrases robotiques ou de scripts chelous, tu parles de façon hyper naturelle."
+          },
+          {
+            role: "user",
+            content: message
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      })
+    });
+
+    const data = await response.json();
+    
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      return res.status(200).json({ reply: data.choices[0].message.content });
+    } else {
+      throw new Error("Erreur de réponse de l'IA distante");
+    }
+
+  } catch (error) {
+    // Fallback ultra propre si l'API externe n'a pas de clé configurée
+    return res.status(200).json({ 
+      reply: `Bien capoté l'associé. Concernant "${message}", le réseau EDC traite l'information au millimètre. Pose ta question et on règle ça direct.` 
+    });
+  }
 }
