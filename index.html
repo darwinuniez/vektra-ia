@@ -10,10 +10,42 @@
 </head>
 <body>
 
+  <!-- ============ SVG SPRITE (mascot + reusable defs) ============ -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="gradBody" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#ff3d81"/>
+        <stop offset="100%" stop-color="#7b2fff"/>
+      </linearGradient>
+      <linearGradient id="gradIcon" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#00e5ff"/>
+        <stop offset="100%" stop-color="#ff3d81"/>
+      </linearGradient>
+      <symbol id="vektra-mascot" viewBox="0 0 100 122">
+        <ellipse cx="50" cy="108" rx="26" ry="6" fill="#000" opacity="0.3"/>
+        <line x1="50" y1="8" x2="50" y2="20" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="6" r="5" fill="#00e5ff"/>
+        <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+        <ellipse cx="36" cy="49" rx="6" ry="8" fill="#fff"/>
+        <ellipse cx="64" cy="49" rx="6" ry="8" fill="#fff"/>
+        <ellipse cx="36" cy="51" rx="3" ry="4" fill="#00e5ff"/>
+        <ellipse cx="64" cy="51" rx="3" ry="4" fill="#00e5ff"/>
+        <path d="M37 67 Q50 76 63 67" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <g transform="translate(50 98)">
+          <rect x="-25" y="-9" width="50" height="18" rx="9" fill="rgba(5,2,10,0.88)" stroke="#00e5ff" stroke-width="1"/>
+          <text x="0" y="4" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#00e5ff" letter-spacing="1">VEKTRA</text>
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
   <!-- GRAIN / TEXTURE OVERLAY -->
   <div id="noise-overlay" aria-hidden="true"></div>
 
-  <!-- ============ BOOT SEQUENCE (signature moment) ============ -->
+  <!-- CURSOR GLOW (desktop only) -->
+  <div id="cursor-glow" aria-hidden="true"></div>
+
+  <!-- ============ BOOT SEQUENCE (signature moment — kept as-is) ============ -->
   <div id="boot-sequence" aria-hidden="true">
     <div class="boot-terminal" id="boot-terminal">
       <div class="boot-lines" id="boot-lines"></div>
@@ -33,35 +65,55 @@
   </div>
   <div id="wipe-transition" aria-hidden="true"></div>
 
-  <!-- ============ AMBIENT BACKGROUND ============ -->
+  <!-- ============ ANIMATED BACKGROUND ============ -->
   <div class="ambient-background" aria-hidden="true">
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
     <div class="blob blob-3"></div>
+    <canvas id="particle-canvas"></canvas>
+  </div>
+
+  <!-- ============ TOASTS ============ -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- ============ FLOATING MASCOT ============ -->
+  <div class="mascot-widget" id="mascot-widget">
+    <div class="mascot-bubble" id="mascot-bubble">
+      <p id="mascot-bubble-text">Salut ! Je suis le compagnon du noyau Vektra. Clique une catégorie pour démarrer 👋</p>
+    </div>
+    <button class="mascot-avatar" id="mascot-trigger" aria-label="Astuce Vektra">
+      <svg class="mascot-svg" viewBox="0 0 100 122"><use href="#vektra-mascot"></use></svg>
+    </button>
   </div>
 
   <!-- ============ APP SHELL ============ -->
   <div class="app-shell" id="app">
 
-    <div class="ticker-wrapper">
-      <div class="ticker-track">
-        <span>SYSTÈME EN LIGNE&nbsp;&nbsp;•&nbsp;&nbsp;NOYAU VEKTRA — LATENCE 9MS&nbsp;&nbsp;•&nbsp;&nbsp;PROTOCOLES DE SÉCURITÉ : NOMINAL&nbsp;&nbsp;•&nbsp;&nbsp;ACCÈS CHIFFRÉ END-TO-END&nbsp;&nbsp;•&nbsp;&nbsp;ERVIN DIGITAL CORP © 2026&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-        <span>SYSTÈME EN LIGNE&nbsp;&nbsp;•&nbsp;&nbsp;NOYAU VEKTRA — LATENCE 9MS&nbsp;&nbsp;•&nbsp;&nbsp;PROTOCOLES DE SÉCURITÉ : NOMINAL&nbsp;&nbsp;•&nbsp;&nbsp;ACCÈS CHIFFRÉ END-TO-END&nbsp;&nbsp;•&nbsp;&nbsp;ERVIN DIGITAL CORP © 2026&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-      </div>
-    </div>
-
     <header class="app-header">
-      <div class="header-left">
-        <span class="pirate-logo">🏴‍☠️</span>
+      <div class="header-left" id="logo-home-btn" role="button" tabindex="0" aria-label="Retour à l'accueil">
+        <span class="logo-mark">
+          <svg class="logo-spark" viewBox="0 0 24 24"><path d="M12 1 L14.5 9.5 L23 12 L14.5 14.5 L12 23 L9.5 14.5 L1 12 L9.5 9.5 Z" fill="url(#gradIcon)"/></svg>
+        </span>
         <span class="header-title">VEKTRA <span class="highlight">// CORE</span></span>
       </div>
       <div class="header-right">
-        <a href="#" class="btn-discord">Discord</a>
+        <a href="https://discord.gg/Kk8Heewet5" target="_blank" rel="noopener noreferrer" class="btn-discord">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12h.01M16 12h.01M7 5l-2 3.5V17a13 13 0 0010 3l1-1.5M17 5l2 3.5V17a13 13 0 01-10 3l-1-1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Discord
+        </a>
         <button class="btn-account" onclick="openVekModal()">
+          <span id="header-user-avatar">🏴‍☠️</span>
           <span id="header-user-badge">Compte VEK</span>
         </button>
       </div>
     </header>
+
+    <div class="ticker-wrapper">
+      <div class="ticker-track">
+        <span>SYSTÈME EN LIGNE&nbsp;&nbsp;•&nbsp;&nbsp;NOYAU VEKTRA — LATENCE 9MS&nbsp;&nbsp;•&nbsp;&nbsp;PROTOCOLES DE SÉCURITÉ : NOMINAL&nbsp;&nbsp;•&nbsp;&nbsp;ACCÈS CHIFFRÉ END-TO-END&nbsp;&nbsp;•&nbsp;&nbsp;ERVIN DIGITAL CORP © 2026&nbsp;&nbsp;•&nbsp;&nbsp;REJOINS LE DISCORD&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+        <span>SYSTÈME EN LIGNE&nbsp;&nbsp;•&nbsp;&nbsp;NOYAU VEKTRA — LATENCE 9MS&nbsp;&nbsp;•&nbsp;&nbsp;PROTOCOLES DE SÉCURITÉ : NOMINAL&nbsp;&nbsp;•&nbsp;&nbsp;ACCÈS CHIFFRÉ END-TO-END&nbsp;&nbsp;•&nbsp;&nbsp;ERVIN DIGITAL CORP © 2026&nbsp;&nbsp;•&nbsp;&nbsp;REJOINS LE DISCORD&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+      </div>
+    </div>
 
     <div class="main-layout">
 
@@ -69,25 +121,60 @@
         <button class="btn-new-chat" onclick="createNewChat()">+ Nouvelle conversation</button>
 
         <div class="side-section">
+          <span class="section-title">MODÈLES</span>
+          <div class="model-grid" id="model-grid">
+            <button class="model-card active" data-model="core" onclick="selectModel(this,'🛡️','Vektra Core')">
+              <span class="model-icon">🛡️</span>
+              <span class="model-name">Core</span>
+              <span class="model-desc">Équilibré</span>
+            </button>
+            <button class="model-card" data-model="rapide" onclick="selectModel(this,'⚡','Vektra Rapide')">
+              <span class="model-icon">⚡</span>
+              <span class="model-name">Rapide</span>
+              <span class="model-desc">Ultra réactif</span>
+            </button>
+            <button class="model-card" data-model="profond" onclick="selectModel(this,'🧠','Vektra Profond')">
+              <span class="model-icon">🧠</span>
+              <span class="model-name">Profond</span>
+              <span class="model-desc">Raisonnement+</span>
+            </button>
+            <button class="model-card" data-model="vision" onclick="selectModel(this,'👁️','Vektra Vision')">
+              <span class="model-icon">👁️</span>
+              <span class="model-name">Vision</span>
+              <span class="model-desc">Analyse image</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="side-section conv-section">
           <span class="section-title">HISTORIQUE</span>
           <div class="conv-list" id="conv-list">
-            <div class="conv-item active" onclick="switchConv(this, 'Conversation #1')">Conversation #1</div>
+            <div class="conv-item active" onclick="switchConv(this, 'Conversation #1')">
+              <span class="conv-name">Conversation #1</span>
+              <button class="conv-delete" onclick="deleteConv(event, this)" aria-label="Supprimer la conversation">×</button>
+            </div>
           </div>
         </div>
 
-        <div class="side-card ultimate-card">
-          <span class="badge-dev">DEV</span>
+        <div class="side-card ultimate-card" onclick="openUltimateModal()">
+          <span class="sparkle s1">✨</span>
+          <span class="sparkle s2">✨</span>
+          <span class="sparkle s3">✨</span>
+          <span class="badge-dev">✨ EN DÉVELOPPEMENT</span>
           <h3>VEKTRA ULTIME</h3>
-          <p>Accès illimité au noyau, latence prioritaire et modèles étendus. Débloque la puissance complète du réseau.</p>
+          <p>Latence prioritaire, modèles étendus, accès anticipé. La puissance complète du noyau, sans limites.</p>
+          <span class="ultimate-cta">Découvrir →</span>
         </div>
 
-        <div class="side-card edc-card" onclick="openEdcModal()">
-          <div class="edc-header">
-            <span>RÉSEAU ED-CORP</span>
-            <div class="pulsing-dot"></div>
+        <a class="side-card discord-card" href="https://discord.gg/Kk8Heewet5" target="_blank" rel="noopener noreferrer">
+          <div class="discord-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12h.01M16 12h.01M7 5l-2 3.5V17a13 13 0 0010 3l1-1.5M17 5l2 3.5V17a13 13 0 01-10 3l-1-1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <p class="edc-teaser">« Ce que le noyau ne te dit pas encore. »</p>
-        </div>
+          <div>
+            <h3>Rejoindre le Discord</h3>
+            <p>Annonces, bêtas &amp; communauté ED-Corp.</p>
+          </div>
+        </a>
 
         <div class="sidebar-footer">
           <p class="legal-notice">Vektra est un système d'IA expérimental. Vérifie toute information critique. Ervin Digital Corp, tous droits réservés.</p>
@@ -95,18 +182,52 @@
       </aside>
 
       <main class="chat-area">
+        <div class="chat-area-header">
+          <span class="chat-area-title" id="chat-area-title">Conversation #1</span>
+          <span class="model-badge" id="model-badge">🛡️ Vektra Core</span>
+        </div>
+
         <div class="typing-box" id="typing-indicator">
-          <span class="pirate-mini">🏴‍☠️</span>
+          <svg class="mascot-svg-mini" viewBox="0 0 100 122"><use href="#vektra-mascot"></use></svg>
           <span>Vektra réfléchit</span>
           <div class="dots-anim"><span></span><span></span><span></span></div>
         </div>
 
         <div class="chat-messages" id="chat-messages">
-          <div class="msg bot">
-            <div class="msg-avatar">🏴‍☠️</div>
-            <div class="msg-content">
-              <span class="msg-author">VEKTRA // SECURE CORE</span>
-              <p>Bienvenue dans l'espace sécurisé de l'Ervin Digital Corporation. Le réseau est actif, pose tes instructions l'associé.</p>
+          <div class="chat-hero" id="chat-hero">
+            <svg class="hero-mascot" viewBox="0 0 100 122"><use href="#vektra-mascot"></use></svg>
+            <h2 class="hero-greeting" id="hero-greeting">Bonjour, Compte VEK.</h2>
+            <p class="hero-sub">Le noyau Vektra est en ligne. Choisis une catégorie ou lance directement une conversation.</p>
+
+            <div class="category-chips">
+              <button class="chip" onclick="fillPrompt('Parlons de ')">💬 Discussion libre</button>
+              <button class="chip" onclick="fillPrompt('Aide-moi à corriger ce code : ')">💻 Code &amp; debug</button>
+              <button class="chip" onclick="fillPrompt('Imagine une idée originale pour ')">🎨 Créativité</button>
+              <button class="chip" onclick="fillPrompt('Analyse ces données : ')">📊 Analyse</button>
+              <button class="chip" onclick="fillPrompt('Explique-moi en détail ')">🔍 Recherche</button>
+            </div>
+
+            <div class="feature-grid">
+              <button class="feature-card" onclick="fillPrompt('Parlons de ')">
+                <svg class="feature-icon" viewBox="0 0 32 32"><path d="M6 8h20a2 2 0 012 2v10a2 2 0 01-2 2H14l-6 5v-5H6a2 2 0 01-2-2V10a2 2 0 012-2z" fill="none" stroke="url(#gradIcon)" stroke-width="2" stroke-linejoin="round"/></svg>
+                <span class="feature-title">Conversation naturelle</span>
+                <span class="feature-desc">Un dialogue fluide, en français, sans détour.</span>
+              </button>
+              <button class="feature-card" onclick="fillPrompt('Aide-moi à corriger ce code : ')">
+                <svg class="feature-icon" viewBox="0 0 32 32"><path d="M11 9l-7 7 7 7M21 9l7 7-7 7" fill="none" stroke="url(#gradIcon)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="feature-title">Code &amp; scripts</span>
+                <span class="feature-desc">Génère, corrige et explique du code.</span>
+              </button>
+              <button class="feature-card" onclick="selectModel(document.querySelector('[data-model=vision]'),'👁️','Vektra Vision')">
+                <svg class="feature-icon" viewBox="0 0 32 32"><path d="M2 16s5-9 14-9 14 9 14 9-5 9-14 9-14-9-14-9z" fill="none" stroke="url(#gradIcon)" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="4" fill="none" stroke="url(#gradIcon)" stroke-width="2"/></svg>
+                <span class="feature-title">Vision</span>
+                <span class="feature-desc">Analyse des images, décrit ce qu'elles montrent.</span>
+              </button>
+              <button class="feature-card" onclick="selectModel(document.querySelector('[data-model=rapide]'),'⚡','Vektra Rapide')">
+                <svg class="feature-icon" viewBox="0 0 32 32"><path d="M18 2L6 18h8l-2 12 14-18h-9l1-10z" fill="url(#gradIcon)"/></svg>
+                <span class="feature-title">Réponses rapides</span>
+                <span class="feature-desc">Latence minimale, propulsé par Vektra Rapide.</span>
+              </button>
             </div>
           </div>
         </div>
@@ -127,7 +248,20 @@
     <div class="modal-box">
       <button class="modal-close" onclick="closeVekModal()">×</button>
       <h2>Ton identité Vektra</h2>
-      <p class="modal-sub">Choisis le nom qui apparaîtra dans le noyau. Il ne quitte jamais cet appareil.</p>
+      <p class="modal-sub">Choisis ton nom et ton avatar. Rien ne quitte cet appareil.</p>
+
+      <div class="form-group">
+        <label>Avatar</label>
+        <div class="avatar-picker" id="avatar-picker">
+          <button type="button" class="avatar-opt active" onclick="selectAvatar(this,'🏴‍☠️')">🏴‍☠️</button>
+          <button type="button" class="avatar-opt" onclick="selectAvatar(this,'🦈')">🦈</button>
+          <button type="button" class="avatar-opt" onclick="selectAvatar(this,'👾')">👾</button>
+          <button type="button" class="avatar-opt" onclick="selectAvatar(this,'🐺')">🐺</button>
+          <button type="button" class="avatar-opt" onclick="selectAvatar(this,'🛸')">🛸</button>
+          <button type="button" class="avatar-opt" onclick="selectAvatar(this,'⚡')">⚡</button>
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="vek-username-input">Nom d'associé</label>
         <input type="text" id="vek-username-input" placeholder="Compte VEK">
@@ -148,6 +282,27 @@
         <span class="c-badge">ACCÈS ANTICIPÉ</span>
       </div>
       <button class="btn-action-modal" onclick="closeEdcModal()" style="margin-top:20px;">Compris</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="ultimate-modal">
+    <div class="modal-box ultimate-box">
+      <button class="modal-close" onclick="closeUltimateModal()">×</button>
+      <span class="edc-modal-header ultimate-header">✨ EN DÉVELOPPEMENT</span>
+      <h2>VEKTRA ULTIME</h2>
+      <p class="edc-modal-desc">L'abonnement qui débloque la puissance complète du noyau. En cours de construction — inscris-toi pour être prévenu au lancement.</p>
+
+      <div class="ultimate-feature-grid">
+        <div class="ultimate-feature"><span>⚡</span>Latence prioritaire</div>
+        <div class="ultimate-feature"><span>🧠</span>Profond &amp; Vision illimités</div>
+        <div class="ultimate-feature"><span>🎁</span>Accès anticipé aux nouveautés</div>
+        <div class="ultimate-feature"><span>🔓</span>Historique illimité</div>
+      </div>
+
+      <form class="waitlist-form" onsubmit="joinWaitlist(event)">
+        <input type="email" id="waitlist-email" placeholder="ton@email.com" required>
+        <button type="submit" class="btn-action-modal">Rejoindre la liste d'attente</button>
+      </form>
     </div>
   </div>
 
