@@ -119,7 +119,7 @@ function escapeHtml(str) {
       p.x += p.vx;
       p.y += p.vy;
       if (p.x < 0 || p.x > w) p.vx *= -1;
-      if (p.y < 0 || p.y > h) p.vy *= -1;
+      if (p.sssy < 0 || p.y > h) p.vy *= -1;
     }
     for (let i = 0; i < particles.length; i++) {
       const a = particles[i];
