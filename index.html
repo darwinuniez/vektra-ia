@@ -14,45 +14,39 @@
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
       <linearGradient id="gradBody" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#ff3d81"/>
-        <stop offset="100%" stop-color="#7b2fff"/>
+        <stop offset="0%" stop-color="#29d3ff"/>
+        <stop offset="100%" stop-color="#1de9a6"/>
       </linearGradient>
       <linearGradient id="gradIcon" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#00e5ff"/>
-        <stop offset="100%" stop-color="#ff3d81"/>
+        <stop offset="0%" stop-color="#29d3ff"/>
+        <stop offset="100%" stop-color="#2dffa8"/>
       </linearGradient>
       <linearGradient id="gradBandana" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#ff8a3d"/>
-        <stop offset="100%" stop-color="#ff3d81"/>
+        <stop offset="0%" stop-color="#0c1720"/>
+        <stop offset="100%" stop-color="#122436"/>
       </linearGradient>
       <symbol id="vektra-mascot" viewBox="0 0 100 122">
         <ellipse cx="50" cy="108" rx="27" ry="6" fill="#000" opacity="0.3"/>
-        <!-- crossed arms -->
-        <rect x="27" y="68" width="20" height="8" rx="4" fill="url(#gradBody)" stroke="rgba(255,255,255,0.25)" stroke-width="1" transform="rotate(14 37 72)"/>
-        <rect x="53" y="68" width="20" height="8" rx="4" fill="url(#gradBody)" stroke="rgba(255,255,255,0.25)" stroke-width="1" transform="rotate(-14 63 72)"/>
         <!-- body -->
         <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-        <!-- gold hoop earring -->
-        <circle cx="81" cy="57" r="3" fill="none" stroke="#ffd166" stroke-width="1.6"/>
-        <!-- good eye -->
-        <ellipse cx="64" cy="49" rx="6" ry="8" fill="#fff"/>
-        <ellipse cx="64" cy="51" rx="3" ry="4" fill="#00e5ff"/>
-        <!-- eye patch (bad-boy pirate) -->
-        <path d="M18 38 L82 52" stroke="#0a0508" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
-        <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0508" stroke="#000" stroke-width="1"/>
+        <!-- good eye (blinks) -->
+        <g class="mascot-eye" style="transform-origin:64px 49px;">
+          <ellipse cx="64" cy="49" rx="6" ry="8" fill="#fff"/>
+          <ellipse cx="64" cy="51" rx="3" ry="4" fill="#0af0c8"/>
+        </g>
+        <!-- eye patch (bad-boy pirate, kept simple) -->
+        <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+        <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"/>
         <!-- smirk -->
         <path d="M38 68 Q53 75 66 65" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <!-- bandana -->
-        <path d="M14 30 Q50 8 86 30 L84 38 Q50 20 16 38 Z" fill="url(#gradBandana)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <!-- bandana, single clean tail -->
+        <path d="M14 30 Q50 8 86 30 L84 38 Q50 20 16 38 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"/>
         <g class="mascot-tail" style="transform-origin:80px 28px;">
-          <path d="M78 27 Q94 32 90 46 Q83 36 75 30 Z" fill="url(#gradBandana)"/>
-        </g>
-        <g class="mascot-tail mascot-tail-2" style="transform-origin:74px 24px;">
-          <path d="M72 24 Q86 24 85 36 Q77 30 70 27 Z" fill="url(#gradBandana)" opacity="0.85"/>
+          <path d="M78 27 Q94 32 90 46 Q83 36 75 30 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"/>
         </g>
         <g transform="translate(50 98)">
-          <rect x="-25" y="-9" width="50" height="18" rx="9" fill="rgba(5,2,10,0.88)" stroke="#00e5ff" stroke-width="1"/>
-          <text x="0" y="4" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#00e5ff" letter-spacing="1">VEKTRA</text>
+          <rect x="-25" y="-9" width="50" height="18" rx="9" fill="rgba(3,4,5,0.88)" stroke="#29d3ff" stroke-width="1"/>
+          <text x="0" y="4" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#29d3ff" letter-spacing="1">VEKTRA</text>
         </g>
       </symbol>
     </defs>
@@ -96,6 +90,8 @@
     </div>
 
     <div class="boot-skip" id="boot-skip">cliquer pour passer</div>
+    <div class="boot-flash" id="boot-flash"></div>
+    <div class="boot-shockwave" id="boot-shockwave"></div>
   </div>
   <div id="wipe-transition" aria-hidden="true"></div>
 
@@ -217,15 +213,15 @@
           </div>
         </a>
 
-        <button class="side-card corp-card" onclick="openErvinModal()">
+        <a class="side-card corp-card" href="https://ervin-digital-corp-hub.vercel.app" target="_blank" rel="noopener noreferrer">
           <div class="corp-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 L21 6.5 V13 C21 18 17 21.5 12 23 C7 21.5 3 18 3 13 V6.5 Z" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
           <div>
-            <h3>ERVIN CORP</h3>
-            <p>La société mère derrière le noyau Vektra.</p>
+            <h3>ED-CORP</h3>
+            <p>Le site officiel d'Ervin Digital Corp.</p>
           </div>
-        </button>
+        </a>
 
         <div class="sidebar-footer">
           <p class="legal-notice">Vektra est un système d'IA expérimental. Vérifie toute information critique. Ervin Digital Corp, tous droits réservés.</p>
@@ -321,21 +317,6 @@
     </div>
   </div>
 
-  <div class="modal-backdrop" id="edc-modal">
-    <div class="modal-box edc-box">
-      <button class="modal-close" onclick="closeEdcModal()">×</button>
-      <span class="edc-modal-header">RÉSEAU ED-CORP</span>
-      <h2>Un niveau au-delà du noyau</h2>
-      <p class="edc-modal-desc">ED-Corp est le réseau parallèle d'Ervin Digital Corp : accès anticipé aux modèles, canaux privés et outils encore fermés au public.</p>
-      <div class="cyber-badge-grid">
-        <span class="c-badge">IA AVANCÉE</span>
-        <span class="c-badge">SÉCURITÉ</span>
-        <span class="c-badge">ACCÈS ANTICIPÉ</span>
-      </div>
-      <button class="btn-action-modal" onclick="closeEdcModal()" style="margin-top:20px;">Compris</button>
-    </div>
-  </div>
-
   <div class="modal-backdrop" id="ultimate-modal">
     <div class="modal-box ultimate-box">
       <button class="modal-close" onclick="closeUltimateModal()">×</button>
@@ -354,36 +335,6 @@
         <input type="email" id="waitlist-email" placeholder="ton@email.com" required>
         <button type="submit" class="btn-action-modal">Rejoindre la liste d'attente</button>
       </form>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="ervin-modal">
-    <div class="modal-box corp-box" id="ervin-modal-box">
-      <button class="modal-close" onclick="closeErvinModal()">×</button>
-      <div class="corp-emblem">
-        <span class="corp-emblem-ring"></span>
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="1.6"><path d="M12 2 L21 6.5 V13 C21 18 17 21.5 12 23 C7 21.5 3 18 3 13 V6.5 Z" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <span class="edc-modal-header corp-modal-header">ERVIN DIGITAL CORP</span>
-      <h2>Plus active que jamais</h2>
-      <p class="edc-modal-desc">La corporation n'a jamais autant travaillé sur le noyau : le développement du site continue en coulisses, jour et nuit, pour faire évoluer Vektra sans relâche.</p>
-
-      <div class="corp-stats" id="corp-stats">
-        <div class="corp-stat">
-          <span class="corp-stat-num" data-target="482" id="corp-stat-1">0</span>
-          <span class="corp-stat-label">Commits ce mois</span>
-        </div>
-        <div class="corp-stat">
-          <span class="corp-stat-num" data-target="99" id="corp-stat-2">0</span>
-          <span class="corp-stat-label">% Uptime noyau</span>
-        </div>
-        <div class="corp-stat">
-          <span class="corp-stat-num" data-target="12" id="corp-stat-3">0</span>
-          <span class="corp-stat-label">Développeurs actifs</span>
-        </div>
-      </div>
-
-      <button class="btn-action-modal corp-btn" onclick="closeErvinModal()">Compris, le noyau est entre de bonnes mains</button>
     </div>
   </div>
 

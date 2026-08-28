@@ -20,6 +20,8 @@ function escapeHtml(str) {
   const heroScene = document.getElementById("hero-scene");
   const wipe = document.getElementById("wipe-transition");
   const skipHint = document.getElementById("boot-skip");
+  const flash = document.getElementById("boot-flash");
+  const shockwave = document.getElementById("boot-shockwave");
   const app = document.getElementById("app");
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -67,6 +69,9 @@ function escapeHtml(str) {
     if (index >= bootLines.length) {
       terminal.classList.add("fade-out");
       logoWrap.classList.add("show");
+      if (flash) flash.classList.add("pulse");
+      if (shockwave) shockwave.classList.add("burst");
+      bootSeq.classList.add("shake");
       setTimeout(showHeroScene, 650);
       return;
     }
@@ -131,7 +136,7 @@ function escapeHtml(str) {
     }
     for (let i = 0; i < particles.length; i++) {
       const a = particles[i];
-      ctx.fillStyle = "rgba(0, 229, 255, 0.55)";
+      ctx.fillStyle = "rgba(41, 211, 255, 0.55)";
       ctx.beginPath();
       ctx.arc(a.x, a.y, 1.4, 0, Math.PI * 2);
       ctx.fill();
@@ -140,7 +145,7 @@ function escapeHtml(str) {
         const dx = a.x - b.x, dy = a.y - b.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < 130) {
-          ctx.strokeStyle = `rgba(255, 61, 129, ${0.16 * (1 - dist / 130)})`;
+          ctx.strokeStyle = `rgba(45, 255, 168, ${0.16 * (1 - dist / 130)})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
@@ -245,20 +250,6 @@ function spawnSparkleBurst(container, emoji, count) {
   }
 }
 
-function animateCountUp(el, target, duration) {
-  if (!el) return;
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduced) { el.textContent = target; return; }
-  const start = performance.now();
-  function frame(now) {
-    const progress = Math.min(1, (now - start) / duration);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.round(target * eased);
-    if (progress < 1) requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-}
-
 /* ============================================================
    4. MASCOT — floating widget + speech bubble
    ============================================================ */
@@ -328,9 +319,6 @@ function saveVekAccount() {
   showToast("Profil mis à jour");
 }
 
-function openEdcModal() { document.getElementById("edc-modal").classList.add("open"); }
-function closeEdcModal() { document.getElementById("edc-modal").classList.remove("open"); }
-
 function openUltimateModal() {
   document.getElementById("ultimate-modal").classList.add("open");
   const box = document.querySelector("#ultimate-modal .modal-box");
@@ -347,21 +335,6 @@ function joinWaitlist(e) {
   closeUltimateModal();
   showToast("Tu es sur la liste d'attente ✨");
 }
-
-let ervinStatsPlayed = false;
-function openErvinModal() {
-  document.getElementById("ervin-modal").classList.add("open");
-  const box = document.getElementById("ervin-modal-box");
-  spawnSparkleBurst(box, "⚡", 18);
-  if (!ervinStatsPlayed) {
-    ervinStatsPlayed = true;
-    document.querySelectorAll("#corp-stats .corp-stat-num").forEach((el) => {
-      animateCountUp(el, parseInt(el.dataset.target, 10), 1400);
-    });
-  }
-  showToast("La corporation est plus active que jamais ⚡");
-}
-function closeErvinModal() { document.getElementById("ervin-modal").classList.remove("open"); }
 
 document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
   backdrop.addEventListener("click", (e) => {
