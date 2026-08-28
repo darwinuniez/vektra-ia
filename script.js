@@ -17,6 +17,7 @@ function escapeHtml(str) {
   const linesEl = document.getElementById("boot-lines");
   const progressFill = document.getElementById("boot-progress-fill");
   const logoWrap = document.getElementById("boot-logo-wrap");
+  const heroScene = document.getElementById("hero-scene");
   const wipe = document.getElementById("wipe-transition");
   const skipHint = document.getElementById("boot-skip");
   const app = document.getElementById("app");
@@ -54,12 +55,19 @@ function escapeHtml(str) {
     }, 520);
   }
 
+  function showHeroScene() {
+    if (finished || !heroScene) { runWipe(); return; }
+    logoWrap.classList.remove("show");
+    heroScene.classList.add("show");
+    setTimeout(runWipe, 2400);
+  }
+
   function typeLines(index) {
     if (finished) return;
     if (index >= bootLines.length) {
       terminal.classList.add("fade-out");
       logoWrap.classList.add("show");
-      setTimeout(runWipe, prefersReducedMotion ? 50 : 620);
+      setTimeout(showHeroScene, 650);
       return;
     }
     const div = document.createElement("div");
@@ -119,7 +127,7 @@ function escapeHtml(str) {
       p.x += p.vx;
       p.y += p.vy;
       if (p.x < 0 || p.x > w) p.vx *= -1;
-      if (p.sssy < 0 || p.y > h) p.vy *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
     }
     for (let i = 0; i < particles.length; i++) {
       const a = particles[i];
@@ -196,6 +204,62 @@ function showToast(message) {
 }
 
 /* ============================================================
+   3b. FAKE "ASSOCIÉS EN LIGNE" COUNTER
+   ============================================================ */
+(function initOnlineCounter() {
+  const el = document.getElementById("online-count");
+  if (!el) return;
+  let count = 10 + Math.floor(Math.random() * 16); // 10–25
+  el.textContent = count;
+
+  function tick() {
+    const delta = Math.floor(Math.random() * 5) - 2; // -2..+2
+    count = Math.max(10, Math.min(25, count + delta));
+    el.textContent = count;
+    el.classList.remove("bump");
+    void el.offsetWidth; // restart animation
+    el.classList.add("bump");
+    setTimeout(tick, 3500 + Math.random() * 3000);
+  }
+  setTimeout(tick, 4000 + Math.random() * 2000);
+})();
+
+/* ============================================================
+   3c. SPARKLE BURST (used by Ultimate + Ervin Corp modals)
+   ============================================================ */
+function spawnSparkleBurst(container, emoji, count) {
+  if (!container) return;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced) return;
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement("span");
+    s.className = "burst-spark";
+    s.textContent = emoji;
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 50 + Math.random() * 90;
+    s.style.setProperty("--bx", Math.cos(angle) * dist + "px");
+    s.style.setProperty("--by", Math.sin(angle) * dist + "px");
+    s.style.animationDelay = Math.random() * 0.15 + "s";
+    container.appendChild(s);
+    setTimeout(() => s.remove(), 1100);
+  }
+}
+
+function animateCountUp(el, target, duration) {
+  if (!el) return;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced) { el.textContent = target; return; }
+  const start = performance.now();
+  function frame(now) {
+    const progress = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(target * eased);
+    if (progress < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ============================================================
    4. MASCOT — floating widget + speech bubble
    ============================================================ */
 const mascotTips = [
@@ -267,7 +331,11 @@ function saveVekAccount() {
 function openEdcModal() { document.getElementById("edc-modal").classList.add("open"); }
 function closeEdcModal() { document.getElementById("edc-modal").classList.remove("open"); }
 
-function openUltimateModal() { document.getElementById("ultimate-modal").classList.add("open"); }
+function openUltimateModal() {
+  document.getElementById("ultimate-modal").classList.add("open");
+  const box = document.querySelector("#ultimate-modal .modal-box");
+  spawnSparkleBurst(box, "✨", 16);
+}
 function closeUltimateModal() { document.getElementById("ultimate-modal").classList.remove("open"); }
 
 function joinWaitlist(e) {
@@ -279,6 +347,21 @@ function joinWaitlist(e) {
   closeUltimateModal();
   showToast("Tu es sur la liste d'attente ✨");
 }
+
+let ervinStatsPlayed = false;
+function openErvinModal() {
+  document.getElementById("ervin-modal").classList.add("open");
+  const box = document.getElementById("ervin-modal-box");
+  spawnSparkleBurst(box, "⚡", 18);
+  if (!ervinStatsPlayed) {
+    ervinStatsPlayed = true;
+    document.querySelectorAll("#corp-stats .corp-stat-num").forEach((el) => {
+      animateCountUp(el, parseInt(el.dataset.target, 10), 1400);
+    });
+  }
+  showToast("La corporation est plus active que jamais ⚡");
+}
+function closeErvinModal() { document.getElementById("ervin-modal").classList.remove("open"); }
 
 document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
   backdrop.addEventListener("click", (e) => {
