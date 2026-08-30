@@ -1,15 +1,67 @@
 /* ============================================================
    STATE
    ============================================================ */
-let currentUsername = "Compte VEK";
+let currentUsername = null;   // display name, null = not logged in
+let currentUserKey = null;    // lowercase storage key
 let currentAvatar = "🏴‍☠️";
+let activeConvId = null;
+let convs = {};               // in-memory copy of the logged-in user's conversations
+const MAX_CONVS = 5;
 
 function escapeHtml(str) {
   return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 /* ============================================================
-   0. BOOT SEQUENCE — cinematic intro (behaviour unchanged)
+   STORAGE HELPERS (localStorage — beta, per-browser only)
+   ============================================================ */
+function lsGet(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+function lsSet(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (e) {
+    console.error("Erreur de stockage local:", e);
+    return false;
+  }
+}
+function getUsers() { return lsGet("vektra_users", {}); }
+function saveUsers(u) { lsSet("vektra_users", u); }
+
+// SHA-256 via WebCrypto when available, with a functional fallback so
+// registration/login never breaks even in restricted contexts.
+async function hashPassword(pw) {
+  const salted = pw + "::vektra-salt-2026";
+  try {
+    if (window.crypto && window.crypto.subtle) {
+      const enc = new TextEncoder().encode(salted);
+      const buf = await crypto.subtle.digest("SHA-256", enc);
+      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+  } catch (e) { /* fall through to fallback */ }
+  let h = 0;
+  for (let i = 0; i < salted.length; i++) { h = (h << 5) - h + salted.charCodeAt(i); h |= 0; }
+  return "fallback_" + Math.abs(h).toString(16);
+}
+
+function renderAvatarInto(el, avatarValue) {
+  if (!el) return;
+  if (avatarValue === "EDC") {
+    el.innerHTML = '<span class="mini-edc-badge">EDC</span>';
+  } else {
+    el.textContent = avatarValue || "🏴‍☠️";
+  }
+}
+
+/* ============================================================
+   0. BOOT SEQUENCE — cinematic intro
    ============================================================ */
 (function bootSequence() {
   const bootSeq = document.getElementById("boot-sequence");
@@ -39,6 +91,7 @@ function escapeHtml(str) {
 
   function revealApp() {
     app.classList.add("revealed");
+    checkAuthAndShowGate();
   }
 
   function cleanupBoot() {
@@ -218,11 +271,11 @@ function showToast(message) {
   el.textContent = count;
 
   function tick() {
-    const delta = Math.floor(Math.random() * 5) - 2; // -2..+2
+    const delta = Math.floor(Math.random() * 5) - 2;
     count = Math.max(10, Math.min(25, count + delta));
     el.textContent = count;
     el.classList.remove("bump");
-    void el.offsetWidth; // restart animation
+    void el.offsetWidth;
     el.classList.add("bump");
     setTimeout(tick, 3500 + Math.random() * 3000);
   }
@@ -230,7 +283,7 @@ function showToast(message) {
 })();
 
 /* ============================================================
-   3c. SPARKLE BURST (used by Ultimate + Ervin Corp modals)
+   3c. SPARKLE BURST (Ultimate modal)
    ============================================================ */
 function spawnSparkleBurst(container, emoji, count) {
   if (!container) return;
@@ -251,13 +304,13 @@ function spawnSparkleBurst(container, emoji, count) {
 }
 
 /* ============================================================
-   4. MASCOT — floating widget + speech bubble
+   4. MASCOT — floating widget, speech bubble, expressions
    ============================================================ */
 const mascotTips = [
   "Astuce : clique une catégorie pour démarrer plus vite ⚡",
   "Le modèle Vision peut analyser des images 👁️",
   "Ton historique se trouve dans la barre latérale 📂",
-  "VEKTRA ULTIME arrive bientôt — inscris-toi en liste d'attente ✨",
+  "VEKTRA ULTIME arrive bientôt — vois ce qu'elle débloque ✨",
   "Besoin d'aide ? Rejoins le Discord Ervin Corp 🏴‍☠️"
 ];
 let mascotTipIndex = -1;
@@ -274,17 +327,55 @@ function toggleMascotBubble() {
   textEl.textContent = mascotTips[mascotTipIndex];
   bubble.classList.add("show");
 }
-
 const mascotTrigger = document.getElementById("mascot-trigger");
 if (mascotTrigger) mascotTrigger.addEventListener("click", toggleMascotBubble);
 
+// expressions: posée (calm), curieuse, énervée, ennuyée, émerveillée
+const mascotExpressions = {
+  calm:    { eyebrow: "M56 40 Q60 38 64 40", mouth: "M38 68 Q53 75 66 65", ry: "8" },
+  curious: { eyebrow: "M55 37 Q60 33 66 38", mouth: "M40 67 Q53 70 64 67", ry: "9" },
+  annoyed: { eyebrow: "M55 43 Q60 45 66 43", mouth: "M40 70 Q53 66 64 70", ry: "6" },
+  bored:   { eyebrow: "M56 41 Q60 40 64 41", mouth: "M42 69 L62 69",       ry: "5" },
+  amazed:  { eyebrow: "M54 35 Q60 29 68 35", mouth: "M42 66 Q53 78 64 66", ry: "10" }
+};
+let currentExpression = "calm";
+
+function setMascotExpression(name) {
+  const ex = mascotExpressions[name] || mascotExpressions.calm;
+  if (name === currentExpression) return;
+  currentExpression = name;
+  const eyebrow = document.getElementById("mascot-eyebrow");
+  const mouth = document.getElementById("mascot-mouth");
+  const eyeWhite = document.getElementById("mascot-eye-white");
+  const svg = document.querySelector(".mascot-svg");
+  if (eyebrow) eyebrow.setAttribute("d", ex.eyebrow);
+  if (mouth) mouth.setAttribute("d", ex.mouth);
+  if (eyeWhite) eyeWhite.setAttribute("ry", ex.ry);
+  if (svg) {
+    svg.classList.remove("reacting");
+    void svg.offsetWidth;
+    svg.classList.add("reacting");
+  }
+}
+
+let idleBoredTimer = null;
+function resetIdleBoredTimer() {
+  clearTimeout(idleBoredTimer);
+  idleBoredTimer = setTimeout(() => setMascotExpression("bored"), 25000);
+}
+document.addEventListener("click", () => {
+  resetIdleBoredTimer();
+  if (currentExpression === "bored") setMascotExpression("calm");
+});
+resetIdleBoredTimer();
+
 /* ============================================================
-   5. HEADER LOGO — click to return home
+   5. HEADER LOGO — click feedback (never destroys conversation data)
    ============================================================ */
 function goHome() {
-  hideHero(false);
-  document.getElementById("chat-messages").innerHTML = buildHeroHTML();
-  showToast("Retour à l'accueil");
+  const box = document.getElementById("chat-messages");
+  if (box) box.scrollTo({ top: 0, behavior: "smooth" });
+  showToast("Tu es au cœur du noyau Vektra 🏴‍☠️");
 }
 const logoHomeBtn = document.getElementById("logo-home-btn");
 if (logoHomeBtn) {
@@ -295,30 +386,175 @@ if (logoHomeBtn) {
 }
 
 /* ============================================================
-   6. MODALS — compte VEK, ED-Corp, Vektra Ultime
+   6. AUTH — register, login, logout, session hydration
+   ============================================================ */
+function switchAuthTab(tab) {
+  document.querySelectorAll(".auth-tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === tab));
+  document.getElementById("login-form").classList.toggle("hidden", tab !== "login");
+  document.getElementById("register-form").classList.toggle("hidden", tab !== "register");
+  document.getElementById("login-error").textContent = "";
+  document.getElementById("register-error").textContent = "";
+}
+
+let registerAvatar = "🏴‍☠️";
+function pickRegisterAvatar(el) {
+  document.querySelectorAll("#register-avatar-picker .avatar-opt").forEach((o) => o.classList.remove("active"));
+  el.classList.add("active");
+  registerAvatar = el.dataset.avatar;
+}
+
+async function handleRegister(e) {
+  e.preventDefault();
+  const errorEl = document.getElementById("register-error");
+  errorEl.textContent = "";
+
+  const usernameRaw = document.getElementById("register-username").value.trim();
+  const password = document.getElementById("register-password").value;
+  const confirm = document.getElementById("register-password-confirm").value;
+
+  if (!/^[a-zA-Z0-9_\-À-ÿ ]{3,20}$/.test(usernameRaw)) {
+    errorEl.textContent = "Pseudo invalide (3 à 20 caractères : lettres, chiffres, espaces, - ou _).";
+    return;
+  }
+  if (password.length < 6) {
+    errorEl.textContent = "Le mot de passe doit faire au moins 6 caractères.";
+    return;
+  }
+  if (password !== confirm) {
+    errorEl.textContent = "Les mots de passe ne correspondent pas.";
+    return;
+  }
+
+  const key = usernameRaw.toLowerCase();
+  const users = getUsers();
+  if (users[key]) {
+    errorEl.textContent = "Ce pseudo est déjà pris.";
+    return;
+  }
+
+  const passwordHash = await hashPassword(password);
+  users[key] = { username: usernameRaw, passwordHash, avatar: registerAvatar, createdAt: Date.now() };
+  saveUsers(users);
+
+  loginSuccess(usernameRaw, key, registerAvatar);
+  showToast(`Bienvenue à bord, ${usernameRaw} ⚡`);
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const errorEl = document.getElementById("login-error");
+  errorEl.textContent = "";
+
+  const usernameRaw = document.getElementById("login-username").value.trim();
+  const password = document.getElementById("login-password").value;
+  const key = usernameRaw.toLowerCase();
+
+  const users = getUsers();
+  const user = users[key];
+  if (!user) {
+    errorEl.textContent = "Aucun compte avec ce pseudo sur cet appareil.";
+    return;
+  }
+
+  const passwordHash = await hashPassword(password);
+  if (passwordHash !== user.passwordHash) {
+    errorEl.textContent = "Mot de passe incorrect.";
+    return;
+  }
+
+  loginSuccess(user.username, key, user.avatar);
+  showToast(`Content de te revoir, ${user.username} 👋`);
+}
+
+function loginSuccess(username, key, avatar) {
+  currentUsername = username;
+  currentUserKey = key;
+  currentAvatar = avatar || "🏴‍☠️";
+  lsSet("vektra_session", key);
+
+  document.getElementById("login-form").reset();
+  document.getElementById("register-form").reset();
+  document.getElementById("auth-gate").classList.remove("show");
+  hydrateAppForUser();
+}
+
+function logoutUser() {
+  localStorage.removeItem("vektra_session");
+  currentUsername = null;
+  currentUserKey = null;
+  activeConvId = null;
+  convs = {};
+  closeVekModal();
+  switchAuthTab("login");
+  document.getElementById("auth-gate").classList.add("show");
+  showToast("Déconnecté. À bientôt ! 🏴‍☠️");
+}
+
+function checkAuthAndShowGate() {
+  const session = lsGet("vektra_session", null);
+  if (session) {
+    const users = getUsers();
+    const user = users[session];
+    if (user) {
+      currentUsername = user.username;
+      currentUserKey = session;
+      currentAvatar = user.avatar || "🏴‍☠️";
+      hydrateAppForUser();
+      return;
+    }
+  }
+  document.getElementById("auth-gate").classList.add("show");
+}
+
+function hydrateAppForUser() {
+  renderAvatarInto(document.getElementById("header-user-avatar"), currentAvatar);
+  document.getElementById("header-user-badge").textContent = currentUsername;
+  document.getElementById("profile-username-display").textContent = `Connecté en tant que ${currentUsername}`;
+  document.querySelectorAll("#avatar-picker .avatar-opt").forEach((o) => o.classList.toggle("active", o.dataset.avatar === currentAvatar));
+
+  convs = lsGet(`vektra_convs_${currentUserKey}`, {});
+  let active = lsGet(`vektra_active_${currentUserKey}`, null);
+
+  if (Object.keys(convs).length === 0) {
+    active = createConvRecord("Conversation #1");
+  }
+  if (!active || !convs[active]) {
+    active = Object.keys(convs)[0];
+  }
+
+  renderConvSidebar();
+  loadConv(active);
+}
+
+/* ============================================================
+   7. PROFILE MODAL (avatar + logout)
    ============================================================ */
 function openVekModal() { document.getElementById("vek-modal").classList.add("open"); }
 function closeVekModal() { document.getElementById("vek-modal").classList.remove("open"); }
 
-function selectAvatar(el, emoji) {
-  document.querySelectorAll(".avatar-opt").forEach((o) => o.classList.remove("active"));
+function selectAvatar(el) {
+  const emoji = el.dataset.avatar;
+  document.querySelectorAll("#avatar-picker .avatar-opt").forEach((o) => o.classList.remove("active"));
   el.classList.add("active");
   currentAvatar = emoji;
-  document.getElementById("header-user-avatar").textContent = emoji;
 }
 
 function saveVekAccount() {
-  const val = document.getElementById("vek-username-input").value.trim();
-  if (val) {
-    currentUsername = val;
-    document.getElementById("header-user-badge").textContent = currentUsername;
+  if (currentUserKey) {
+    const users = getUsers();
+    if (users[currentUserKey]) {
+      users[currentUserKey].avatar = currentAvatar;
+      saveUsers(users);
+    }
   }
-  const heroGreeting = document.getElementById("hero-greeting");
-  if (heroGreeting) heroGreeting.textContent = `Bonjour, ${currentUsername}.`;
+  renderAvatarInto(document.getElementById("header-user-avatar"), currentAvatar);
   closeVekModal();
   showToast("Profil mis à jour");
 }
 
+/* ============================================================
+   8. ULTIMATE MODAL — Discord CTA + access code (coming soon)
+   ============================================================ */
 function openUltimateModal() {
   document.getElementById("ultimate-modal").classList.add("open");
   const box = document.querySelector("#ultimate-modal .modal-box");
@@ -326,14 +562,12 @@ function openUltimateModal() {
 }
 function closeUltimateModal() { document.getElementById("ultimate-modal").classList.remove("open"); }
 
-function joinWaitlist(e) {
-  e.preventDefault();
-  const emailInput = document.getElementById("waitlist-email");
-  const email = emailInput.value.trim();
-  if (!email) return;
-  emailInput.value = "";
-  closeUltimateModal();
-  showToast("Tu es sur la liste d'attente ✨");
+function redeemAccessCode() {
+  const input = document.getElementById("access-code-input");
+  const val = input.value.trim();
+  if (!val) { showToast("Entre d'abord un code."); return; }
+  input.value = "";
+  showToast("Cette fonctionnalité arrive bientôt 🔒");
 }
 
 document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
@@ -343,7 +577,7 @@ document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
 });
 
 /* ============================================================
-   7. MODELS
+   9. MODELS
    ============================================================ */
 function selectModel(el, icon, name) {
   if (!el) return;
@@ -351,11 +585,16 @@ function selectModel(el, icon, name) {
   el.classList.add("active");
   const badge = document.getElementById("model-badge");
   if (badge) badge.textContent = `${icon} ${name}`;
+  if (activeConvId && convs[activeConvId]) {
+    convs[activeConvId].modelIcon = icon;
+    convs[activeConvId].modelName = name;
+    persistConvs();
+  }
   showToast(`Modèle activé : ${name}`);
 }
 
 /* ============================================================
-   8. CATEGORY / FEATURE CHIPS
+   10. CATEGORY / FEATURE CHIPS
    ============================================================ */
 function fillPrompt(text) {
   const input = document.getElementById("user-input");
@@ -365,132 +604,169 @@ function fillPrompt(text) {
 }
 
 /* ============================================================
-   9. CONVERSATIONS
+   11. CONVERSATIONS — persisted per account, capped at 5
    ============================================================ */
-function createConvItem(name) {
+function persistConvs() {
+  if (!currentUserKey) return;
+  lsSet(`vektra_convs_${currentUserKey}`, convs);
+}
+function setActiveConvId(id) {
+  activeConvId = id;
+  if (currentUserKey) lsSet(`vektra_active_${currentUserKey}`, id);
+}
+
+function createConvRecord(name) {
+  const id = "conv_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+  convs[id] = { id, name, modelIcon: "🛡️", modelName: "Vektra Core", messages: [] };
+  persistConvs();
+  setActiveConvId(id);
+  return id;
+}
+
+function createNewChat() {
+  if (!currentUserKey) return;
+  const count = Object.keys(convs).length;
+  if (count >= MAX_CONVS) {
+    showToast("Réservé à la version ULTIMATE ✨");
+    openUltimateModal();
+    return;
+  }
+  const name = `Conversation #${count + 1}`;
+  const id = createConvRecord(name);
+  renderConvSidebar();
+  loadConv(id);
+  showToast("Nouvelle conversation créée");
+}
+
+function createConvItemEl(conv) {
   const item = document.createElement("div");
   item.className = "conv-item";
+  item.dataset.convId = conv.id;
 
   const span = document.createElement("span");
   span.className = "conv-name";
-  span.textContent = name;
+  span.textContent = conv.name;
 
   const del = document.createElement("button");
   del.className = "conv-delete";
   del.setAttribute("aria-label", "Supprimer la conversation");
   del.textContent = "×";
-  del.addEventListener("click", (e) => deleteConv(e, del));
+  del.addEventListener("click", (e) => { e.stopPropagation(); deleteConvById(conv.id); });
 
   item.appendChild(span);
   item.appendChild(del);
-  item.addEventListener("click", () => switchConv(item, name));
-
+  item.addEventListener("click", () => loadConv(conv.id));
   return item;
 }
 
-function createNewChat() {
+function renderConvSidebar() {
   const list = document.getElementById("conv-list");
-  const empty = document.getElementById("conv-empty");
-  if (empty) empty.remove();
-
-  const count = list.children.length + 1;
-  const name = `Conversation #${count}`;
-  const item = createConvItem(name);
-
-  document.querySelectorAll(".conv-item").forEach((el) => el.classList.remove("active"));
-  item.classList.add("active");
-  list.appendChild(item);
-
-  document.getElementById("chat-area-title").textContent = name;
-  document.getElementById("chat-messages").innerHTML = buildHeroHTML();
-  showToast("Nouvelle conversation créée");
-}
-
-function switchConv(el, name) {
-  document.querySelectorAll(".conv-item").forEach((item) => item.classList.remove("active"));
-  el.classList.add("active");
-  document.getElementById("chat-area-title").textContent = name;
-}
-
-function deleteConv(e, btn) {
-  e.stopPropagation();
-  const item = btn.closest(".conv-item");
-  const list = document.getElementById("conv-list");
-  const wasActive = item.classList.contains("active");
-  item.remove();
-
-  if (wasActive) {
-    const next = list.querySelector(".conv-item");
-    if (next) {
-      next.classList.add("active");
-      const nameEl = next.querySelector(".conv-name");
-      document.getElementById("chat-area-title").textContent = nameEl ? nameEl.textContent : "Conversation";
-    }
-  }
-
-  if (list.children.length === 0) {
+  if (!list) return;
+  list.innerHTML = "";
+  const ids = Object.keys(convs);
+  ids.forEach((id) => {
+    const item = createConvItemEl(convs[id]);
+    if (id === activeConvId) item.classList.add("active");
+    list.appendChild(item);
+  });
+  if (ids.length === 0) {
     const p = document.createElement("p");
     p.id = "conv-empty";
     p.className = "conv-empty";
     p.textContent = 'Aucune conversation — clique sur "Nouvelle conversation".';
     list.appendChild(p);
   }
+  updateConvLimitNote();
+}
 
+function updateConvLimitNote() {
+  const note = document.getElementById("conv-limit-note");
+  if (!note) return;
+  const count = Object.keys(convs).length;
+  note.textContent = `${count} / ${MAX_CONVS} conversations utilisées`;
+  note.classList.toggle("limit-reached", count >= MAX_CONVS);
+}
+
+function loadConv(id) {
+  if (!convs[id]) return;
+  setActiveConvId(id);
+  document.querySelectorAll("#conv-list .conv-item").forEach((el) => {
+    el.classList.toggle("active", el.dataset.convId === id);
+  });
+
+  const conv = convs[id];
+  document.getElementById("chat-area-title").textContent = conv.name;
+  document.getElementById("model-badge").textContent = `${conv.modelIcon} ${conv.modelName}`;
+  document.querySelectorAll(".model-card").forEach((c) => {
+    const nameEl = c.querySelector(".model-name");
+    c.classList.toggle("active", nameEl && conv.modelName.toLowerCase().includes(nameEl.textContent.toLowerCase()));
+  });
+
+  renderMessagesForConv(conv);
+}
+
+function deleteConvById(id) {
+  if (!convs[id]) return;
+  const wasActive = id === activeConvId;
+  delete convs[id];
+  persistConvs();
+  renderConvSidebar();
+
+  if (wasActive) {
+    const remaining = Object.keys(convs);
+    if (remaining.length > 0) {
+      loadConv(remaining[0]);
+    } else {
+      activeConvId = null;
+      document.getElementById("chat-area-title").textContent = "Conversation";
+      const box = document.getElementById("chat-messages");
+      box.innerHTML = "";
+      box.appendChild(buildHeroNode());
+    }
+  }
   showToast("Conversation supprimée");
 }
 
 /* ============================================================
-   10. HERO (empty-state welcome screen)
+   12. HERO (empty-state welcome screen)
    ============================================================ */
-function buildHeroHTML() {
-  const name = escapeHtml(currentUsername);
-  return `
-    <div class="chat-hero" id="chat-hero">
-      <svg class="hero-mascot" viewBox="0 0 100 122"><use href="#vektra-mascot"></use></svg>
-      <h2 class="hero-greeting" id="hero-greeting">Bonjour, ${name}.</h2>
-      <p class="hero-sub">Le noyau Vektra est en ligne. Choisis une catégorie ou lance directement une conversation.</p>
-
-      <div class="category-chips">
-        <button class="chip" onclick="fillPrompt('Parlons de ')">💬 Discussion libre</button>
-        <button class="chip" onclick="fillPrompt('Aide-moi à corriger ce code : ')">💻 Code &amp; debug</button>
-        <button class="chip" onclick="fillPrompt('Imagine une idée originale pour ')">🎨 Créativité</button>
-        <button class="chip" onclick="fillPrompt('Analyse ces données : ')">📊 Analyse</button>
-        <button class="chip" onclick="fillPrompt('Explique-moi en détail ')">🔍 Recherche</button>
-      </div>
-
-      <div class="feature-grid">
-        <button class="feature-card" onclick="fillPrompt('Parlons de ')">
-          <svg class="feature-icon" viewBox="0 0 32 32"><path d="M6 8h20a2 2 0 012 2v10a2 2 0 01-2 2H14l-6 5v-5H6a2 2 0 01-2-2V10a2 2 0 012-2z" fill="none" stroke="url(#gradIcon)" stroke-width="2" stroke-linejoin="round"/></svg>
-          <span class="feature-title">Conversation naturelle</span>
-          <span class="feature-desc">Un dialogue fluide, en français, sans détour.</span>
-        </button>
-        <button class="feature-card" onclick="fillPrompt('Aide-moi à corriger ce code : ')">
-          <svg class="feature-icon" viewBox="0 0 32 32"><path d="M11 9l-7 7 7 7M21 9l7 7-7 7" fill="none" stroke="url(#gradIcon)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span class="feature-title">Code &amp; scripts</span>
-          <span class="feature-desc">Génère, corrige et explique du code.</span>
-        </button>
-        <button class="feature-card" onclick="selectModel(document.querySelector('[data-model=vision]'),'👁️','Vektra Vision')">
-          <svg class="feature-icon" viewBox="0 0 32 32"><path d="M2 16s5-9 14-9 14 9 14 9-5 9-14 9-14-9-14-9z" fill="none" stroke="url(#gradIcon)" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="4" fill="none" stroke="url(#gradIcon)" stroke-width="2"/></svg>
-          <span class="feature-title">Vision</span>
-          <span class="feature-desc">Analyse des images, décrit ce qu'elles montrent.</span>
-        </button>
-        <button class="feature-card" onclick="selectModel(document.querySelector('[data-model=rapide]'),'⚡','Vektra Rapide')">
-          <svg class="feature-icon" viewBox="0 0 32 32"><path d="M18 2L6 18h8l-2 12 14-18h-9l1-10z" fill="url(#gradIcon)"/></svg>
-          <span class="feature-title">Réponses rapides</span>
-          <span class="feature-desc">Latence minimale, propulsé par Vektra Rapide.</span>
-        </button>
-      </div>
-    </div>`;
+function buildHeroNode() {
+  const tpl = document.getElementById("hero-template");
+  const node = tpl.content.cloneNode(true);
+  const greetingEl = node.querySelector("#hero-greeting");
+  if (greetingEl) greetingEl.textContent = `Bonjour, ${currentUsername || "l'associé"}.`;
+  return node;
 }
 
-function hideHero(toast) {
+function hideHero() {
   const hero = document.getElementById("chat-hero");
   if (hero) hero.remove();
-  if (toast) showToast("Conversation démarrée");
+}
+
+function renderMessagesForConv(conv) {
+  const box = document.getElementById("chat-messages");
+  box.innerHTML = "";
+  if (!conv.messages || conv.messages.length === 0) {
+    box.appendChild(buildHeroNode());
+    return;
+  }
+  conv.messages.forEach((m) => {
+    const { wrap, p } = createMsgEl(m.sender, m.author);
+    p.textContent = m.text;
+    if (m.sender === "bot") wrap.querySelector(".msg-content").classList.add("glow-settled");
+    box.appendChild(wrap);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+function pushMessageToActiveConv(sender, author, text) {
+  if (!activeConvId || !convs[activeConvId]) return;
+  convs[activeConvId].messages.push({ sender, author, text });
+  persistConvs();
 }
 
 /* ============================================================
-   11. MESSAGES — send, render, typewriter
+   13. MESSAGES — send, render, typewriter, glow
    ============================================================ */
 function createMsgEl(sender, authorText) {
   const wrap = document.createElement("div");
@@ -501,7 +777,7 @@ function createMsgEl(sender, authorText) {
   if (sender === "bot") {
     avatar.innerHTML = '<svg viewBox="0 0 100 122"><use href="#vektra-mascot"></use></svg>';
   } else {
-    avatar.textContent = currentAvatar;
+    renderAvatarInto(avatar, currentAvatar);
   }
 
   const content = document.createElement("div");
@@ -543,6 +819,12 @@ function typeText(el, text, speed, onTick) {
 
 async function sendMessage(e) {
   e.preventDefault();
+
+  if (!currentUserKey || !activeConvId) {
+    showToast("Connecte-toi pour discuter avec Vektra.");
+    return;
+  }
+
   const input = document.getElementById("user-input");
   const text = input.value.trim();
   if (!text) return;
@@ -550,14 +832,16 @@ async function sendMessage(e) {
   const messagesBox = document.getElementById("chat-messages");
   const indicator = document.getElementById("typing-indicator");
 
-  hideHero(false);
+  hideHero();
 
   const { wrap: userWrap, p: userP } = createMsgEl("user", currentUsername.toUpperCase());
   userP.textContent = text;
   messagesBox.appendChild(userWrap);
   input.value = "";
   messagesBox.scrollTop = messagesBox.scrollHeight;
+  pushMessageToActiveConv("user", currentUsername.toUpperCase(), text);
 
+  setMascotExpression("curious");
   indicator.style.display = "flex";
 
   try {
@@ -570,17 +854,47 @@ async function sendMessage(e) {
     indicator.style.display = "none";
 
     const { wrap: botWrap, p: botP } = createMsgEl("bot", "VEKTRA // SECURE CORE");
+    const contentEl = botWrap.querySelector(".msg-content");
+    contentEl.classList.add("glow-active");
     messagesBox.appendChild(botWrap);
     messagesBox.scrollTop = messagesBox.scrollHeight;
 
     const replyText = data.reply || data.error || "Erreur inconnue.";
     const speed = Math.max(8, Math.min(30, 1600 / Math.max(replyText.length, 1)));
     typeText(botP, replyText, speed, () => { messagesBox.scrollTop = messagesBox.scrollHeight; });
+
+    setTimeout(() => {
+      contentEl.classList.remove("glow-active");
+      contentEl.classList.add("glow-settled");
+    }, speed * replyText.length + 300);
+
+    pushMessageToActiveConv("bot", "VEKTRA // SECURE CORE", replyText);
+    setMascotExpression("amazed");
+    setTimeout(() => setMascotExpression("calm"), 2200);
   } catch (err) {
     indicator.style.display = "none";
     const { wrap: errWrap, p: errP } = createMsgEl("bot", "SYSTEM ERROR");
     errP.textContent = "Erreur de liaison avec le noyau EDC.";
     messagesBox.appendChild(errWrap);
     messagesBox.scrollTop = messagesBox.scrollHeight;
+    pushMessageToActiveConv("bot", "SYSTEM ERROR", "Erreur de liaison avec le noyau EDC.");
+    setMascotExpression("annoyed");
+    setTimeout(() => setMascotExpression("calm"), 2200);
   }
 }
+
+/* ============================================================
+   14. INPUT — typing triggers the "curious" expression
+   ============================================================ */
+(function wireInputExpressions() {
+  const input = document.getElementById("user-input");
+  if (!input) return;
+  let typingIdleTimer = null;
+  input.addEventListener("input", () => {
+    setMascotExpression("curious");
+    clearTimeout(typingIdleTimer);
+    typingIdleTimer = setTimeout(() => setMascotExpression("calm"), 1200);
+    resetIdleBoredTimer();
+  });
+  input.addEventListener("focus", resetIdleBoredTimer);
+})();
