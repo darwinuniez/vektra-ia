@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>VEKTRA // Ervin Digital Corp — IA Sécurisée (Bêta)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -229,6 +229,9 @@
 
     <header class="app-header">
       <div class="header-left" id="logo-home-btn" role="button" tabindex="0" aria-label="Retour à l'accueil">
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Ouvrir le menu" onclick="event.stopPropagation(); toggleSidebar();">
+          <span></span><span></span><span></span>
+        </button>
         <div class="edc-badge">
           <span class="edc-badge-text">EDC</span>
           <svg class="edc-star" viewBox="0 0 24 24"><path d="M12 2 L14.5 9.2 L22 9.6 L16 14.3 L18.1 21.6 L12 17.4 L5.9 21.6 L8 14.3 L2 9.6 L9.5 9.2 Z"/></svg>
@@ -262,9 +265,11 @@
       </div>
     </div>
 
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
     <div class="main-layout">
 
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
         <button class="btn-new-chat" id="btn-new-chat" onclick="createNewChat()">+ Nouvelle conversation</button>
         <p class="conv-limit-note" id="conv-limit-note">0 / 5 conversations utilisées</p>
 

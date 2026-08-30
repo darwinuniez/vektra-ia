@@ -31,9 +31,16 @@ html, body {
   color: var(--text-main);
   height: 100%;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
-body { position: relative; }
+body {
+  position: relative;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 
 button, input { font-family: inherit; }
 button { background: none; }
@@ -405,6 +412,23 @@ button { background: none; }
   z-index: 5;
 }
 .header-left { display: flex; align-items: center; gap: 10px; cursor: pointer; transition: transform 0.2s ease; }
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.hamburger-btn span { display: block; width: 16px; height: 2px; margin: 0 auto; background: var(--text-main); border-radius: 2px; transition: transform 0.25s ease, opacity 0.2s ease; }
+.hamburger-btn.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger-btn.open span:nth-child(2) { opacity: 0; }
+.hamburger-btn.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 .header-left:hover { transform: translateY(-1px); }
 .logo-mark { position: relative; display: flex; align-items: center; justify-content: center; }
 .logo-mark::before {
@@ -592,6 +616,7 @@ button { background: none; }
 
 /* layout */
 .main-layout { flex: 1; display: flex; padding: 16px 24px; gap: 20px; min-height: 0; }
+.sidebar-backdrop { display: none; }
 
 /* ==================================================================
    6. SIDEBAR — liquid glass panels
@@ -608,6 +633,7 @@ button { background: none; }
   flex-direction: column;
   gap: 14px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .btn-new-chat {
@@ -843,7 +869,7 @@ button { background: none; }
 .dots-anim span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes bounceDot { to { transform: translateY(-4px); } }
 
-.chat-messages { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+.chat-messages { flex: 1; padding: 25px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 18px; }
 
 /* hero / empty state */
 .chat-hero { margin: auto; max-width: 620px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0 20px; }
@@ -902,7 +928,7 @@ button { background: none; }
 .msg.user .msg-avatar { background: rgba(45, 255, 168, 0.14); box-shadow: 0 0 10px rgba(45, 255, 168, 0.35); }
 .mini-edc-badge { font-family: var(--font-display); font-weight: 800; font-size: 0.58rem; letter-spacing: 0.5px; color: var(--flare-pink); }
 
-.msg-content { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); padding: 12px 16px; border-radius: 18px; font-size: 0.9rem; line-height: 1.5; transition: box-shadow 0.4s ease, border-color 0.4s ease; }
+.msg-content { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); padding: 12px 16px; border-radius: 18px; font-size: 0.9rem; line-height: 1.5; transition: box-shadow 0.4s ease, border-color 0.4s ease; overflow-wrap: anywhere; word-break: break-word; }
 .msg.user .msg-content { background: rgba(45, 255, 168, 0.08); border-color: rgba(45, 255, 168, 0.25); }
 .msg-content.glow-active { border-color: var(--flare-pink); animation: responseGlowPulse 1.3s ease-in-out infinite; }
 @keyframes responseGlowPulse {
@@ -917,7 +943,7 @@ button { background: none; }
 .chat-input-container { padding: 16px 24px; border-top: 1px solid var(--panel-border); flex-shrink: 0; }
 #chat-form { display: flex; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(14px); border: 1px solid var(--panel-border); border-radius: 18px; padding: 4px 8px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
 #chat-form:focus-within { border-color: var(--flare-pink); box-shadow: 0 0 15px rgba(41, 211, 255, 0.25); }
-#user-input { flex: 1; background: transparent; border: none; outline: none; color: #fff; padding: 10px; font-size: 0.9rem; }
+#user-input { flex: 1; background: transparent; border: none; outline: none; color: #fff; padding: 10px; font-size: 16px; }
 .btn-send { background: linear-gradient(135deg, var(--flare-pink), var(--flare-orange)); border: none; color: #041012; width: 36px; height: 36px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; }
 .btn-send:hover { transform: scale(1.08); }
 
@@ -975,7 +1001,7 @@ button { background: none; }
   padding: 11px 14px;
   border-radius: 14px;
   color: #fff;
-  font-size: 0.82rem;
+  font-size: 16px;
   outline: none;
 }
 .access-code-row input:focus { border-color: var(--flare-orange); }
@@ -1004,7 +1030,7 @@ button { background: none; }
 
 .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
 .form-group label { font-size: 0.75rem; color: var(--text-muted); }
-.form-group input { background: rgba(0, 0, 0, 0.45); border: 1px solid var(--panel-border); padding: 10px 12px; border-radius: 14px; color: #fff; outline: none; }
+.form-group input { background: rgba(0, 0, 0, 0.45); border: 1px solid var(--panel-border); padding: 10px 12px; border-radius: 14px; color: #fff; font-size: 16px; outline: none; }
 .form-group input:focus { border-color: var(--flare-pink); }
 
 .btn-action-modal { width: 100%; background: linear-gradient(135deg, var(--flare-pink), var(--violet)); border: none; color: #fff; padding: 12px; border-radius: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s ease; }
@@ -1086,16 +1112,71 @@ button { background: none; }
 /* ==================================================================
    9. RESPONSIVE
    ================================================================== */
-@media (max-width: 860px) {
-  .main-layout { flex-direction: column; padding: 12px; }
-  .sidebar { width: 100%; max-height: 240px; }
-  .msg { max-width: 90%; }
-  .boot-logo { letter-spacing: 4px; }
-  .feature-grid { grid-template-columns: 1fr; }
-  .mascot-widget { transform: scale(0.85); left: 12px; bottom: 12px; }
-  #cursor-glow { display: none; }
-  .auth-card { padding: 26px 20px 22px; }
+@media (max-width: 1023px) {
+  .sidebar { width: 240px; }
+  .main-layout { padding: 12px 16px; gap: 14px; }
+}
+
+/* ---- mobile drawer (sidebar becomes an off-canvas panel) ---- */
+@media (max-width: 760px) {
+  .hamburger-btn { display: flex; }
   .header-title { display: none; }
+  .beta-badge { display: none; }
+
+  .main-layout { flex-direction: row; padding: 10px; gap: 0; }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 85vw;
+    max-width: 320px;
+    max-height: none;
+    border-radius: 0 24px 24px 0;
+    z-index: 700;
+    transform: translateX(-105%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    padding-top: calc(16px + env(safe-area-inset-top));
+    -webkit-overflow-scrolling: touch;
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 3, 4, 0.6);
+    backdrop-filter: blur(6px);
+    z-index: 650;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .chat-area { width: 100%; }
+  .msg { max-width: 92%; }
+  .boot-logo { letter-spacing: 3px; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .category-chips { gap: 6px; }
+  .mascot-widget { transform: scale(0.82); left: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); }
+  #cursor-glow { display: none; }
+  .auth-card { padding: 24px 18px 20px; max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .chat-input-container { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .online-badge span:not(.online-dot) { font-size: 0.68rem; }
+  .btn-discord span, .btn-discord { font-size: 0; gap: 0; padding: 8px; }
+  .btn-discord svg { width: 16px; height: 16px; }
+
+  /* lighten GPU load: fewer stacked blurred layers on phones */
+  .side-card, .conv-item, .chip, .feature-card, .model-card { backdrop-filter: none; }
+  .sidebar, .chat-area, .app-header, .modal-box, .auth-card { backdrop-filter: blur(18px) saturate(150%); }
+}
+
+@media (max-width: 380px) {
+  .model-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .edc-badge-lg { width: 54px; height: 54px; }
+  .hero-scene-title, .boot-logo { letter-spacing: 2px; }
 }
 
 /* ==================================================================

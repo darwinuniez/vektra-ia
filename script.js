@@ -162,7 +162,7 @@ function renderAvatarInto(el, avatarValue) {
   if (!canvas || !canvas.getContext) return;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const ctx = canvas.getContext("2d");
-  const COUNT = 46;
+  const COUNT = window.innerWidth < 760 ? 20 : 46;
   let w, h, particles;
 
   function resize() {
@@ -368,6 +368,20 @@ document.addEventListener("click", () => {
   if (currentExpression === "bored") setMascotExpression("calm");
 });
 resetIdleBoredTimer();
+
+/* ============================================================
+   4b. MOBILE SIDEBAR DRAWER
+   ============================================================ */
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("open");
+  document.getElementById("sidebar-backdrop").classList.toggle("open");
+  document.getElementById("hamburger-btn").classList.toggle("open");
+}
+function closeSidebar() {
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebar-backdrop").classList.remove("open");
+  document.getElementById("hamburger-btn").classList.remove("open");
+}
 
 /* ============================================================
    5. HEADER LOGO — click feedback (never destroys conversation data)
@@ -703,6 +717,7 @@ function loadConv(id) {
   });
 
   renderMessagesForConv(conv);
+  closeSidebar();
 }
 
 function deleteConvById(id) {
