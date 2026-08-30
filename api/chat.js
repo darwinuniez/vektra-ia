@@ -15,7 +15,7 @@
 //  2. Dans les Environment Variables du projet Vercel, ajoute :
 //       GROQ_API_KEY      -> ta clé Groq (console.groq.com, gratuite)
 //       TAVILY_API_KEY    -> optionnel, pour la recherche web (tavily.com)
-//       GROQ_MODEL        -> optionnel, défaut "llama-3.3-70b-versatile"
+//       GROQ_MODEL        -> optionnel, défaut "openai/gpt-oss-120b"
 //  3. Redéploie. La route reste POST /api/chat, donc script.js n'a rien
 //     à changer côté front.
 //
@@ -28,7 +28,7 @@
 import Groq from "groq-sdk";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY || "";
 
 /* ============================================================
