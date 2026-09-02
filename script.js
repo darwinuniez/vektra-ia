@@ -114,6 +114,11 @@ function renderAvatarInto(el, avatarValue) {
     if (finished || !heroScene) { runWipe(); return; }
     logoWrap.classList.remove("show");
     heroScene.classList.add("show");
+    if (shockwave) {
+      shockwave.classList.remove("burst");
+      void shockwave.offsetWidth; // force reflow so the animation replays
+      shockwave.classList.add("burst");
+    }
     setTimeout(runWipe, 2400);
   }
 
@@ -198,7 +203,7 @@ function renderAvatarInto(el, avatarValue) {
         const dx = a.x - b.x, dy = a.y - b.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < 130) {
-          ctx.strokeStyle = `rgba(45, 255, 168, ${0.16 * (1 - dist / 130)})`;
+          ctx.strokeStyle = `rgba(168, 85, 247, ${0.16 * (1 - dist / 130)})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
@@ -615,6 +620,7 @@ function fillPrompt(text) {
   input.value = text;
   input.focus();
   input.setSelectionRange(text.length, text.length);
+  stopInputHint();
 }
 
 /* ============================================================
@@ -853,6 +859,7 @@ async function sendMessage(e) {
   userP.textContent = text;
   messagesBox.appendChild(userWrap);
   input.value = "";
+  startInputHint();
   messagesBox.scrollTop = messagesBox.scrollHeight;
   pushMessageToActiveConv("user", currentUsername.toUpperCase(), text);
 
@@ -912,4 +919,62 @@ async function sendMessage(e) {
     resetIdleBoredTimer();
   });
   input.addEventListener("focus", resetIdleBoredTimer);
+})();
+
+/* ============================================================
+   15. INPUT — phrases d'accroche animées (remplace le placeholder)
+   ============================================================ */
+const inputHintPhrases = [
+  "Prêt à jeter l'encre ?",
+  "Une question, l'associé ?",
+  "Le noyau t'écoute…",
+  "Balance ton idée.",
+  "Qu'est-ce qu'on déchiffre aujourd'hui ?",
+  "Parle, je capte tout."
+];
+let inputHintIndex = 0;
+let inputHintTimer = null;
+
+function paintInputHint() {
+  const hint = document.getElementById("input-hint");
+  if (!hint) return;
+  hint.textContent = inputHintPhrases[inputHintIndex];
+  inputHintIndex = (inputHintIndex + 1) % inputHintPhrases.length;
+}
+
+function cycleInputHint() {
+  const hint = document.getElementById("input-hint");
+  if (!hint) return;
+  hint.classList.add("hint-out");
+  setTimeout(() => {
+    paintInputHint();
+    hint.classList.remove("hint-out");
+  }, 350);
+}
+
+function startInputHint() {
+  const input = document.getElementById("user-input");
+  const hint = document.getElementById("input-hint");
+  if (!input || !hint || input.value) return;
+  clearInterval(inputHintTimer);
+  paintInputHint();
+  hint.classList.add("show");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduced) inputHintTimer = setInterval(cycleInputHint, 3200);
+}
+
+function stopInputHint() {
+  clearInterval(inputHintTimer);
+  const hint = document.getElementById("input-hint");
+  if (hint) hint.classList.remove("show");
+}
+
+(function wireInputHint() {
+  const input = document.getElementById("user-input");
+  if (!input) return;
+  input.addEventListener("input", () => {
+    if (input.value) stopInputHint();
+    else startInputHint();
+  });
+  startInputHint();
 })();

@@ -15,11 +15,11 @@
     <defs>
       <linearGradient id="gradBody" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stop-color="#29d3ff"/>
-        <stop offset="100%" stop-color="#1de9a6"/>
+        <stop offset="100%" stop-color="#9d4bff"/>
       </linearGradient>
       <linearGradient id="gradIcon" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stop-color="#29d3ff"/>
-        <stop offset="100%" stop-color="#2dffa8"/>
+        <stop offset="100%" stop-color="#a855f7"/>
       </linearGradient>
       <linearGradient id="gradBandana" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stop-color="#0c1720"/>
@@ -32,14 +32,18 @@
         <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
         <g class="mascot-eye" style="transform-origin:64px 49px;">
           <ellipse cx="64" cy="49" rx="6" ry="8" fill="#fff"/>
-          <ellipse cx="64" cy="51" rx="3" ry="4" fill="#0af0c8"/>
+          <ellipse cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"/>
         </g>
         <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
         <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"/>
         <path d="M38 68 Q53 75 66 65" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <path d="M14 30 Q50 8 86 30 L84 38 Q50 20 16 38 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"/>
-        <g class="mascot-tail" style="transform-origin:80px 28px;">
-          <path d="M78 27 Q94 32 90 46 Q83 36 75 30 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"/>
+        <!-- bicorne hat -->
+        <path d="M2 24 Q20 2 50 20 Q80 2 98 24 Q76 34 50 26 Q24 34 2 24 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"/>
+        <!-- demon horns poking through -->
+        <path d="M40 20 Q37 9 44 5 Q42 15 47 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
+        <path d="M60 20 Q63 9 56 5 Q58 15 53 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
+        <g class="mascot-tail" style="transform-origin:82px 14px;">
+          <path d="M80 12 Q96 4 90 20 Q85 14 78 16 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"/>
         </g>
         <g transform="translate(50 98)">
           <rect x="-25" y="-9" width="50" height="18" rx="9" fill="rgba(3,4,5,0.88)" stroke="#29d3ff" stroke-width="1"/>
@@ -58,6 +62,12 @@
         <!-- arms -->
         <path class="mascot-arm-hip" style="transform-origin:30px 92px;" d="M30 92 Q14 104 22 122 Q26 132 38 130" stroke="url(#gradBody)" stroke-width="14" stroke-linecap="round" fill="none"/>
         <path d="M70 92 Q86 108 80 138" stroke="url(#gradBody)" stroke-width="14" stroke-linecap="round" fill="none"/>
+        <!-- cutlass, held loosely at the side -->
+        <g transform="rotate(22 78 134)">
+          <rect x="73" y="127" width="6" height="15" rx="2.5" fill="#3a2416"/>
+          <rect x="67" y="129" width="17" height="3.2" rx="1.6" fill="#c9a227"/>
+          <path d="M79 130 Q101 138 94 173 Q92 176 89 174 Q94 146 76 134 Z" fill="#d7e3ea" stroke="#8fa3ad" stroke-width="0.6"/>
+        </g>
         <!-- torso -->
         <rect x="25" y="82" width="50" height="68" rx="24" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
         <rect x="25" y="132" width="50" height="8" rx="4" fill="#0a0e12" opacity="0.55"/>
@@ -65,19 +75,23 @@
           <rect x="-19" y="-7" width="38" height="14" rx="7" fill="rgba(3,4,5,0.85)" stroke="#29d3ff" stroke-width="0.75"/>
           <text x="0" y="3.5" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="7" font-weight="700" fill="#29d3ff" letter-spacing="1">VEKTRA</text>
         </g>
-        <!-- head (mean-but-smiling) -->
+        <!-- head (mean-but-smiling demon) -->
         <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
         <g class="mascot-eye" style="transform-origin:64px 49px;">
           <ellipse cx="64" cy="49" rx="6" ry="8" fill="#fff"/>
-          <ellipse cx="64" cy="51" rx="3" ry="4" fill="#0af0c8"/>
+          <ellipse cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"/>
         </g>
         <path d="M56 38 Q64 34 71 38" stroke="#0a0e12" stroke-width="3" stroke-linecap="round"/>
         <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
         <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"/>
         <path d="M38 68 Q53 76 67 64" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <path d="M14 30 Q50 8 86 30 L84 38 Q50 20 16 38 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"/>
-        <g class="mascot-tail" style="transform-origin:80px 28px;">
-          <path d="M78 27 Q94 32 90 46 Q83 36 75 30 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"/>
+        <!-- bicorne hat -->
+        <path d="M2 24 Q20 2 50 20 Q80 2 98 24 Q76 34 50 26 Q24 34 2 24 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"/>
+        <!-- demon horns poking through -->
+        <path d="M40 20 Q37 9 44 5 Q42 15 47 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
+        <path d="M60 20 Q63 9 56 5 Q58 15 53 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
+        <g class="mascot-tail" style="transform-origin:82px 14px;">
+          <path d="M80 12 Q96 4 90 20 Q85 14 78 16 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"/>
         </g>
       </symbol>
     </defs>
@@ -107,6 +121,7 @@
 
     <div class="hero-scene" id="hero-scene">
       <div class="hero-scene-rays" aria-hidden="true"></div>
+      <img src="logo.png" alt="ED CORP" class="hero-scene-logo-mark">
       <div class="hero-scene-logo">
         <h1 class="hero-scene-title">VEKTRA</h1>
         <p class="hero-scene-corp">ERVIN CORP</p>
@@ -141,10 +156,7 @@
   <div class="auth-gate" id="auth-gate">
     <div class="auth-card">
       <div class="auth-logo-row">
-        <div class="edc-badge edc-badge-lg">
-          <span class="edc-badge-text">EDC</span>
-          <svg class="edc-star" viewBox="0 0 24 24"><path d="M12 2 L14.5 9.2 L22 9.6 L16 14.3 L18.1 21.6 L12 17.4 L5.9 21.6 L8 14.3 L2 9.6 L9.5 9.2 Z"/></svg>
-        </div>
+        <img src="logo.png" alt="ED CORP" class="edc-badge edc-badge-lg">
       </div>
       <span class="beta-badge auth-beta">ACCÈS BÊTA</span>
 
@@ -211,14 +223,16 @@
         <ellipse cx="50" cy="108" rx="27" ry="6" fill="#000" opacity="0.3"></ellipse>
         <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"></rect>
         <ellipse id="mascot-eye-white" cx="64" cy="49" rx="6" ry="8" fill="#fff"></ellipse>
-        <ellipse id="mascot-eye-pupil" cx="64" cy="51" rx="3" ry="4" fill="#0af0c8"></ellipse>
+        <ellipse id="mascot-eye-pupil" cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"></ellipse>
         <path id="mascot-eyebrow" d="M56 40 Q60 38 64 40" stroke="#0a0e12" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
         <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"></path>
         <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"></ellipse>
         <path id="mascot-mouth" d="M38 68 Q53 75 66 65" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
-        <path d="M14 30 Q50 8 86 30 L84 38 Q50 20 16 38 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"></path>
-        <g class="mascot-tail" style="transform-origin:80px 28px;">
-          <path d="M78 27 Q94 32 90 46 Q83 36 75 30 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"></path>
+        <path d="M2 24 Q20 2 50 20 Q80 2 98 24 Q76 34 50 26 Q24 34 2 24 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"></path>
+        <path d="M40 20 Q37 9 44 5 Q42 15 47 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"></path>
+        <path d="M60 20 Q63 9 56 5 Q58 15 53 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"></path>
+        <g class="mascot-tail" style="transform-origin:82px 14px;">
+          <path d="M80 12 Q96 4 90 20 Q85 14 78 16 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"></path>
         </g>
       </svg>
     </button>
@@ -232,10 +246,7 @@
         <button class="hamburger-btn" id="hamburger-btn" aria-label="Ouvrir le menu" onclick="event.stopPropagation(); toggleSidebar();">
           <span></span><span></span><span></span>
         </button>
-        <div class="edc-badge">
-          <span class="edc-badge-text">EDC</span>
-          <svg class="edc-star" viewBox="0 0 24 24"><path d="M12 2 L14.5 9.2 L22 9.6 L16 14.3 L18.1 21.6 L12 17.4 L5.9 21.6 L8 14.3 L2 9.6 L9.5 9.2 Z"/></svg>
-        </div>
+        <img src="logo.png" alt="ED CORP" class="edc-badge">
         <span class="header-title">VEKTRA <span class="highlight">// CORE</span></span>
         <span class="beta-badge">BÊTA</span>
       </div>
@@ -244,9 +255,13 @@
           <span class="online-dot"></span>
           <span id="online-count">14</span>&nbsp;en ligne
         </div>
-        <a href="https://discord.gg/Kk8Heewet5" target="_blank" rel="noopener noreferrer" class="btn-discord">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12h.01M16 12h.01M7 5l-2 3.5V17a13 13 0 0010 3l1-1.5M17 5l2 3.5V17a13 13 0 01-10 3l-1-1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Discord
+        <a href="https://ervin-digital-corp-hub.vercel.app" target="_blank" rel="noopener noreferrer" class="header-icon-btn" title="Site officiel ED-Corp">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 L21 6.5 V13 C21 18 17 21.5 12 23 C7 21.5 3 18 3 13 V6.5 Z" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>ED-Corp</span>
+        </a>
+        <a href="https://discord.gg/Kk8Heewet5" target="_blank" rel="noopener noreferrer" class="header-icon-btn header-icon-discord" title="Rejoindre le Discord">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12h.01M16 12h.01M7 5l-2 3.5V17a13 13 0 0010 3l1-1.5M17 5l2 3.5V17a13 13 0 01-10 3l-1-1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Discord</span>
         </a>
         <button class="btn-account" onclick="openVekModal()">
           <span id="header-user-avatar">🏴‍☠️</span>
@@ -314,26 +329,6 @@
           <span class="ultimate-cta">Découvrir →</span>
         </div>
 
-        <a class="side-card discord-card" href="https://discord.gg/Kk8Heewet5" target="_blank" rel="noopener noreferrer">
-          <div class="discord-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12h.01M16 12h.01M7 5l-2 3.5V17a13 13 0 0010 3l1-1.5M17 5l2 3.5V17a13 13 0 01-10 3l-1-1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div>
-            <h3>Rejoindre le Discord</h3>
-            <p>Annonces, bêtas &amp; communauté ED-Corp.</p>
-          </div>
-        </a>
-
-        <a class="side-card corp-card" href="https://ervin-digital-corp-hub.vercel.app" target="_blank" rel="noopener noreferrer">
-          <div class="corp-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 L21 6.5 V13 C21 18 17 21.5 12 23 C7 21.5 3 18 3 13 V6.5 Z" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div>
-            <h3>ED-CORP</h3>
-            <p>Le site officiel d'Ervin Digital Corp.</p>
-          </div>
-        </a>
-
         <div class="sidebar-footer">
           <p class="legal-notice">Vektra est un système d'IA expérimental (bêta). Vérifie toute information critique. Ervin Digital Corp, tous droits réservés.</p>
         </div>
@@ -355,7 +350,10 @@
 
         <div class="chat-input-container">
           <form id="chat-form" onsubmit="sendMessage(event)">
-            <input type="text" id="user-input" placeholder="Envoyer un message à Vektra IA…" autocomplete="off">
+            <div class="input-wrap">
+              <input type="text" id="user-input" placeholder="" autocomplete="off">
+              <span class="input-hint" id="input-hint" aria-hidden="true"></span>
+            </div>
             <button type="submit" class="btn-send" aria-label="Envoyer">➤</button>
           </form>
         </div>
