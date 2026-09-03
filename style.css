@@ -341,26 +341,28 @@ button { background: none; }
 @keyframes toastOut { to { opacity: 0; transform: translateY(10px); } }
 
 /* ==================================================================
-   4. FLOATING MASCOT
+   4. MASCOT — now docked in the sidebar (below the Ultimate card)
    ================================================================== */
 .mascot-widget {
-  position: fixed;
-  bottom: 22px;
-  left: 22px;
-  z-index: 500;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  gap: 0;
+  cursor: default;
 }
+.mascot-widget-row { display: flex; align-items: center; gap: 12px; }
+.mascot-widget-label { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.mascot-widget-title { font-family: var(--font-display); font-size: 0.86rem; color: #fff; }
+.mascot-widget-sub { font-size: 0.7rem; color: var(--text-muted); }
+
 .mascot-avatar {
-  width: 64px;
-  height: 64px;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: rgba(10, 14, 16, 0.5);
   backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid var(--panel-border);
-  box-shadow: 0 0 22px rgba(41, 211, 255, 0.3), inset 0 1px 0 var(--glass-highlight);
+  box-shadow: 0 0 16px rgba(41, 211, 255, 0.25), inset 0 1px 0 var(--glass-highlight);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -368,13 +370,13 @@ button { background: none; }
   animation: mascotBob 3.2s ease-in-out infinite;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.mascot-avatar:hover { transform: scale(1.08); box-shadow: 0 0 30px rgba(168, 85, 247, 0.4), inset 0 1px 0 var(--glass-highlight); }
-.mascot-svg { width: 44px; height: 54px; }
+.mascot-avatar:hover { transform: scale(1.08); box-shadow: 0 0 26px rgba(168, 85, 247, 0.4), inset 0 1px 0 var(--glass-highlight); }
+.mascot-svg { width: 34px; height: 42px; }
 .mascot-svg.reacting { animation: mascotReact 0.35s ease; }
 @keyframes mascotReact { 0% { transform: scale(1); } 40% { transform: scale(1.14); } 100% { transform: scale(1); } }
 #mascot-eyebrow, #mascot-mouth, #mascot-eye-white, #mascot-eye-pupil { transition: d 0.2s ease, ry 0.2s ease; }
 .mascot-svg-mini { width: 20px; height: 24px; }
-@keyframes mascotBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes mascotBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
 /* mascot internal motion — blinking eye + waving bandana tail */
 .mascot-eye { animation: mascotBlink 4.5s ease-in-out infinite; }
@@ -383,23 +385,58 @@ button { background: none; }
 @keyframes tailWave { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-8deg); } }
 
 .mascot-bubble {
-  max-width: 230px;
-  background: rgba(8, 12, 14, 0.85);
-  backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 0 20px rgba(41, 211, 255, 0.22), inset 0 1px 0 var(--glass-highlight);
-  border-radius: 18px;
-  padding: 12px 14px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-top: 0;
+  background: rgba(8, 12, 14, 0.55);
+  border: 1px solid transparent;
+  border-radius: 14px;
   font-size: 0.78rem;
   line-height: 1.45;
   color: var(--text-main);
-  transform-origin: bottom left;
-  opacity: 0;
-  transform: scale(0.85) translateY(6px);
-  pointer-events: none;
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transition: max-height 0.28s ease, opacity 0.22s ease, margin-top 0.28s ease, padding 0.28s ease, border-color 0.28s ease;
 }
-.mascot-bubble.show { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+.mascot-bubble p { margin: 0; }
+.mascot-bubble.show {
+  max-height: 160px;
+  opacity: 1;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-color: var(--panel-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+/* ==================================================================
+   4b. SIDEBAR ACCOUNT BUTTON (moved from the top-right header)
+   ================================================================== */
+.sidebar-account-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+.sidebar-account-btn:hover { border-color: var(--flare-pink); transform: translateY(-1px); background: rgba(41, 211, 255, 0.06); }
+.sidebar-account-avatar {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+.sidebar-account-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.sidebar-account-label { font-size: 0.66rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.sidebar-account-name { font-size: 0.85rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar-account-arrow { color: var(--text-muted); font-size: 0.9rem; flex-shrink: 0; }
 
 /* ==================================================================
    5. APP SHELL / ENTRANCE
@@ -532,7 +569,7 @@ button { background: none; }
 #online-count.bump { animation: countBump 0.35s ease; }
 @keyframes countBump { 0% { transform: scale(1); } 40% { transform: scale(1.35); color: #fff; } 100% { transform: scale(1); } }
 
-.header-icon-btn, .btn-account {
+.header-icon-btn {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(14px);
   border: 1px solid var(--panel-border);
@@ -550,7 +587,16 @@ button { background: none; }
 }
 .header-icon-btn:hover { background: rgba(41, 211, 255, 0.14); border-color: var(--flare-pink); transform: translateY(-1px); }
 .header-icon-discord:hover { background: rgba(168, 85, 247, 0.14); border-color: var(--violet); }
-.btn-account:hover { background: rgba(41, 211, 255, 0.14); border-color: var(--flare-pink); transform: translateY(-1px); }
+
+.btn-update .update-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--flare-orange);
+  box-shadow: 0 0 8px var(--flare-orange);
+  animation: pulseNeon 1.4s infinite alternate;
+  flex-shrink: 0;
+}
 
 /* ticker — live pill + edge fade */
 .ticker-wrapper {
@@ -1228,7 +1274,6 @@ button { background: none; }
   .boot-logo { letter-spacing: 3px; }
   .feature-grid { grid-template-columns: 1fr; }
   .category-chips { gap: 6px; }
-  .mascot-widget { transform: scale(0.82); left: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); }
   #cursor-glow { display: none; }
   .auth-card { padding: 24px 18px 20px; max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .chat-input-container { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }

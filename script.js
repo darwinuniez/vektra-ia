@@ -592,6 +592,9 @@ function hydrateAppForUser() {
 function openVekModal() { document.getElementById("vek-modal").classList.add("open"); }
 function closeVekModal() { document.getElementById("vek-modal").classList.remove("open"); }
 
+function openUpdateModal() { document.getElementById("update-modal").classList.add("open"); }
+function closeUpdateModal() { document.getElementById("update-modal").classList.remove("open"); }
+
 function selectAvatar(el) {
   const emoji = el.dataset.avatar;
   document.querySelectorAll("#avatar-picker .avatar-opt").forEach((o) => o.classList.remove("active"));

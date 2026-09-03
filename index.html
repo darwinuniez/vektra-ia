@@ -215,31 +215,6 @@
     </div>
   </div>
 
-  <!-- ============ FLOATING MASCOT (dynamic expressions) ============ -->
-  <div class="mascot-widget" id="mascot-widget">
-    <div class="mascot-bubble" id="mascot-bubble">
-      <p id="mascot-bubble-text">Salut ! Je suis le compagnon du noyau Vektra. Clique une catégorie pour démarrer 👋</p>
-    </div>
-    <button class="mascot-avatar" id="mascot-trigger" aria-label="Astuce Vektra">
-      <svg class="mascot-svg" viewBox="0 0 100 122" aria-hidden="true">
-        <ellipse cx="50" cy="108" rx="27" ry="6" fill="#000" opacity="0.3"></ellipse>
-        <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"></rect>
-        <ellipse id="mascot-eye-white" cx="64" cy="49" rx="6" ry="8" fill="#fff"></ellipse>
-        <ellipse id="mascot-eye-pupil" cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"></ellipse>
-        <path id="mascot-eyebrow" d="M56 40 Q60 38 64 40" stroke="#0a0e12" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
-        <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"></path>
-        <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"></ellipse>
-        <path id="mascot-mouth" d="M38 68 Q53 75 66 65" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
-        <path d="M2 24 Q20 2 50 20 Q80 2 98 24 Q76 34 50 26 Q24 34 2 24 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"></path>
-        <path d="M40 20 Q37 9 44 5 Q42 15 47 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"></path>
-        <path d="M60 20 Q63 9 56 5 Q58 15 53 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"></path>
-        <g class="mascot-tail" style="transform-origin:82px 14px;">
-          <path d="M80 12 Q96 4 90 20 Q85 14 78 16 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"></path>
-        </g>
-      </svg>
-    </button>
-  </div>
-
   <!-- ============ APP SHELL ============ -->
   <div class="app-shell" id="app">
 
@@ -265,9 +240,9 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12h.01M16 12h.01M7 5l-2 3.5V17a13 13 0 0010 3l1-1.5M17 5l2 3.5V17a13 13 0 01-10 3l-1-1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span>Discord</span>
         </a>
-        <button class="btn-account" onclick="openVekModal()">
-          <span id="header-user-avatar">🏴‍☠️</span>
-          <span id="header-user-badge">Compte VEK</span>
+        <button class="header-icon-btn btn-update" onclick="openUpdateModal()" title="Notes de mise à jour">
+          <span class="update-dot" aria-hidden="true"></span>
+          <span>Mise à jour</span>
         </button>
       </div>
     </header>
@@ -330,6 +305,45 @@
           <p>Conversations illimitées, latence prioritaire, modèles étendus. La puissance complète du noyau.</p>
           <span class="ultimate-cta">Découvrir →</span>
         </div>
+
+        <div class="side-card mascot-widget" id="mascot-widget">
+          <div class="mascot-widget-row">
+            <button class="mascot-avatar" id="mascot-trigger" aria-label="Astuce Vektra">
+              <svg class="mascot-svg" viewBox="0 0 100 122" aria-hidden="true">
+                <ellipse cx="50" cy="108" rx="27" ry="6" fill="#000" opacity="0.3"></ellipse>
+                <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"></rect>
+                <ellipse id="mascot-eye-white" cx="64" cy="49" rx="6" ry="8" fill="#fff"></ellipse>
+                <ellipse id="mascot-eye-pupil" cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"></ellipse>
+                <path id="mascot-eyebrow" d="M56 40 Q60 38 64 40" stroke="#0a0e12" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
+                <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"></path>
+                <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"></ellipse>
+                <path id="mascot-mouth" d="M38 68 Q53 75 66 65" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+                <path d="M2 24 Q20 2 50 20 Q80 2 98 24 Q76 34 50 26 Q24 34 2 24 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"></path>
+                <path d="M40 20 Q37 9 44 5 Q42 15 47 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"></path>
+                <path d="M60 20 Q63 9 56 5 Q58 15 53 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"></path>
+                <g class="mascot-tail" style="transform-origin:82px 14px;">
+                  <path d="M80 12 Q96 4 90 20 Q85 14 78 16 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"></path>
+                </g>
+              </svg>
+            </button>
+            <div class="mascot-widget-label">
+              <span class="mascot-widget-title">Astuces Vektra</span>
+              <span class="mascot-widget-sub">Clique pour un conseil</span>
+            </div>
+          </div>
+          <div class="mascot-bubble" id="mascot-bubble">
+            <p id="mascot-bubble-text">Salut ! Je suis le compagnon du noyau Vektra. Clique une catégorie pour démarrer 👋</p>
+          </div>
+        </div>
+
+        <button class="side-card sidebar-account-btn" id="sidebar-account-btn" onclick="openVekModal()">
+          <span class="sidebar-account-avatar" id="header-user-avatar">🏴‍☠️</span>
+          <span class="sidebar-account-info">
+            <span class="sidebar-account-label">Mon compte</span>
+            <span class="sidebar-account-name" id="header-user-badge">Compte VEK</span>
+          </span>
+          <span class="sidebar-account-arrow" aria-hidden="true">→</span>
+        </button>
 
         <div class="sidebar-footer">
           <p class="legal-notice">Vektra est un système d'IA expérimental (bêta). Vérifie toute information critique. Ervin Digital Corp, tous droits réservés.</p>
@@ -426,6 +440,15 @@
 
       <button class="btn-action-modal" onclick="saveVekAccount()">Enregistrer</button>
       <button class="btn-logout" onclick="logoutUser()">Se déconnecter</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="update-modal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeUpdateModal()">×</button>
+      <span class="edc-modal-header">🆕 MISE À JOUR</span>
+      <h2>Version 2.1 Bêta</h2>
+      <p class="edc-modal-desc">Cette mise à jour apporte une optimisation plus poussée du noyau Vektra : réponses plus rapides, plus stables, et une meilleure gestion des conversations au quotidien.</p>
     </div>
   </div>
 
