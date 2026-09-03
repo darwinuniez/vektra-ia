@@ -406,10 +406,11 @@ button { background: none; }
    ================================================================== */
 .app-shell { position: relative; z-index: 3; height: 100vh; display: flex; flex-direction: column; opacity: 0; transform: scale(1.015); }
 .app-shell.revealed { opacity: 1; transform: scale(1); transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-.app-shell.revealed .app-header, .app-shell.revealed .sidebar, .app-shell.revealed .chat-area { opacity: 0; animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.app-shell.revealed .app-header, .app-shell.revealed .chat-area { opacity: 0; animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .app-shell.revealed .app-header { animation-delay: 0.08s; }
-.app-shell.revealed .sidebar { animation-delay: 0.18s; }
 .app-shell.revealed .chat-area { animation-delay: 0.26s; }
+.app-shell.revealed .sidebar { animation: sidebarFadeIn 0.5s ease 0.2s forwards; }
+@keyframes sidebarFadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
 /* header (very top bar) */
@@ -1028,7 +1029,46 @@ button { background: none; }
 @keyframes modalIn { from { opacity: 0; transform: scale(0.94) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 .modal-box h2 { font-family: var(--font-display); font-size: 1.3rem; }
 
-.ultimate-box { border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 0 40px rgba(168, 85, 247, 0.25), inset 0 1px 0 var(--glass-highlight); max-width: 480px; }
+.ultimate-box {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(rgba(8, 12, 14, 0.9), rgba(8, 12, 14, 0.9)) padding-box,
+    conic-gradient(from var(--rspin, 0deg), #ff3b6b, #ffb23b, #f6ff3b, #3bffa0, #3bd4ff, #7c3bff, #ff3b6b) border-box;
+  animation: rainbowBorderSpin 4s linear infinite;
+  box-shadow: 0 0 55px rgba(168, 85, 247, 0.35), inset 0 1px 0 var(--glass-highlight);
+  max-width: 480px;
+  overflow: hidden;
+}
+@property --rspin { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes rainbowBorderSpin { to { --rspin: 360deg; } }
+
+.confetti-piece {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+  z-index: 6;
+  animation-name: confettiFall;
+  animation-timing-function: cubic-bezier(0.3, 0, 0.7, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(var(--fall, 260px)) rotate(var(--spin2, 540deg)); opacity: 0; }
+}
+
+.star-piece {
+  position: absolute;
+  font-size: 1rem;
+  pointer-events: none;
+  z-index: 6;
+  animation: starTwinkle 1.6s ease-in-out infinite;
+}
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.6) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(20deg); }
+}
 .ultimate-header { color: var(--flare-orange) !important; }
 
 .modal-close { position: absolute; top: 15px; right: 20px; background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; line-height: 1; }
@@ -1212,7 +1252,7 @@ button { background: none; }
 @media (prefers-reduced-motion: reduce) {
   .blob, .ticker-track, .glitch-layer, .dots-anim span,
   .mascot-avatar, .hero-mascot, .logo-spark, .logo-mark::before, .header-title,
-  .ultimate-card, .ultimate-card::after, .sparkle,
+  .ultimate-card, .ultimate-card::after, .sparkle, .ultimate-box, .confetti-piece, .star-piece,
   .hero-scene-rays, .hero-scene-title, .hero-scene-mascot, .hero-scene-ring, .hero-scene-logo-mark,
   .online-dot, .ticker-live-dot, .corp-icon,
   .model-card.active, .section-title::before, .feature-icon,

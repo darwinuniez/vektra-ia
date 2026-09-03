@@ -309,6 +309,47 @@ function spawnSparkleBurst(container, emoji, count) {
 }
 
 /* ============================================================
+   3d. CONFETTI + STARS (Vektra Ultime — grand moment festif)
+   ============================================================ */
+const CONFETTI_COLORS = ["#ff3b6b", "#ffb23b", "#f6ff3b", "#3bffa0", "#3bd4ff", "#7c3bff", "#ff6bd8"];
+
+function spawnConfetti(container, count) {
+  if (!container) return;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced) return;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement("span");
+    el.className = "confetti-piece";
+    const isCircle = Math.random() > 0.5;
+    el.style.left = Math.random() * 100 + "%";
+    el.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+    el.style.borderRadius = isCircle ? "50%" : "2px";
+    el.style.setProperty("--fall", 180 + Math.random() * 160 + "px");
+    el.style.setProperty("--spin2", 360 + Math.random() * 540 + "deg");
+    el.style.animationDuration = 1.3 + Math.random() * 1.2 + "s";
+    el.style.animationDelay = Math.random() * 0.5 + "s";
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 2800);
+  }
+}
+
+function spawnStars(container, count) {
+  if (!container) return;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced) return;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement("span");
+    el.className = "star-piece";
+    el.textContent = "⭐";
+    el.style.left = Math.random() * 90 + "%";
+    el.style.top = Math.random() * 80 + "%";
+    el.style.animationDelay = Math.random() * 1.6 + "s";
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 3400);
+  }
+}
+
+/* ============================================================
    4. MASCOT — floating widget, speech bubble, expressions
    ============================================================ */
 const mascotTips = [
@@ -578,6 +619,8 @@ function openUltimateModal() {
   document.getElementById("ultimate-modal").classList.add("open");
   const box = document.querySelector("#ultimate-modal .modal-box");
   spawnSparkleBurst(box, "✨", 16);
+  spawnConfetti(box, 30);
+  spawnStars(box, 10);
 }
 function closeUltimateModal() { document.getElementById("ultimate-modal").classList.remove("open"); }
 
