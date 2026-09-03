@@ -377,12 +377,13 @@ const mascotTrigger = document.getElementById("mascot-trigger");
 if (mascotTrigger) mascotTrigger.addEventListener("click", toggleMascotBubble);
 
 // expressions: posée (calm), curieuse, énervée, ennuyée, émerveillée
+// eyebrowL is the mirrored version of eyebrow (x' = 100 - x) so both brows move together
 const mascotExpressions = {
-  calm:    { eyebrow: "M56 40 Q60 38 64 40", mouth: "M38 68 Q53 75 66 65", ry: "8" },
-  curious: { eyebrow: "M55 37 Q60 33 66 38", mouth: "M40 67 Q53 70 64 67", ry: "9" },
-  annoyed: { eyebrow: "M55 43 Q60 45 66 43", mouth: "M40 70 Q53 66 64 70", ry: "6" },
-  bored:   { eyebrow: "M56 41 Q60 40 64 41", mouth: "M42 69 L62 69",       ry: "5" },
-  amazed:  { eyebrow: "M54 35 Q60 29 68 35", mouth: "M42 66 Q53 78 64 66", ry: "10" }
+  calm:    { eyebrow: "M56 40 Q60 38 64 40", eyebrowL: "M44 40 Q40 38 36 40", mouth: "M38 68 Q53 75 66 65", ry: "8" },
+  curious: { eyebrow: "M55 37 Q60 33 66 38", eyebrowL: "M45 37 Q40 33 34 38", mouth: "M40 67 Q53 70 64 67", ry: "9" },
+  annoyed: { eyebrow: "M55 43 Q60 45 66 43", eyebrowL: "M45 43 Q40 45 34 43", mouth: "M40 70 Q53 66 64 70", ry: "6" },
+  bored:   { eyebrow: "M56 41 Q60 40 64 41", eyebrowL: "M44 41 Q40 40 36 41", mouth: "M42 69 L62 69",       ry: "5" },
+  amazed:  { eyebrow: "M54 35 Q60 29 68 35", eyebrowL: "M46 35 Q40 29 32 35", mouth: "M42 66 Q53 78 64 66", ry: "10" }
 };
 let currentExpression = "calm";
 
@@ -391,12 +392,14 @@ function setMascotExpression(name) {
   if (name === currentExpression) return;
   currentExpression = name;
   const eyebrow = document.getElementById("mascot-eyebrow");
+  const eyebrowL = document.getElementById("mascot-eyebrow-l");
   const mouth = document.getElementById("mascot-mouth");
-  const eyeWhite = document.getElementById("mascot-eye-white");
+  const eyeWhites = document.querySelectorAll(".mascot-eye-white");
   const svg = document.querySelector(".mascot-svg");
   if (eyebrow) eyebrow.setAttribute("d", ex.eyebrow);
+  if (eyebrowL) eyebrowL.setAttribute("d", ex.eyebrowL);
   if (mouth) mouth.setAttribute("d", ex.mouth);
-  if (eyeWhite) eyeWhite.setAttribute("ry", ex.ry);
+  eyeWhites.forEach((el) => el.setAttribute("ry", ex.ry));
   if (svg) {
     svg.classList.remove("reacting");
     void svg.offsetWidth;

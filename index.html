@@ -23,37 +23,41 @@
         <stop offset="0%" stop-color="#29d3ff"/>
         <stop offset="100%" stop-color="#a855f7"/>
       </linearGradient>
-      <linearGradient id="gradBandana" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#0c1720"/>
-        <stop offset="100%" stop-color="#122436"/>
+      <linearGradient id="gradHair" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2a1e18"/>
+        <stop offset="100%" stop-color="#100b08"/>
+      </linearGradient>
+      <linearGradient id="gradGold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#f6d585"/>
+        <stop offset="100%" stop-color="#b8862f"/>
       </linearGradient>
 
       <!-- compact bust — used for small chat avatars / typing indicator -->
       <symbol id="vektra-mascot" viewBox="0 0 100 122">
         <ellipse cx="50" cy="108" rx="27" ry="6" fill="#000" opacity="0.3"/>
         <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+        <!-- slicked-back hair, widow's peak -->
+        <path d="M17 32 Q15 10 50 8 Q85 10 83 32 Q68 16 50 22 Q32 16 17 32 Z" fill="url(#gradHair)" stroke="rgba(0,0,0,0.4)" stroke-width="0.75"/>
+        <g class="mascot-eye" style="transform-origin:36px 49px;">
+          <ellipse cx="36" cy="49" rx="6" ry="8" fill="#fff"/>
+          <ellipse cx="36" cy="51" rx="3" ry="4" fill="#0a0e12"/>
+        </g>
         <g class="mascot-eye" style="transform-origin:64px 49px;">
           <ellipse cx="64" cy="49" rx="6" ry="8" fill="#fff"/>
           <ellipse cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"/>
         </g>
-        <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
-        <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"/>
+        <path d="M44 40 Q40 38 36 40" stroke="#0a0e12" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+        <path d="M56 40 Q60 38 64 40" stroke="#0a0e12" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+        <!-- moustache -->
+        <path d="M30 57 Q40 61 50 59 Q60 61 70 57 Q64 65 50 63 Q36 65 30 57 Z" fill="#1c130e" stroke="#0a0806" stroke-width="0.5"/>
         <path d="M38 68 Q53 75 66 65" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <!-- bicorne hat -->
-        <path d="M2 24 Q20 2 50 20 Q80 2 98 24 Q76 34 50 26 Q24 34 2 24 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"/>
-        <!-- demon horns poking through -->
-        <path d="M40 20 Q37 9 44 5 Q42 15 47 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
-        <path d="M60 20 Q63 9 56 5 Q58 15 53 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
-        <g class="mascot-tail" style="transform-origin:82px 14px;">
-          <path d="M80 12 Q96 4 90 20 Q85 14 78 16 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"/>
-        </g>
         <g transform="translate(50 98)">
           <rect x="-25" y="-9" width="50" height="18" rx="9" fill="rgba(3,4,5,0.88)" stroke="#29d3ff" stroke-width="1"/>
           <text x="0" y="4" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#29d3ff" letter-spacing="1">VEKTRA</text>
         </g>
       </symbol>
 
-      <!-- full-body badass pose — used on the homepage hero + boot cinematic -->
+      <!-- full-body pose — used on the homepage hero + boot cinematic -->
       <symbol id="vektra-mascot-full" viewBox="0 0 100 215">
         <ellipse cx="50" cy="205" rx="32" ry="7" fill="#000" opacity="0.3"/>
         <!-- legs -->
@@ -64,37 +68,38 @@
         <!-- arms -->
         <path class="mascot-arm-hip" style="transform-origin:30px 92px;" d="M30 92 Q14 104 22 122 Q26 132 38 130" stroke="url(#gradBody)" stroke-width="14" stroke-linecap="round" fill="none"/>
         <path d="M70 92 Q86 108 80 138" stroke="url(#gradBody)" stroke-width="14" stroke-linecap="round" fill="none"/>
-        <!-- cutlass, held loosely at the side -->
-        <g transform="rotate(22 78 134)">
-          <rect x="73" y="127" width="6" height="15" rx="2.5" fill="#3a2416"/>
-          <rect x="67" y="129" width="17" height="3.2" rx="1.6" fill="#c9a227"/>
-          <path d="M79 130 Q101 138 94 173 Q92 176 89 174 Q94 146 76 134 Z" fill="#d7e3ea" stroke="#8fa3ad" stroke-width="0.6"/>
+        <!-- cigar, held loosely -->
+        <g transform="rotate(-18 80 136)">
+          <rect x="76" y="130" width="20" height="5" rx="2.5" fill="#5b3a22" stroke="#2e1c10" stroke-width="0.5"/>
+          <rect x="93" y="130.5" width="4" height="4" rx="2" fill="url(#gradGold)"/>
+          <circle class="cigar-ember" cx="97" cy="132.5" r="2" fill="#ff7a3d"/>
         </g>
         <!-- torso -->
         <rect x="25" y="82" width="50" height="68" rx="24" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+        <!-- open collar + chain -->
+        <path d="M38 82 L50 104 L62 82" fill="none" stroke="#0a0e12" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+        <path d="M42 88 Q50 100 58 88" fill="none" stroke="url(#gradGold)" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="50" cy="99" r="2.4" fill="url(#gradGold)"/>
         <rect x="25" y="132" width="50" height="8" rx="4" fill="#0a0e12" opacity="0.55"/>
         <g transform="translate(50 136)">
           <rect x="-19" y="-7" width="38" height="14" rx="7" fill="rgba(3,4,5,0.85)" stroke="#29d3ff" stroke-width="0.75"/>
           <text x="0" y="3.5" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="7" font-weight="700" fill="#29d3ff" letter-spacing="1">VEKTRA</text>
         </g>
-        <!-- head (mean-but-smiling demon) -->
+        <!-- head -->
         <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+        <path d="M17 32 Q15 10 50 8 Q85 10 83 32 Q68 16 50 22 Q32 16 17 32 Z" fill="url(#gradHair)" stroke="rgba(0,0,0,0.4)" stroke-width="0.75"/>
+        <g class="mascot-eye" style="transform-origin:36px 49px;">
+          <ellipse cx="36" cy="49" rx="6" ry="8" fill="#fff"/>
+          <ellipse cx="36" cy="51" rx="3" ry="4" fill="#0a0e12"/>
+        </g>
         <g class="mascot-eye" style="transform-origin:64px 49px;">
           <ellipse cx="64" cy="49" rx="6" ry="8" fill="#fff"/>
           <ellipse cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"/>
         </g>
-        <path d="M56 38 Q64 34 71 38" stroke="#0a0e12" stroke-width="3" stroke-linecap="round"/>
-        <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
-        <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"/>
+        <path d="M44 38 Q40 35 35 38" stroke="#0a0e12" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+        <path d="M56 38 Q60 35 65 38" stroke="#0a0e12" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+        <path d="M30 57 Q40 61 50 59 Q60 61 70 57 Q64 65 50 63 Q36 65 30 57 Z" fill="#1c130e" stroke="#0a0806" stroke-width="0.5"/>
         <path d="M38 68 Q53 76 67 64" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <!-- bicorne hat -->
-        <path d="M2 24 Q20 2 50 20 Q80 2 98 24 Q76 34 50 26 Q24 34 2 24 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"/>
-        <!-- demon horns poking through -->
-        <path d="M40 20 Q37 9 44 5 Q42 15 47 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
-        <path d="M60 20 Q63 9 56 5 Q58 15 53 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
-        <g class="mascot-tail" style="transform-origin:82px 14px;">
-          <path d="M80 12 Q96 4 90 20 Q85 14 78 16 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"/>
-        </g>
       </symbol>
     </defs>
   </svg>
@@ -312,18 +317,19 @@
               <svg class="mascot-svg" viewBox="0 0 100 122" aria-hidden="true">
                 <ellipse cx="50" cy="108" rx="27" ry="6" fill="#000" opacity="0.3"></ellipse>
                 <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"></rect>
-                <ellipse id="mascot-eye-white" cx="64" cy="49" rx="6" ry="8" fill="#fff"></ellipse>
-                <ellipse id="mascot-eye-pupil" cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"></ellipse>
-                <path id="mascot-eyebrow" d="M56 40 Q60 38 64 40" stroke="#0a0e12" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
-                <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"></path>
-                <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"></ellipse>
-                <path id="mascot-mouth" d="M38 68 Q53 75 66 65" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
-                <path d="M2 24 Q20 2 50 20 Q80 2 98 24 Q76 34 50 26 Q24 34 2 24 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"></path>
-                <path d="M40 20 Q37 9 44 5 Q42 15 47 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"></path>
-                <path d="M60 20 Q63 9 56 5 Q58 15 53 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"></path>
-                <g class="mascot-tail" style="transform-origin:82px 14px;">
-                  <path d="M80 12 Q96 4 90 20 Q85 14 78 16 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"></path>
+                <path d="M17 32 Q15 10 50 8 Q85 10 83 32 Q68 16 50 22 Q32 16 17 32 Z" fill="url(#gradHair)" stroke="rgba(0,0,0,0.4)" stroke-width="0.75"></path>
+                <g class="mascot-eye" style="transform-origin:36px 49px;">
+                  <ellipse class="mascot-eye-white" cx="36" cy="49" rx="6" ry="8" fill="#fff"></ellipse>
+                  <ellipse cx="36" cy="51" rx="3" ry="4" fill="#0a0e12"></ellipse>
                 </g>
+                <g class="mascot-eye" style="transform-origin:64px 49px;">
+                  <ellipse id="mascot-eye-white" class="mascot-eye-white" cx="64" cy="49" rx="6" ry="8" fill="#fff"></ellipse>
+                  <ellipse id="mascot-eye-pupil" cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"></ellipse>
+                </g>
+                <path id="mascot-eyebrow-l" d="M44 40 Q40 38 36 40" stroke="#0a0e12" stroke-width="2.6" stroke-linecap="round" fill="none"></path>
+                <path id="mascot-eyebrow" d="M56 40 Q60 38 64 40" stroke="#0a0e12" stroke-width="2.6" stroke-linecap="round" fill="none"></path>
+                <path d="M30 57 Q40 61 50 59 Q60 61 70 57 Q64 65 50 63 Q36 65 30 57 Z" fill="#1c130e" stroke="#0a0806" stroke-width="0.5"></path>
+                <path id="mascot-mouth" d="M38 68 Q53 75 66 65" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
               </svg>
             </button>
             <div class="mascot-widget-label">

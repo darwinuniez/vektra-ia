@@ -374,15 +374,20 @@ button { background: none; }
 .mascot-svg { width: 34px; height: 42px; }
 .mascot-svg.reacting { animation: mascotReact 0.35s ease; }
 @keyframes mascotReact { 0% { transform: scale(1); } 40% { transform: scale(1.14); } 100% { transform: scale(1); } }
-#mascot-eyebrow, #mascot-mouth, #mascot-eye-white, #mascot-eye-pupil { transition: d 0.2s ease, ry 0.2s ease; }
+#mascot-eyebrow, #mascot-eyebrow-l, #mascot-mouth, .mascot-eye-white, #mascot-eye-pupil { transition: d 0.2s ease, ry 0.2s ease; }
 .mascot-svg-mini { width: 20px; height: 24px; }
 @keyframes mascotBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
-/* mascot internal motion — blinking eye + waving bandana tail */
+/* mascot internal motion — synced blinking eyes */
 .mascot-eye { animation: mascotBlink 4.5s ease-in-out infinite; }
 @keyframes mascotBlink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
-.mascot-tail { animation: tailWave 2.4s ease-in-out infinite; }
-@keyframes tailWave { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-8deg); } }
+
+/* cigar ember, full-body pose only */
+.cigar-ember { animation: emberGlow 1.8s ease-in-out infinite; }
+@keyframes emberGlow {
+  0%, 100% { opacity: 0.7; filter: drop-shadow(0 0 1px rgba(255, 122, 61, 0.5)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 4px rgba(255, 122, 61, 0.9)); }
+}
 
 .mascot-bubble {
   max-height: 0;
@@ -1301,7 +1306,7 @@ button { background: none; }
   .hero-scene-rays, .hero-scene-title, .hero-scene-mascot, .hero-scene-ring, .hero-scene-logo-mark,
   .online-dot, .ticker-live-dot, .corp-icon,
   .model-card.active, .section-title::before, .feature-icon,
-  .burst-spark, .mascot-eye, .mascot-tail, .mascot-arm-hip,
+  .burst-spark, .mascot-eye, .mascot-arm-hip, .cigar-ember,
   .boot-flash, .boot-shockwave, #boot-sequence.shake,
   .boot-logo-wrap.show .glitch-main, .ticker-wrapper::after,
   .edc-badge, .beta-badge,
