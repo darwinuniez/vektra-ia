@@ -3,456 +3,85 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>VEKTRA // Ervin Digital Corp — IA Sécurisée (Bêta)</title>
+<title>DELAMAIN — Noyau autonome</title>
 <link rel="icon" type="image/png" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- ============ SVG SPRITE (mascot + reusable defs) ============ -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <defs>
-      <linearGradient id="gradBody" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#29d3ff"/>
-        <stop offset="100%" stop-color="#9d4bff"/>
-      </linearGradient>
-      <linearGradient id="gradIcon" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#29d3ff"/>
-        <stop offset="100%" stop-color="#a855f7"/>
-      </linearGradient>
-      <linearGradient id="gradBandana" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#0c1720"/>
-        <stop offset="100%" stop-color="#122436"/>
-      </linearGradient>
+  <!-- ============ BOOT SEQUENCE ============ -->
+  <div id="boot" aria-hidden="true">
+    <div class="boot-ring"></div>
+    <div class="boot-mark">
+      <span class="boot-title">DELAMAIN</span>
+      <span class="boot-sub">NOYAU AUTONOME — INSTANCE LOCALE</span>
+    </div>
+    <div class="boot-log" id="boot-log"></div>
+  </div>
 
-      <!-- compact bust — used for small chat avatars / typing indicator -->
-      <symbol id="vektra-mascot" viewBox="0 0 100 122">
-        <ellipse cx="50" cy="108" rx="27" ry="6" fill="#000" opacity="0.3"/>
-        <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-        <g class="mascot-eye" style="transform-origin:64px 49px;">
-          <ellipse cx="64" cy="49" rx="6" ry="8" fill="#fff"/>
-          <ellipse cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"/>
-        </g>
-        <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
-        <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"/>
-        <path d="M38 68 Q53 75 66 65" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <!-- bicorne hat -->
-        <path d="M2 24 Q20 2 50 20 Q80 2 98 24 Q76 34 50 26 Q24 34 2 24 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"/>
-        <!-- demon horns poking through -->
-        <path d="M40 20 Q37 9 44 5 Q42 15 47 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
-        <path d="M60 20 Q63 9 56 5 Q58 15 53 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
-        <g class="mascot-tail" style="transform-origin:82px 14px;">
-          <path d="M80 12 Q96 4 90 20 Q85 14 78 16 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"/>
-        </g>
-        <g transform="translate(50 98)">
-          <rect x="-25" y="-9" width="50" height="18" rx="9" fill="rgba(3,4,5,0.88)" stroke="#29d3ff" stroke-width="1"/>
-          <text x="0" y="4" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#29d3ff" letter-spacing="1">VEKTRA</text>
-        </g>
-      </symbol>
-
-      <!-- full-body badass pose — used on the homepage hero + boot cinematic -->
-      <symbol id="vektra-mascot-full" viewBox="0 0 100 215">
-        <ellipse cx="50" cy="205" rx="32" ry="7" fill="#000" opacity="0.3"/>
-        <!-- legs -->
-        <rect x="33" y="150" width="16" height="38" rx="7" fill="url(#gradBody)"/>
-        <rect x="53" y="148" width="16" height="38" rx="7" fill="url(#gradBody)"/>
-        <rect x="29" y="182" width="24" height="13" rx="6" fill="#0a0e12"/>
-        <rect x="49" y="180" width="24" height="13" rx="6" fill="#0a0e12"/>
-        <!-- arms -->
-        <path class="mascot-arm-hip" style="transform-origin:30px 92px;" d="M30 92 Q14 104 22 122 Q26 132 38 130" stroke="url(#gradBody)" stroke-width="14" stroke-linecap="round" fill="none"/>
-        <path d="M70 92 Q86 108 80 138" stroke="url(#gradBody)" stroke-width="14" stroke-linecap="round" fill="none"/>
-        <!-- cutlass, held loosely at the side -->
-        <g transform="rotate(22 78 134)">
-          <rect x="73" y="127" width="6" height="15" rx="2.5" fill="#3a2416"/>
-          <rect x="67" y="129" width="17" height="3.2" rx="1.6" fill="#c9a227"/>
-          <path d="M79 130 Q101 138 94 173 Q92 176 89 174 Q94 146 76 134 Z" fill="#d7e3ea" stroke="#8fa3ad" stroke-width="0.6"/>
-        </g>
-        <!-- torso -->
-        <rect x="25" y="82" width="50" height="68" rx="24" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-        <rect x="25" y="132" width="50" height="8" rx="4" fill="#0a0e12" opacity="0.55"/>
-        <g transform="translate(50 136)">
-          <rect x="-19" y="-7" width="38" height="14" rx="7" fill="rgba(3,4,5,0.85)" stroke="#29d3ff" stroke-width="0.75"/>
-          <text x="0" y="3.5" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="7" font-weight="700" fill="#29d3ff" letter-spacing="1">VEKTRA</text>
-        </g>
-        <!-- head (mean-but-smiling demon) -->
-        <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-        <g class="mascot-eye" style="transform-origin:64px 49px;">
-          <ellipse cx="64" cy="49" rx="6" ry="8" fill="#fff"/>
-          <ellipse cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"/>
-        </g>
-        <path d="M56 38 Q64 34 71 38" stroke="#0a0e12" stroke-width="3" stroke-linecap="round"/>
-        <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
-        <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"/>
-        <path d="M38 68 Q53 76 67 64" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <!-- bicorne hat -->
-        <path d="M2 24 Q20 2 50 20 Q80 2 98 24 Q76 34 50 26 Q24 34 2 24 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"/>
-        <!-- demon horns poking through -->
-        <path d="M40 20 Q37 9 44 5 Q42 15 47 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
-        <path d="M60 20 Q63 9 56 5 Q58 15 53 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"/>
-        <g class="mascot-tail" style="transform-origin:82px 14px;">
-          <path d="M80 12 Q96 4 90 20 Q85 14 78 16 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"/>
-        </g>
-      </symbol>
-    </defs>
-  </svg>
-
-  <!-- GRAIN / TEXTURE OVERLAY -->
-  <div id="noise-overlay" aria-hidden="true"></div>
-
-  <!-- CURSOR GLOW (desktop only) -->
+  <!-- ambient cursor glow, desktop only -->
   <div id="cursor-glow" aria-hidden="true"></div>
 
-  <!-- ============ BOOT SEQUENCE (signature moment) ============ -->
-  <div id="boot-sequence" aria-hidden="true">
-    <div class="boot-terminal" id="boot-terminal">
-      <div class="boot-lines" id="boot-lines"></div>
-      <div class="boot-progress"><div class="boot-progress-fill" id="boot-progress-fill"></div></div>
-    </div>
+  <div id="app">
 
-    <div class="boot-logo-wrap" id="boot-logo-wrap">
-      <div class="boot-logo">
-        <span class="glitch-layer layer-cyan">VEKTRA</span>
-        <span class="glitch-layer layer-pink">VEKTRA</span>
-        <span class="glitch-main">VEKTRA</span>
+    <header class="topbar">
+      <div class="brand">
+        <img src="logo.png" alt="" class="brand-mark">
+        <span class="brand-name">ERVIN&nbsp;DIGITAL&nbsp;CORP</span>
       </div>
-      <p class="boot-tagline">NOYAU IA — ERVIN DIGITAL CORP</p>
-    </div>
-
-    <div class="hero-scene" id="hero-scene">
-      <div class="hero-scene-rays" aria-hidden="true"></div>
-      <img src="logo.png" alt="ED CORP" class="hero-scene-logo-mark">
-      <div class="hero-scene-logo">
-        <h1 class="hero-scene-title">VEKTRA</h1>
-        <p class="hero-scene-corp">ERVIN CORP</p>
-      </div>
-      <div class="hero-scene-mascot-wrap">
-        <span class="hero-scene-ring r1"></span>
-        <span class="hero-scene-ring r2"></span>
-        <span class="hero-scene-ring r3"></span>
-        <svg class="hero-scene-mascot" viewBox="0 0 100 215"><use href="#vektra-mascot-full"></use></svg>
-      </div>
-      <p class="hero-scene-tagline">La seule limite, c'est vous.</p>
-    </div>
-
-    <div class="boot-skip" id="boot-skip">cliquer pour passer</div>
-    <div class="boot-flash" id="boot-flash"></div>
-    <div class="boot-shockwave" id="boot-shockwave"></div>
-  </div>
-  <div id="wipe-transition" aria-hidden="true"></div>
-
-  <!-- ============ ANIMATED BACKGROUND ============ -->
-  <div class="ambient-background" aria-hidden="true">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-    <canvas id="particle-canvas"></canvas>
-  </div>
-
-  <!-- ============ TOASTS ============ -->
-  <div id="toast-container" aria-live="polite"></div>
-
-  <!-- ============ AUTH GATE — chatbot inaccessible sans compte ============ -->
-  <div class="auth-gate" id="auth-gate">
-    <div class="auth-card">
-      <div class="auth-logo-row">
-        <img src="logo.png" alt="ED CORP" class="edc-badge edc-badge-lg">
-      </div>
-      <span class="beta-badge auth-beta">ACCÈS BÊTA</span>
-
-      <div class="auth-tabs">
-        <button type="button" class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Connexion</button>
-        <button type="button" class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">Créer un compte</button>
-      </div>
-
-      <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
-        <p class="auth-desc">Connecte-toi pour retrouver tes conversations enregistrées sur cet appareil.</p>
-        <div class="form-group">
-          <label for="login-username">Pseudo</label>
-          <input id="login-username" autocomplete="username" required>
-        </div>
-        <div class="form-group">
-          <label for="login-password">Mot de passe</label>
-          <input id="login-password" type="password" autocomplete="current-password" required>
-        </div>
-        <p class="auth-error" id="login-error"></p>
-        <button class="btn-action-modal" type="submit">Se connecter</button>
-      </form>
-
-      <form id="register-form" class="auth-form hidden" onsubmit="handleRegister(event)">
-        <p class="auth-desc">Choisis ton pseudo, ton emblème, et un mot de passe. Ton compte est stocké sur cet appareil (version bêta).</p>
-        <div class="form-group">
-          <label for="register-username">Pseudo</label>
-          <input id="register-username" autocomplete="username" minlength="3" maxlength="20" required>
-        </div>
-        <div class="form-group">
-          <label>Emblème</label>
-          <div class="avatar-picker" id="register-avatar-picker">
-            <button type="button" class="avatar-opt active" data-avatar="🏴‍☠️" onclick="pickRegisterAvatar(this)">🏴‍☠️</button>
-            <button type="button" class="avatar-opt" data-avatar="🇫🇷" onclick="pickRegisterAvatar(this)">🇫🇷</button>
-            <button type="button" class="avatar-opt edc-avatar-opt" data-avatar="EDC" onclick="pickRegisterAvatar(this)">EDC</button>
-            <button type="button" class="avatar-opt" data-avatar="😎" onclick="pickRegisterAvatar(this)">😎</button>
-            <button type="button" class="avatar-opt" data-avatar="👾" onclick="pickRegisterAvatar(this)">👾</button>
-            <button type="button" class="avatar-opt" data-avatar="🛸" onclick="pickRegisterAvatar(this)">🛸</button>
-            <button type="button" class="avatar-opt" data-avatar="⚡" onclick="pickRegisterAvatar(this)">⚡</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="register-password">Mot de passe</label>
-          <input id="register-password" type="password" autocomplete="new-password" minlength="6" required>
-        </div>
-        <div class="form-group">
-          <label for="register-password-confirm">Confirmer le mot de passe</label>
-          <input id="register-password-confirm" type="password" autocomplete="new-password" minlength="6" required>
-        </div>
-        <p class="auth-error" id="register-error"></p>
-        <button class="btn-action-modal" type="submit">Créer mon compte</button>
-      </form>
-
-      <p class="auth-note">🔒 Compte stocké localement dans ce navigateur (bêta) — reconnecte-toi depuis le même appareil pour retrouver ton historique.</p>
-    </div>
-  </div>
-
-  <!-- ============ FLOATING MASCOT (dynamic expressions) ============ -->
-  <div class="mascot-widget" id="mascot-widget">
-    <div class="mascot-bubble" id="mascot-bubble">
-      <p id="mascot-bubble-text">Salut ! Je suis le compagnon du noyau Vektra. Clique une catégorie pour démarrer 👋</p>
-    </div>
-    <button class="mascot-avatar" id="mascot-trigger" aria-label="Astuce Vektra">
-      <svg class="mascot-svg" viewBox="0 0 100 122" aria-hidden="true">
-        <ellipse cx="50" cy="108" rx="27" ry="6" fill="#000" opacity="0.3"></ellipse>
-        <rect x="17" y="18" width="66" height="68" rx="30" fill="url(#gradBody)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"></rect>
-        <ellipse id="mascot-eye-white" cx="64" cy="49" rx="6" ry="8" fill="#fff"></ellipse>
-        <ellipse id="mascot-eye-pupil" cx="64" cy="51" rx="3" ry="4" fill="#4dd8ff"></ellipse>
-        <path id="mascot-eyebrow" d="M56 40 Q60 38 64 40" stroke="#0a0e12" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
-        <path d="M18 38 L82 52" stroke="#0a0e12" stroke-width="4" stroke-linecap="round" opacity="0.9"></path>
-        <ellipse cx="36" cy="49" rx="10" ry="12" fill="#0a0e12" stroke="#000" stroke-width="1"></ellipse>
-        <path id="mascot-mouth" d="M38 68 Q53 75 66 65" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
-        <path d="M2 24 Q20 2 50 20 Q80 2 98 24 Q76 34 50 26 Q24 34 2 24 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.35)" stroke-width="1"></path>
-        <path d="M40 20 Q37 9 44 5 Q42 15 47 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"></path>
-        <path d="M60 20 Q63 9 56 5 Q58 15 53 20 Z" fill="#7a1f2b" stroke="#3a0a10" stroke-width="0.5"></path>
-        <g class="mascot-tail" style="transform-origin:82px 14px;">
-          <path d="M80 12 Q96 4 90 20 Q85 14 78 16 Z" fill="url(#gradBandana)" stroke="rgba(45,211,255,0.3)" stroke-width="0.75"></path>
-        </g>
-      </svg>
-    </button>
-  </div>
-
-  <!-- ============ APP SHELL ============ -->
-  <div class="app-shell" id="app">
-
-    <header class="app-header">
-      <div class="header-left" id="logo-home-btn" role="button" tabindex="0" aria-label="Retour à l'accueil">
-        <button class="hamburger-btn" id="hamburger-btn" aria-label="Ouvrir le menu" onclick="event.stopPropagation(); toggleSidebar();">
-          <span></span><span></span><span></span>
-        </button>
-        <img src="logo.png" alt="ED CORP" class="edc-badge">
-        <span class="header-title">VEKTRA <span class="highlight">// CORE</span></span>
-        <span class="beta-badge">BÊTA</span>
-      </div>
-      <div class="header-right">
-        <div class="online-badge" id="online-badge" title="Associés connectés au noyau">
-          <span class="online-dot"></span>
-          <span id="online-count">14</span>&nbsp;en ligne
-        </div>
-        <a href="https://ervin-digital-corp-hub.vercel.app" target="_blank" rel="noopener noreferrer" class="header-icon-btn" title="Site officiel ED-Corp">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 L21 6.5 V13 C21 18 17 21.5 12 23 C7 21.5 3 18 3 13 V6.5 Z" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>ED-Corp</span>
-        </a>
-        <a href="https://discord.gg/Kk8Heewet5" target="_blank" rel="noopener noreferrer" class="header-icon-btn header-icon-discord" title="Rejoindre le Discord">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12h.01M16 12h.01M7 5l-2 3.5V17a13 13 0 0010 3l1-1.5M17 5l2 3.5V17a13 13 0 01-10 3l-1-1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Discord</span>
-        </a>
-        <button class="btn-account" onclick="openVekModal()">
-          <span id="header-user-avatar">🏴‍☠️</span>
-          <span id="header-user-badge">Compte VEK</span>
-        </button>
+      <div class="status">
+        <span class="status-dot"></span>
+        <span class="status-text">Noyau en ligne</span>
       </div>
     </header>
 
-    <div class="ticker-wrapper">
-      <span class="ticker-live"><span class="ticker-live-dot"></span>EN DIRECT</span>
-      <div class="ticker-fade">
-        <div class="ticker-track">
-          <span>⚡ SYSTÈME EN LIGNE&nbsp;&nbsp;&nbsp;🛡️ NOYAU VEKTRA — LATENCE 9MS&nbsp;&nbsp;&nbsp;🔒 PROTOCOLES DE SÉCURITÉ : NOMINAL&nbsp;&nbsp;&nbsp;🔐 ACCÈS CHIFFRÉ END-TO-END&nbsp;&nbsp;&nbsp;© ERVIN DIGITAL CORP 2026&nbsp;&nbsp;&nbsp;🎮 REJOINS LE DISCORD&nbsp;&nbsp;&nbsp;🏴‍☠️ LA SEULE LIMITE, C'EST VOUS&nbsp;&nbsp;&nbsp;</span>
-          <span>⚡ SYSTÈME EN LIGNE&nbsp;&nbsp;&nbsp;🛡️ NOYAU VEKTRA — LATENCE 9MS&nbsp;&nbsp;&nbsp;🔒 PROTOCOLES DE SÉCURITÉ : NOMINAL&nbsp;&nbsp;&nbsp;🔐 ACCÈS CHIFFRÉ END-TO-END&nbsp;&nbsp;&nbsp;© ERVIN DIGITAL CORP 2026&nbsp;&nbsp;&nbsp;🎮 REJOINS LE DISCORD&nbsp;&nbsp;&nbsp;🏴‍☠️ LA SEULE LIMITE, C'EST VOUS&nbsp;&nbsp;&nbsp;</span>
+    <main class="stage">
+
+      <!-- persistent portrait, always centered -->
+      <div class="portrait-wrap">
+        <div class="portrait-frame">
+          <span class="corner tl"></span>
+          <span class="corner tr"></span>
+          <span class="corner bl"></span>
+          <span class="corner br"></span>
+          <div class="portrait-face" id="portrait-face"></div>
+          <div class="portrait-scan"></div>
+        </div>
+        <div class="portrait-id">
+          <span class="portrait-name">DELAMAIN</span>
+          <span class="portrait-role">Chauffeur autonome · Night City</span>
         </div>
       </div>
-    </div>
 
-    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
-
-    <div class="main-layout">
-
-      <aside class="sidebar" id="sidebar">
-        <button class="btn-new-chat" id="btn-new-chat" onclick="createNewChat()">+ Nouvelle conversation</button>
-        <p class="conv-limit-note" id="conv-limit-note">0 / 5 conversations utilisées</p>
-
-        <div class="side-section">
-          <span class="section-title">MODÈLES</span>
-          <div class="model-grid" id="model-grid">
-            <button class="model-card active" data-model="core" onclick="selectModel(this,'🛡️','Vektra Core')">
-              <span class="model-icon-wrap mi-core"><span class="model-icon">🛡️</span></span>
-              <span class="model-name">Core</span>
-              <span class="model-desc">Équilibré</span>
-            </button>
-            <button class="model-card" data-model="rapide" onclick="selectModel(this,'⚡','Vektra Rapide')">
-              <span class="model-icon-wrap mi-rapide"><span class="model-icon">⚡</span></span>
-              <span class="model-name">Rapide</span>
-              <span class="model-desc">Ultra réactif</span>
-            </button>
-            <button class="model-card" data-model="profond" onclick="selectModel(this,'🧠','Vektra Profond')">
-              <span class="model-icon-wrap mi-profond"><span class="model-icon">🧠</span></span>
-              <span class="model-name">Profond</span>
-              <span class="model-desc">Raisonnement+</span>
-            </button>
-            <button class="model-card" data-model="vision" onclick="selectModel(this,'👁️','Vektra Vision')">
-              <span class="model-icon-wrap mi-vision"><span class="model-icon">👁️</span></span>
-              <span class="model-name">Vision</span>
-              <span class="model-desc">Analyse image</span>
-            </button>
-          </div>
+      <!-- intro state: shown until the first message is sent -->
+      <div class="intro" id="intro">
+        <p class="intro-line">Montez. La ville ne vous attendra pas.</p>
+        <div class="chips" id="chips">
+          <button class="chip" data-prompt="Propose-moi un itinéraire pour traverser Night City en évitant les patrouilles NCPD.">Itinéraire</button>
+          <button class="chip" data-prompt="Fais un diagnostic complet de mon véhicule, moteur et blindage.">Diagnostic véhicule</button>
+          <button class="chip" data-prompt="Donne-moi les dernières infos sur les gangs qui contrôlent Night City en ce moment.">Réseau &amp; renseignement</button>
+          <button class="chip" data-prompt="J'ai juste envie de discuter un peu, Delamain.">Discussion libre</button>
         </div>
-
-        <div class="side-section conv-section">
-          <span class="section-title">HISTORIQUE</span>
-          <div class="conv-list" id="conv-list"></div>
-        </div>
-
-        <div class="side-card ultimate-card" onclick="openUltimateModal()">
-          <span class="sparkle s1">✨</span>
-          <span class="sparkle s2">✨</span>
-          <span class="sparkle s3">✨</span>
-          <span class="badge-dev">✨ EN DÉVELOPPEMENT</span>
-          <h3>VEKTRA ULTIME</h3>
-          <p>Conversations illimitées, latence prioritaire, modèles étendus. La puissance complète du noyau.</p>
-          <span class="ultimate-cta">Découvrir →</span>
-        </div>
-
-        <div class="sidebar-footer">
-          <p class="legal-notice">Vektra est un système d'IA expérimental (bêta). Vérifie toute information critique. Ervin Digital Corp, tous droits réservés.</p>
-        </div>
-      </aside>
-
-      <main class="chat-area">
-        <div class="chat-area-header">
-          <span class="chat-area-title" id="chat-area-title">Conversation</span>
-          <span class="model-badge" id="model-badge">🛡️ Vektra Core</span>
-        </div>
-
-        <div class="typing-box" id="typing-indicator">
-          <svg class="mascot-svg-mini" viewBox="0 0 100 122"><use href="#vektra-mascot"></use></svg>
-          <span>Vektra réfléchit</span>
-          <div class="dots-anim"><span></span><span></span><span></span></div>
-        </div>
-
-        <div class="chat-messages" id="chat-messages"></div>
-
-        <div class="chat-input-container">
-          <form id="chat-form" onsubmit="sendMessage(event)">
-            <div class="input-wrap">
-              <input type="text" id="user-input" placeholder="" autocomplete="off">
-              <span class="input-hint" id="input-hint" aria-hidden="true"></span>
-            </div>
-            <button type="submit" class="btn-send" aria-label="Envoyer">➤</button>
-          </form>
-        </div>
-      </main>
-
-    </div>
-  </div>
-
-  <!-- ============ TEMPLATE: hero (empty conversation) ============ -->
-  <template id="hero-template">
-    <div class="chat-hero" id="chat-hero">
-      <svg class="hero-mascot" viewBox="0 0 100 215"><use href="#vektra-mascot-full"></use></svg>
-      <h2 class="hero-greeting" id="hero-greeting">Bonjour.</h2>
-      <p class="hero-sub">Le noyau Vektra est en ligne. Choisis une catégorie ou lance directement une conversation.</p>
-
-      <div class="category-chips">
-        <button class="chip" onclick="fillPrompt('Parlons de ')">💬 Discussion libre</button>
-        <button class="chip" onclick="fillPrompt('Aide-moi à corriger ce code : ')">💻 Code &amp; debug</button>
-        <button class="chip" onclick="fillPrompt('Imagine une idée originale pour ')">🎨 Créativité</button>
-        <button class="chip" onclick="fillPrompt('Analyse ces données : ')">📊 Analyse</button>
-        <button class="chip" onclick="fillPrompt('Explique-moi en détail ')">🔍 Recherche</button>
       </div>
 
-      <div class="feature-grid">
-        <button class="feature-card" onclick="fillPrompt('Parlons de ')">
-          <svg class="feature-icon" viewBox="0 0 32 32"><path d="M6 8h20a2 2 0 012 2v10a2 2 0 01-2 2H14l-6 5v-5H6a2 2 0 01-2-2V10a2 2 0 012-2z" fill="none" stroke="url(#gradIcon)" stroke-width="2" stroke-linejoin="round"/></svg>
-          <span class="feature-title">Conversation naturelle</span>
-          <span class="feature-desc">Un dialogue fluide, en français, sans détour.</span>
+      <!-- conversation thread -->
+      <div class="thread" id="thread"></div>
+
+    </main>
+
+    <footer class="composer">
+      <form id="composer-form" autocomplete="off">
+        <input type="text" id="composer-input" placeholder="Écrire à Delamain…" maxlength="600">
+        <button type="submit" class="send-btn" aria-label="Envoyer">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
         </button>
-        <button class="feature-card" onclick="fillPrompt('Aide-moi à corriger ce code : ')">
-          <svg class="feature-icon" viewBox="0 0 32 32"><path d="M11 9l-7 7 7 7M21 9l7 7-7 7" fill="none" stroke="url(#gradIcon)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span class="feature-title">Code &amp; scripts</span>
-          <span class="feature-desc">Génère, corrige et explique du code.</span>
-        </button>
-        <button class="feature-card" onclick="selectModel(document.querySelector('[data-model=vision]'),'👁️','Vektra Vision')">
-          <svg class="feature-icon" viewBox="0 0 32 32"><path d="M2 16s5-9 14-9 14 9 14 9-5 9-14 9-14-9-14-9z" fill="none" stroke="url(#gradIcon)" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="4" fill="none" stroke="url(#gradIcon)" stroke-width="2"/></svg>
-          <span class="feature-title">Vision</span>
-          <span class="feature-desc">Analyse des images, décrit ce qu'elles montrent.</span>
-        </button>
-        <button class="feature-card" onclick="selectModel(document.querySelector('[data-model=rapide]'),'⚡','Vektra Rapide')">
-          <svg class="feature-icon" viewBox="0 0 32 32"><path d="M18 2L6 18h8l-2 12 14-18h-9l1-10z" fill="url(#gradIcon)"/></svg>
-          <span class="feature-title">Réponses rapides</span>
-          <span class="feature-desc">Latence minimale, propulsé par Vektra Rapide.</span>
-        </button>
-      </div>
-    </div>
-  </template>
+      </form>
+      <p class="composer-note">Delamain peut se tromper. Vérifiez les informations sensibles.</p>
+    </footer>
 
-  <!-- ============ MODALS ============ -->
-  <div class="modal-backdrop" id="vek-modal">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeVekModal()">×</button>
-      <h2>Mon profil</h2>
-      <p class="modal-sub" id="profile-username-display">Connecté en tant que Compte VEK</p>
-
-      <div class="form-group">
-        <label>Emblème</label>
-        <div class="avatar-picker" id="avatar-picker">
-          <button type="button" class="avatar-opt active" data-avatar="🏴‍☠️" onclick="selectAvatar(this)">🏴‍☠️</button>
-          <button type="button" class="avatar-opt" data-avatar="🇫🇷" onclick="selectAvatar(this)">🇫🇷</button>
-          <button type="button" class="avatar-opt edc-avatar-opt" data-avatar="EDC" onclick="selectAvatar(this)">EDC</button>
-          <button type="button" class="avatar-opt" data-avatar="😎" onclick="selectAvatar(this)">😎</button>
-          <button type="button" class="avatar-opt" data-avatar="👾" onclick="selectAvatar(this)">👾</button>
-          <button type="button" class="avatar-opt" data-avatar="🛸" onclick="selectAvatar(this)">🛸</button>
-          <button type="button" class="avatar-opt" data-avatar="⚡" onclick="selectAvatar(this)">⚡</button>
-        </div>
-      </div>
-
-      <button class="btn-action-modal" onclick="saveVekAccount()">Enregistrer</button>
-      <button class="btn-logout" onclick="logoutUser()">Se déconnecter</button>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="ultimate-modal">
-    <div class="modal-box ultimate-box">
-      <button class="modal-close" onclick="closeUltimateModal()">×</button>
-      <span class="edc-modal-header ultimate-header">✨ EN DÉVELOPPEMENT</span>
-      <h2>VEKTRA ULTIME</h2>
-      <p class="edc-modal-desc">L'abonnement qui débloque la puissance complète du noyau : conversations illimitées, latence prioritaire, modèles étendus.</p>
-
-      <div class="ultimate-feature-grid">
-        <div class="ultimate-feature"><span>♾️</span>Conversations illimitées</div>
-        <div class="ultimate-feature"><span>⚡</span>Latence prioritaire</div>
-        <div class="ultimate-feature"><span>🧠</span>Profond &amp; Vision illimités</div>
-        <div class="ultimate-feature"><span>🎁</span>Accès anticipé aux nouveautés</div>
-      </div>
-
-      <a class="btn-action-modal ultimate-discord-btn" href="https://discord.gg/Kk8Heewet5" target="_blank" rel="noopener noreferrer">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12h.01M16 12h.01M7 5l-2 3.5V17a13 13 0 0010 3l1-1.5M17 5l2 3.5V17a13 13 0 01-10 3l-1-1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        POUR RECEVOIR UN ACCÈS ULTIMATE, OUVREZ UN TICKET DISCORD
-      </a>
-
-      <div class="access-code-row">
-        <input type="text" id="access-code-input" placeholder="Code d'accès (bientôt disponible)">
-        <button type="button" class="btn-access-code" onclick="redeemAccessCode()">Valider</button>
-      </div>
-    </div>
   </div>
 
   <script src="script.js"></script>
