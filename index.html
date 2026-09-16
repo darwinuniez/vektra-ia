@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>DELAMAIN — Noyau autonome</title>
-<link rel="icon" type="image/png" href="logo.png">
+<title>DELAMAIN IA — Noyau autonome</title>
+<link rel="icon" type="image/png" href="logo-edc.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -12,18 +12,26 @@
 </head>
 <body>
 
-  <!-- ============ BOOT SEQUENCE ============ -->
-  <div id="boot" aria-hidden="true">
-    <div class="boot-ring"></div>
-    <div class="boot-mark">
-      <span class="boot-title">DELAMAIN</span>
-      <span class="boot-sub">NOYAU AUTONOME — INSTANCE LOCALE</span>
-    </div>
-    <div class="boot-log" id="boot-log"></div>
+  <!-- ambient background glows -->
+  <div class="ambient" aria-hidden="true">
+    <span class="g1"></span>
+    <span class="g2"></span>
+    <span class="g3"></span>
   </div>
 
-  <!-- ambient cursor glow, desktop only -->
-  <div id="cursor-glow" aria-hidden="true"></div>
+  <!-- ============ INTRO SPLASH ============ -->
+  <div id="intro-splash">
+    <div class="intro-glow" aria-hidden="true"></div>
+    <div class="intro-photo-wrap">
+      <img src="delamain-intro.png" alt="Delamain">
+      <div class="intro-sheen" aria-hidden="true"></div>
+    </div>
+    <div class="intro-word">
+      <span class="intro-wordmark">DELAMAIN</span>
+      <span class="intro-tagline">NOYAU AUTONOME — INSTANCE LOCALE</span>
+    </div>
+    <button class="intro-enter" id="intro-enter-btn">Entrer</button>
+  </div>
 
   <div id="app">
 
@@ -33,34 +41,57 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-top">
         <div class="sidebar-brand">
-          <img src="logo.png" alt="">
-          <span>Ervin&nbsp;Digital</span>
+          <img src="logo-edc.png" alt="">
+          <div class="sidebar-brand-text">
+            <span class="sidebar-brand-name">DELAMAIN IA</span>
+            <span class="sidebar-brand-tag">ERVIN DIGITAL CORP</span>
+          </div>
         </div>
         <button class="icon-btn" id="sidebar-collapse-btn" aria-label="Réduire la barre latérale" title="Réduire">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><line x1="9.5" y1="4" x2="9.5" y2="20"/></svg>
         </button>
       </div>
 
+      <div class="live-counter">
+        <span class="live-dot"></span>
+        <span><span class="live-count-num" id="live-count-num">12</span> connectés récemment</span>
+      </div>
+
+      <button class="upgrade-btn" id="upgrade-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
+        Mettre à niveau
+      </button>
+
       <button class="new-conv-btn" id="new-conv-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
         Nouvelle conversation
       </button>
 
+      <div class="conv-limit-note" id="conv-limit-note">
+        Limite de 5 conversations gratuites atteinte. <a href="#" id="limit-upgrade-link">Passez à Delamain Plus</a> pour un historique illimité.
+      </div>
+
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="conv-search" placeholder="Rechercher dans l'historique…">
+      </div>
+
       <div class="sidebar-section-label">Historique</div>
       <nav class="conv-list" id="conv-list"></nav>
 
       <div class="sidebar-bottom">
-        <button class="sidebar-row-btn" id="changelog-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>
-          Nouveautés
-        </button>
-        <button class="profile-btn" id="profile-btn">
-          <span class="profile-avatar" id="profile-avatar-mini">D</span>
-          <span class="profile-meta">
-            <span class="profile-name" id="profile-name-display">Invité</span>
-            <span class="profile-sub">Voir le profil</span>
-          </span>
-        </button>
+        <p class="legal-note">
+          En utilisant Delamain, vous acceptez nos <a href="#" id="terms-link">conditions d'utilisation</a>.
+          Créé par ErvinDigitalCorporation (EDC).
+        </p>
+        <div class="social-row">
+          <a class="social-btn" id="discord-link" href="#" target="_blank" rel="noopener" aria-label="Rejoindre le Discord" title="Discord">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8.5C9.5 7 14.5 7 17 8.5"/><path d="M6.5 16c3.5 1.5 7.5 1.5 11 0"/><path d="M8 9.5c-2 1-3 3-3 6.5 0 0 1.5 1.5 3.5 2l.7-1.4"/><path d="M16 9.5c2 1 3 3 3 6.5 0 0-1.5 1.5-3.5 2l-.7-1.4"/><circle cx="9.5" cy="14" r="1"/><circle cx="14.5" cy="14" r="1"/></svg>
+          </a>
+          <a class="social-btn" id="edc-link" href="#" target="_blank" rel="noopener" aria-label="EDC Corp" title="EDC Corp">
+            <img src="logo-edc.png" alt="">
+          </a>
+        </div>
       </div>
     </aside>
 
@@ -82,29 +113,16 @@
 
       <div class="stage">
 
-        <!-- persistent portrait, always centered -->
-        <div class="portrait-wrap">
-          <div class="portrait-frame">
-            <span class="corner tl"></span>
-            <span class="corner tr"></span>
-            <span class="corner bl"></span>
-            <span class="corner br"></span>
-            <div class="portrait-face" id="portrait-face"></div>
-            <div class="portrait-scan"></div>
-          </div>
-          <div class="portrait-id">
-            <span class="portrait-name">DELAMAIN</span>
-            <span class="portrait-role">Chauffeur autonome · Night City</span>
-          </div>
-        </div>
-
         <!-- intro state: shown until the first message is sent -->
         <div class="intro" id="intro">
-          <p class="intro-line">Montez. La ville ne vous attendra pas.</p>
+          <div class="intro-mark">
+            <img src="logo-edc.png" alt="">
+            <p class="intro-line">Bonjour. Que puis-je faire pour vous ?</p>
+          </div>
           <div class="chips" id="chips">
-            <button class="chip" data-prompt="Propose-moi un itinéraire pour traverser Night City en évitant les patrouilles NCPD.">Itinéraire</button>
-            <button class="chip" data-prompt="Fais un diagnostic complet de mon véhicule, moteur et blindage.">Diagnostic véhicule</button>
-            <button class="chip" data-prompt="Donne-moi les dernières infos sur les gangs qui contrôlent Night City en ce moment.">Réseau &amp; renseignement</button>
+            <button class="chip" data-prompt="Résume-moi les grandes lignes de mon dernier document.">Résumer un document</button>
+            <button class="chip" data-prompt="Aide-moi à planifier ma semaine efficacement.">Planifier ma semaine</button>
+            <button class="chip" data-prompt="Donne-moi les dernières informations sur l'actualité tech.">Actualité &amp; veille</button>
             <button class="chip" data-prompt="J'ai juste envie de discuter un peu, Delamain.">Discussion libre</button>
           </div>
         </div>
@@ -115,12 +133,17 @@
       </div>
 
       <footer class="composer">
-        <form id="composer-form" autocomplete="off">
-          <input type="text" id="composer-input" placeholder="Écrire à Delamain…" maxlength="600">
-          <button type="submit" class="send-btn" aria-label="Envoyer">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-          </button>
-        </form>
+        <div class="composer-form-wrap">
+          <form id="composer-form" autocomplete="off">
+            <div class="composer-input-wrap">
+              <input type="text" id="composer-input" maxlength="600">
+              <span class="composer-placeholder" id="composer-placeholder">Écrire à Delamain…</span>
+            </div>
+            <button type="submit" class="send-btn" aria-label="Envoyer">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+          </form>
+        </div>
         <p class="composer-note">Delamain peut se tromper. Vérifiez les informations sensibles.</p>
       </footer>
 
@@ -128,51 +151,54 @@
 
   </div>
 
-  <!-- ============ CHANGELOG MODAL ============ -->
-  <div class="modal-scrim" id="changelog-modal">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="changelog-title">
-      <div class="modal-head">
-        <h2 id="changelog-title">Nouveautés</h2>
-        <button class="icon-btn" data-close-modal aria-label="Fermer">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <div class="modal-body" id="changelog-body"></div>
-    </div>
-  </div>
+  <!-- ============ AVATAR TEMPLATE (referenced by script.js) ============ -->
+  <template id="ai-avatar-template"><img src="delamain-profile.png" alt="Delamain"></template>
 
-  <!-- ============ PROFILE MODAL ============ -->
-  <div class="modal-scrim" id="profile-modal">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+  <!-- ============ UPGRADE MODAL — DELAMAIN PLUS ============ -->
+  <div class="modal-scrim" id="upgrade-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="upgrade-title">
       <div class="modal-head">
-        <h2 id="profile-title">Profil</h2>
+        <h2 id="upgrade-title"><span class="premium-badge">✦ Delamain Plus</span></h2>
         <button class="icon-btn" data-close-modal aria-label="Fermer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
       </div>
       <div class="modal-body">
-        <div class="profile-form">
-          <div class="profile-avatar-row">
-            <span class="profile-avatar-lg" id="profile-avatar-lg">D</span>
-            <div>
-              <div style="font-size:14px; font-weight:500;">Compte local</div>
-              <div style="font-size:12px; color:var(--text-faint);">Stocké uniquement sur cet appareil</div>
-            </div>
-          </div>
-          <div>
-            <label class="field-label" for="profile-name-input">Nom affiché</label>
-            <input type="text" id="profile-name-input" class="field-input" maxlength="40" placeholder="Invité">
-          </div>
-          <div class="modal-actions">
-            <button class="btn btn-ghost" data-close-modal>Annuler</button>
-            <button class="btn btn-primary" id="profile-save-btn">Enregistrer</button>
-          </div>
+        <p id="upgrade-context-msg">Delamain Plus est encore en cours de développement. Conversations illimitées, réponses prioritaires et bien plus arrivent bientôt.</p>
+        <div>
+          <label class="field-label" for="unlock-code-input">Code de déblocage</label>
+          <input type="text" id="unlock-code-input" class="field-input" placeholder="XXXX-XXXX-XXXX" autocomplete="off">
+          <div class="field-status" id="unlock-status"></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-close-modal>Fermer</button>
+          <button class="btn btn-premium" id="unlock-submit-btn">Valider le code</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ============ DELETE CONFIRM MODAL ============ -->
+  <!-- ============ TERMS MODAL ============ -->
+  <div class="modal-scrim" id="terms-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+      <div class="modal-head">
+        <h2 id="terms-title">Conditions d'utilisation</h2>
+        <button class="icon-btn" data-close-modal aria-label="Fermer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Delamain est une instance conversationnelle fournie « en l'état » par ErvinDigitalCorporation (EDC). Les réponses générées peuvent contenir des erreurs ou des approximations : vérifiez toute information sensible avant de vous y fier.</p>
+        <p>Les conversations sont conservées localement sur votre appareil. EDC ne garantit pas la disponibilité continue du service et peut le modifier ou l'interrompre à tout moment.</p>
+        <p>L'offre gratuite est limitée à 5 conversations conservées. Delamain Plus, actuellement en développement, permettra de lever cette limite.</p>
+        <div class="modal-actions">
+          <button class="btn btn-primary" data-close-modal>J'ai compris</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RENAME / DELETE CONFIRM ============ -->
   <div class="modal-scrim" id="confirm-modal">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title" style="max-width:360px;">
       <div class="modal-head">

@@ -1,55 +1,49 @@
 /* =========================================================
-   DELAMAIN — front-end logic (Connected to /api/chat)
+   DELAMAIN IA — front-end logic (Connected to /api/chat)
    ========================================================= */
 
-/* ---------- Boot sequence ---------- */
-const BOOT_LINES = [
-  "initialisation du noyau…",
-  "chargement des schémas urbains — Night City",
-  "calibration vocale… ok",
-  "connexion établie"
-];
+/* =========================================================
+   Intro splash
+   ========================================================= */
+const introSplash   = document.getElementById("intro-splash");
+const introEnterBtn = document.getElementById("intro-enter-btn");
+const reducedMotion  = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function runBoot(){
-  const bootEl = document.getElementById("boot");
-  const logEl  = document.getElementById("boot-log");
-  let i = 0;
-
-  function nextLine(){
-    if (i >= BOOT_LINES.length){
-      setTimeout(() => bootEl.classList.add("hidden"), 350);
-      return;
-    }
-    const isLast = i === BOOT_LINES.length - 1;
-    logEl.innerHTML = isLast
-      ? `<span class="ok">${BOOT_LINES[i]}</span>`
-      : BOOT_LINES[i];
-    i++;
-    setTimeout(nextLine, isLast ? 550 : 420);
-  }
-  setTimeout(nextLine, 400);
+let introDismissed = false;
+function dismissIntro(){
+  if (introDismissed) return;
+  introDismissed = true;
+  introSplash.classList.add("hidden");
+  setTimeout(() => { introSplash.style.display = "none"; }, 950);
 }
-runBoot();
 
-/* ---------- Ambient cursor glow (desktop only) ---------- */
-const glow = document.getElementById("cursor-glow");
-if (window.matchMedia("(hover: hover) and (pointer: fine)").matches){
-  window.addEventListener("pointermove", (e) => {
-    glow.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-    glow.classList.add("active");
+if (reducedMotion){
+  dismissIntro();
+  introSplash.style.display = "none";
+} else {
+  // auto-dismiss once the reveal sequence has played out
+  setTimeout(dismissIntro, 4200);
+  introEnterBtn.addEventListener("click", dismissIntro);
+  introSplash.addEventListener("click", (e) => {
+    if (e.target === introSplash) dismissIntro();
   });
-  window.addEventListener("pointerleave", () => glow.classList.remove("active"));
+  document.addEventListener("keydown", (e) => {
+    if (!introDismissed && (e.key === "Enter" || e.key === "Escape")) dismissIntro();
+  }, { once: false });
 }
 
-/* ---------- Elements ---------- */
+/* =========================================================
+   Elements
+   ========================================================= */
 const appEl        = document.getElementById("app");
 const threadEl      = document.getElementById("thread");
 const formEl        = document.getElementById("composer-form");
 const inputEl       = document.getElementById("composer-input");
+const placeholderEl = document.getElementById("composer-placeholder");
 const sendBtn       = formEl.querySelector(".send-btn");
-const faceEl        = document.getElementById("portrait-face");
 const chipsEl       = document.getElementById("chips");
 const topbarTitleEl = document.getElementById("topbar-title");
+const avatarTemplate = document.getElementById("ai-avatar-template");
 
 const sidebarEl          = document.getElementById("sidebar");
 const sidebarScrimEl     = document.getElementById("sidebar-scrim");
@@ -57,44 +51,80 @@ const sidebarCollapseBtn = document.getElementById("sidebar-collapse-btn");
 const sidebarOpenBtn     = document.getElementById("sidebar-open-btn");
 const convListEl         = document.getElementById("conv-list");
 const newConvBtn         = document.getElementById("new-conv-btn");
+const convLimitNote      = document.getElementById("conv-limit-note");
+const convSearchInput    = document.getElementById("conv-search");
+const limitUpgradeLink   = document.getElementById("limit-upgrade-link");
 
-const changelogBtn   = document.getElementById("changelog-btn");
-const changelogModal = document.getElementById("changelog-modal");
-const changelogBody  = document.getElementById("changelog-body");
+const upgradeBtn      = document.getElementById("upgrade-btn");
+const upgradeModal     = document.getElementById("upgrade-modal");
+const upgradeContextMsg = document.getElementById("upgrade-context-msg");
+const unlockCodeInput  = document.getElementById("unlock-code-input");
+const unlockSubmitBtn  = document.getElementById("unlock-submit-btn");
+const unlockStatus     = document.getElementById("unlock-status");
 
-const profileBtn        = document.getElementById("profile-btn");
-const profileModal      = document.getElementById("profile-modal");
-const profileNameInput  = document.getElementById("profile-name-input");
-const profileSaveBtn    = document.getElementById("profile-save-btn");
-const profileNameDisplay= document.getElementById("profile-name-display");
-const profileAvatarMini = document.getElementById("profile-avatar-mini");
-const profileAvatarLg   = document.getElementById("profile-avatar-lg");
+const termsLink  = document.getElementById("terms-link");
+const termsModal = document.getElementById("terms-modal");
 
 const confirmModal     = document.getElementById("confirm-modal");
 const confirmBody      = document.getElementById("confirm-body");
 const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
 
-/* ---------- Sprite mouth control ----------
-   .talking triggers a discrete two-step sprite animation
-   (closed -> mid -> open, then reversed) with no interpolation
-   between frames — see style.css for the frame math. */
-function setTalking(isTalking){
-  faceEl.classList.toggle("talking", isTalking);
+const DEFAULT_UPGRADE_MSG = "Delamain Plus est encore en cours de développement. Conversations illimitées, réponses prioritaires et bien plus arrivent bientôt.";
+
+/* =========================================================
+   Live "connectés récemment" counter — oscillates 10-16
+   ========================================================= */
+const liveCountEl = document.getElementById("live-count-num");
+let liveCount = 12;
+function stepLiveCount(){
+  const delta = Math.random() < 0.5 ? -1 : 1;
+  liveCount = Math.min(16, Math.max(10, liveCount + delta));
+  liveCountEl.style.opacity = "0";
+  setTimeout(() => {
+    liveCountEl.textContent = liveCount;
+    liveCountEl.style.opacity = "1";
+  }, 220);
 }
+setInterval(stepLiveCount, 3600 + Math.random() * 1400);
+
+/* =========================================================
+   Composer — rotating placeholder (hidden once input has text)
+   ========================================================= */
+const PLACEHOLDERS = [
+  "Écrire à Delamain…",
+  "Delamain vous écoute…",
+  "Bienvenue sur Delamain…",
+  "Posez votre question…",
+  "Que puis-je faire pour vous ?"
+];
+let placeholderIdx = 0;
+function rotatePlaceholder(){
+  placeholderEl.style.opacity = "0";
+  setTimeout(() => {
+    placeholderIdx = (placeholderIdx + 1) % PLACEHOLDERS.length;
+    placeholderEl.textContent = PLACEHOLDERS[placeholderIdx];
+    placeholderEl.style.opacity = inputEl.value ? "0" : "1";
+  }, 350);
+}
+setInterval(rotatePlaceholder, 3200);
+inputEl.addEventListener("input", () => {
+  placeholderEl.style.opacity = inputEl.value ? "0" : "1";
+});
 
 /* =========================================================
    State: conversations, persisted to localStorage
    ========================================================= */
 const STORAGE_KEYS = {
   conversations: "delamain.conversations",
-  currentId:     "delamain.currentId",
-  profileName:   "delamain.profileName"
+  currentId:     "delamain.currentId"
 };
+const FREE_CONVERSATION_LIMIT = 5;
 
 let conversations = [];
 let currentId = null;
 let openMenuId = null;
 let pendingDeleteId = null;
+let searchTerm = "";
 
 function uid(){
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -129,12 +159,20 @@ function truncateTitle(text){
   return clean.length > 42 ? clean.slice(0, 42).trimEnd() + "…" : clean;
 }
 
+function isAtFreeLimit(){
+  return conversations.length >= FREE_CONVERSATION_LIMIT;
+}
+
 /* ---------- Conversation CRUD ---------- */
 function createConversation({ focus = true } = {}){
   const existing = getCurrentConv();
   if (existing && existing.messages.length === 0){
     if (focus) inputEl.focus();
     return existing;
+  }
+  if (isAtFreeLimit()){
+    openUpgradeModal("Vous avez atteint la limite de 5 conversations gratuites. Passez à Delamain Plus pour un historique illimité.");
+    return null;
   }
   const conv = { id: uid(), title: "Nouvelle conversation", createdAt: Date.now(), messages: [] };
   conversations.unshift(conv);
@@ -187,6 +225,15 @@ function closeAllMenus(){
 function renderSidebar(){
   convListEl.innerHTML = "";
 
+  const atLimit = isAtFreeLimit();
+  newConvBtn.classList.toggle("at-limit", atLimit);
+  convLimitNote.classList.toggle("show", atLimit);
+
+  const term = searchTerm.trim().toLowerCase();
+  const visible = term
+    ? conversations.filter(c => c.title.toLowerCase().includes(term))
+    : conversations;
+
   if (conversations.length === 0){
     const empty = document.createElement("div");
     empty.className = "sidebar-empty";
@@ -194,8 +241,15 @@ function renderSidebar(){
     convListEl.appendChild(empty);
     return;
   }
+  if (visible.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "sidebar-empty";
+    empty.textContent = "Aucun résultat pour cette recherche.";
+    convListEl.appendChild(empty);
+    return;
+  }
 
-  conversations.forEach(conv => {
+  visible.forEach(conv => {
     const item = document.createElement("div");
     item.className = "conv-item" + (conv.id === currentId ? " current" : "");
     item.dataset.id = conv.id;
@@ -281,13 +335,21 @@ document.addEventListener("click", (e) => {
   }
 });
 
+convSearchInput.addEventListener("input", () => {
+  searchTerm = convSearchInput.value;
+  renderSidebar();
+});
+
 /* ---------- Sidebar open/collapse ---------- */
 sidebarCollapseBtn.addEventListener("click", () => {
   appEl.classList.toggle("sidebar-collapsed");
 });
 sidebarOpenBtn.addEventListener("click", () => {
-  appEl.classList.add("sidebar-open");
-  appEl.classList.remove("sidebar-collapsed");
+  if (window.matchMedia("(max-width:860px)").matches){
+    appEl.classList.add("sidebar-open");
+  } else {
+    appEl.classList.remove("sidebar-collapsed");
+  }
 });
 sidebarScrimEl.addEventListener("click", () => appEl.classList.remove("sidebar-open"));
 function closeSidebarOnMobile(){
@@ -309,16 +371,24 @@ function updateTopbarTitle(){
 function addUserMessage(text){
   const msg = document.createElement("div");
   msg.className = "msg user";
-  msg.innerHTML = `<span class="msg-label">VOUS</span><div class="msg-bubble"></div>`;
+  msg.innerHTML = `<div class="msg-col"><span class="msg-label">VOUS</span><div class="msg-bubble"></div></div>`;
   msg.querySelector(".msg-bubble").textContent = text;
   threadEl.appendChild(msg);
   scrollToBottom();
 }
 
+function buildAiAvatar(){
+  return avatarTemplate.content.firstElementChild.cloneNode(true);
+}
+
 function addAiMessage(text){
   const msg = document.createElement("div");
   msg.className = "msg ai";
-  msg.innerHTML = `<span class="msg-label">DELAMAIN</span><div class="msg-bubble"></div>`;
+  const avatarWrap = document.createElement("div");
+  avatarWrap.className = "msg-avatar";
+  avatarWrap.appendChild(buildAiAvatar());
+  msg.innerHTML = `<div class="msg-col"><span class="msg-label">DELAMAIN</span><div class="msg-bubble"></div></div>`;
+  msg.prepend(avatarWrap);
   msg.querySelector(".msg-bubble").textContent = text;
   threadEl.appendChild(msg);
   scrollToBottom();
@@ -327,7 +397,11 @@ function addAiMessage(text){
 function addAiMessagePlaceholder(){
   const msg = document.createElement("div");
   msg.className = "msg ai";
-  msg.innerHTML = `<span class="msg-label">DELAMAIN</span><div class="msg-bubble"><span class="typed"></span><span class="cursor"></span></div>`;
+  const avatarWrap = document.createElement("div");
+  avatarWrap.className = "msg-avatar";
+  avatarWrap.appendChild(buildAiAvatar());
+  msg.innerHTML = `<div class="msg-col"><span class="msg-label">DELAMAIN</span><div class="msg-bubble"><span class="typed"></span><span class="cursor"></span></div></div>`;
+  msg.prepend(avatarWrap);
   threadEl.appendChild(msg);
   scrollToBottom();
   return msg.querySelector(".typed");
@@ -354,20 +428,17 @@ function renderConversation(){
   });
 }
 
-/* ---------- Typewriter, synced with mouth animation ---------- */
+/* ---------- Typewriter ---------- */
 function typeOut(targetEl, fullText, onDone){
   let idx = 0;
-  setTalking(true);
-
   function step(){
     if (idx < fullText.length){
       targetEl.textContent += fullText[idx];
       idx++;
       scrollToBottom();
-      const delay = 14 + Math.random() * 22;
+      const delay = 10 + Math.random() * 16;
       setTimeout(step, delay);
     } else {
-      setTalking(false);
       const cursorEl = targetEl.parentElement.querySelector(".cursor");
       if (cursorEl) cursorEl.remove();
       if (onDone) onDone();
@@ -403,6 +474,8 @@ async function sendMessage(text){
   if (!clean) return;
 
   const conv = getCurrentConv() || createConversation({ focus: false });
+  if (!conv) return; // blocked by the free-tier limit, upgrade modal already shown
+
   const historyBeforeThisTurn = conv.messages.map(m => ({ role: m.role, content: m.content }));
   const isFirstMessage = conv.messages.length === 0;
 
@@ -415,6 +488,7 @@ async function sendMessage(text){
   updateTopbarTitle();
   addUserMessage(clean);
   inputEl.value = "";
+  placeholderEl.style.opacity = "1";
   sendBtn.disabled = true;
 
   const reply = await getDelamainReply(clean, historyBeforeThisTurn);
@@ -425,7 +499,7 @@ async function sendMessage(text){
 
   setTimeout(() => {
     typeOut(target, reply, () => { sendBtn.disabled = false; });
-  }, 400);
+  }, 350);
 }
 
 formEl.addEventListener("submit", (e) => {
@@ -462,77 +536,35 @@ document.querySelectorAll(".modal-scrim").forEach(scrim => {
   });
 });
 
-/* ---------- Changelog ---------- */
-const CHANGELOG = [
-  {
-    version: "v1.4",
-    date: "12 sept. 2026",
-    title: "Historique des conversations",
-    desc: "Delamain garde désormais chaque discussion en mémoire locale : reprenez un fil, renommez-le ou supprimez-le à tout moment depuis la barre latérale."
-  },
-  {
-    version: "v1.3",
-    date: "28 août 2026",
-    title: "Calibration du portrait",
-    desc: "Refonte complète de l'animation faciale : le calage image par image est désormais parfaitement synchronisé avec la synthèse vocale simulée."
-  },
-  {
-    version: "v1.2",
-    date: "14 août 2026",
-    title: "Veille réseau étendue",
-    desc: "Le noyau interroge désormais des sources externes en temps réel pour les questions sensibles au temps — trafic, activité des gangs, météo."
-  },
-  {
-    version: "v1.1",
-    date: "2 août 2026",
-    title: "Lancement de l'instance locale",
-    desc: "Premier déploiement public du noyau Delamain pour Ervin Digital Corp, avec conduite assistée et diagnostic véhicule embarqué."
+/* ---------- Upgrade / Delamain Plus ---------- */
+function openUpgradeModal(contextMessage){
+  upgradeContextMsg.textContent = contextMessage || DEFAULT_UPGRADE_MSG;
+  unlockCodeInput.value = "";
+  unlockStatus.textContent = "";
+  openModal(upgradeModal);
+  setTimeout(() => unlockCodeInput.focus(), 50);
+}
+upgradeBtn.addEventListener("click", () => openUpgradeModal());
+limitUpgradeLink.addEventListener("click", (e) => {
+  e.preventDefault();
+  openUpgradeModal();
+});
+unlockSubmitBtn.addEventListener("click", () => {
+  const code = unlockCodeInput.value.trim();
+  if (!code){
+    unlockStatus.textContent = "Entrez un code pour continuer.";
+    return;
   }
-];
-
-function renderChangelog(){
-  changelogBody.innerHTML = "";
-  CHANGELOG.forEach(entry => {
-    const el = document.createElement("div");
-    el.className = "changelog-entry";
-    el.innerHTML = `
-      <div class="changelog-version-row">
-        <span class="changelog-version">${entry.version}</span>
-        <span class="changelog-date">${entry.date}</span>
-      </div>
-      <p class="changelog-title">${entry.title}</p>
-      <p class="changelog-desc">${entry.desc}</p>
-    `;
-    changelogBody.appendChild(el);
-  });
-}
-renderChangelog();
-changelogBtn.addEventListener("click", () => openModal(changelogModal));
-
-/* ---------- Profile ---------- */
-function loadProfileName(){
-  return localStorage.getItem(STORAGE_KEYS.profileName) || "Invité";
-}
-function applyProfileName(name){
-  const display = name.trim() || "Invité";
-  profileNameDisplay.textContent = display;
-  const initial = display.trim().charAt(0).toUpperCase() || "?";
-  profileAvatarMini.textContent = initial;
-  profileAvatarLg.textContent = initial;
-}
-profileBtn.addEventListener("click", () => {
-  profileNameInput.value = loadProfileName();
-  openModal(profileModal);
-  setTimeout(() => profileNameInput.focus(), 50);
+  unlockStatus.textContent = "Delamain Plus n'est pas encore ouvert au public : votre code a été enregistré et sera vérifié dès son lancement.";
 });
-profileSaveBtn.addEventListener("click", () => {
-  const name = profileNameInput.value.trim() || "Invité";
-  try { localStorage.setItem(STORAGE_KEYS.profileName, name); } catch (_) {}
-  applyProfileName(name);
-  closeModal(profileModal);
+unlockCodeInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter"){ e.preventDefault(); unlockSubmitBtn.click(); }
 });
-profileNameInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter"){ e.preventDefault(); profileSaveBtn.click(); }
+
+/* ---------- Terms ---------- */
+termsLink.addEventListener("click", (e) => {
+  e.preventDefault();
+  openModal(termsModal);
 });
 
 /* ---------- Delete confirmation ---------- */
@@ -548,6 +580,5 @@ confirmDeleteBtn.addEventListener("click", () => {
    Init
    ========================================================= */
 loadState();
-applyProfileName(loadProfileName());
 renderSidebar();
 renderConversation();
