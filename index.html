@@ -12,25 +12,31 @@
 </head>
 <body>
 
-  <!-- ambient background glows -->
+  <!-- ambient background: layered glows + film grain + cursor-follow glow -->
   <div class="ambient" aria-hidden="true">
     <span class="g1"></span>
     <span class="g2"></span>
     <span class="g3"></span>
+    <span class="g4"></span>
+    <span class="g5"></span>
   </div>
+  <div class="ambient-grain" aria-hidden="true"></div>
+  <div id="cursor-glow" aria-hidden="true"></div>
 
-  <!-- ============ INTRO SPLASH ============ -->
+  <!-- ============ INTRO SPLASH — short & intense ============ -->
   <div id="intro-splash">
-    <div class="intro-glow" aria-hidden="true"></div>
+    <div class="intro-flare" aria-hidden="true"></div>
+    <div class="intro-ring" aria-hidden="true"></div>
     <div class="intro-photo-wrap">
       <img src="delamain-intro.png" alt="Delamain">
+      <div class="intro-glass-edge" aria-hidden="true"></div>
       <div class="intro-sheen" aria-hidden="true"></div>
+      <div class="intro-word">
+        <span class="intro-wordmark">DELAMAIN</span>
+        <span class="intro-tagline">NOYAU AUTONOME — INSTANCE LOCALE</span>
+      </div>
     </div>
-    <div class="intro-word">
-      <span class="intro-wordmark">DELAMAIN</span>
-      <span class="intro-tagline">NOYAU AUTONOME — INSTANCE LOCALE</span>
-    </div>
-    <button class="intro-enter" id="intro-enter-btn">Entrer</button>
+    <button class="intro-enter" id="intro-enter-btn">Passer</button>
   </div>
 
   <div id="app">
@@ -59,7 +65,7 @@
 
       <button class="upgrade-btn" id="upgrade-btn">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
-        Mettre à niveau
+        <span>Mettre à niveau</span>
       </button>
 
       <button class="new-conv-btn" id="new-conv-btn">
@@ -111,25 +117,28 @@
         </div>
       </header>
 
-      <div class="stage">
+      <!-- the only element that scrolls: keeps the whole shell perfectly still -->
+      <div class="chat-scroll" id="chat-scroll">
+        <div class="stage">
 
-        <!-- intro state: shown until the first message is sent -->
-        <div class="intro" id="intro">
-          <div class="intro-mark">
-            <img src="logo-edc.png" alt="">
-            <p class="intro-line">Bonjour. Que puis-je faire pour vous ?</p>
+          <!-- intro state: shown until the first message is sent -->
+          <div class="intro" id="intro">
+            <div class="intro-mark">
+              <div class="intro-mark-ring"><img src="logo-edc.png" alt=""></div>
+              <p class="intro-line">Bonjour. Que puis-je faire pour vous ?</p>
+            </div>
+            <div class="chips" id="chips">
+              <button class="chip" data-prompt="Résume-moi les grandes lignes de mon dernier document.">Résumer un document</button>
+              <button class="chip" data-prompt="Aide-moi à planifier ma semaine efficacement.">Planifier ma semaine</button>
+              <button class="chip" data-prompt="Donne-moi les dernières informations sur l'actualité tech.">Actualité &amp; veille</button>
+              <button class="chip" data-prompt="J'ai juste envie de discuter un peu, Delamain.">Discussion libre</button>
+            </div>
           </div>
-          <div class="chips" id="chips">
-            <button class="chip" data-prompt="Résume-moi les grandes lignes de mon dernier document.">Résumer un document</button>
-            <button class="chip" data-prompt="Aide-moi à planifier ma semaine efficacement.">Planifier ma semaine</button>
-            <button class="chip" data-prompt="Donne-moi les dernières informations sur l'actualité tech.">Actualité &amp; veille</button>
-            <button class="chip" data-prompt="J'ai juste envie de discuter un peu, Delamain.">Discussion libre</button>
-          </div>
+
+          <!-- conversation thread -->
+          <div class="thread" id="thread"></div>
+
         </div>
-
-        <!-- conversation thread -->
-        <div class="thread" id="thread"></div>
-
       </div>
 
       <footer class="composer">
@@ -151,8 +160,11 @@
 
   </div>
 
-  <!-- ============ AVATAR TEMPLATE (referenced by script.js) ============ -->
+  <!-- ============ TEMPLATES (referenced by script.js) ============ -->
   <template id="ai-avatar-template"><img src="delamain-profile.png" alt="Delamain"></template>
+  <template id="typing-indicator-template">
+    <div class="typing-indicator"><span></span><span></span><span></span></div>
+  </template>
 
   <!-- ============ UPGRADE MODAL — DELAMAIN PLUS ============ -->
   <div class="modal-scrim" id="upgrade-modal">
@@ -217,6 +229,6 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
