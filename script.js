@@ -1,5 +1,5 @@
 /* =========================================================
-   DELAMAIN — front-end logic
+   DELAMAIN — front-end logic (Connected to /api/chat)
    ========================================================= */
 
 /* ---------- Boot sequence ---------- */
@@ -53,8 +53,7 @@ const chipsEl    = document.getElementById("chips");
 /* ---------- Sprite mouth control ----------
    .talking triggers the CSS steps() animation that cycles
    through the 3 stacked frames (closed / mid / open).
-   Removing the class snaps straight back to frame 0 (closed),
-   since the base rule pins background-position-y to 0%. */
+   Removing the class snaps straight back to frame 0 (closed). */
 function setTalking(isTalking){
   faceEl.classList.toggle("talking", isTalking);
 }
@@ -92,11 +91,10 @@ function typeOut(targetEl, fullText, onDone){
       targetEl.textContent += fullText[idx];
       idx++;
       scrollToBottom();
-      // slight natural variance in typing speed
       const delay = 14 + Math.random() * 22;
       setTimeout(step, delay);
     } else {
-      setTalking(false); // mouth snaps shut the instant text finishes
+      setTalking(false);
       const cursorEl = targetEl.parentElement.querySelector(".cursor");
       if (cursorEl) cursorEl.remove();
       if (onDone) onDone();
@@ -105,27 +103,32 @@ function typeOut(targetEl, fullText, onDone){
   step();
 }
 
-/* ---------- Response engine ----------
-   No backend is wired up here — this is a local stand-in so the
-   interface can be tested immediately offline. To connect a real
-   model, replace getDelamainReply() with a fetch() call to your
-   own endpoint (e.g. POST /api/chat) and pass its text straight
-   into typeOut(). */
-const REPLIES = [
-  "Naturellement. Je recalcule l'itinéraire optimal — comptez sur moi pour éviter les zones les plus… animées de la ville.",
-  "Une requête sensée, pour une fois. Laissez-moi consulter mes capteurs, cela ne prendra qu'un instant.",
-  "Je dois avouer une certaine affection pour ce genre de question. Voici ce que je peux vous dire.",
-  "C'est noté. Je m'en occupe pendant que vous profitez du trajet — installez-vous, tout va bien se passer.",
-  "Intéressant. Peu de passagers prennent la peine de demander. Voici mon analyse."
-];
+/* ---------- Response engine (Connected to /api/chat) ---------- */
+async function getDelamainReply(userText){
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message: userText })
+    });
 
-function getDelamainReply(userText){
-  const pick = REPLIES[Math.floor(Math.random() * REPLIES.length)];
-  return `${pick}`;
+    if (!response.ok) {
+      throw new Error("Erreur de communication avec le noyau Delamain.");
+    }
+
+    const data = await response.json();
+    // Ajuste selon la structure JSON renvoyée par ton backend (ex: data.reply ou data.message)
+    return data.reply || data.message || "Requête traitée, mais aucun détail renvoyé par le serveur.";
+  } catch (error) {
+    console.error("Erreur API:", error);
+    return "Connexion au sous-réseau instable. Mes capteurs indiquent une perturbation temporaire du signal.";
+  }
 }
 
 /* ---------- Send flow ---------- */
-function sendMessage(text){
+async function sendMessage(text){
   const clean = text.trim();
   if (!clean) return;
 
@@ -135,7 +138,8 @@ function sendMessage(text){
   inputEl.value = "";
   sendBtn.disabled = true;
 
-  const reply = getDelamainReply(clean);
+  // Récupération de la vraie réponse de l'API
+  const reply = await getDelamainReply(clean);
   const target = addAiMessagePlaceholder();
 
   // brief "thinking" pause before Delamain starts speaking
