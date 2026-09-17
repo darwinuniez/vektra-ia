@@ -58,11 +58,6 @@
         </button>
       </div>
 
-      <div class="live-counter">
-        <span class="live-dot"></span>
-        <span><span class="live-count-num" id="live-count-num">12</span> connectés récemment</span>
-      </div>
-
       <button class="upgrade-btn" id="upgrade-btn">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
         <span>Mettre à niveau</span>
@@ -91,11 +86,13 @@
           Créé par ErvinDigitalCorporation (EDC).
         </p>
         <div class="social-row">
-          <a class="social-btn" id="discord-link" href="#" target="_blank" rel="noopener" aria-label="Rejoindre le Discord" title="Discord">
+          <a class="social-btn discord" id="discord-link" href="#" target="_blank" rel="noopener" aria-label="Rejoindre le Discord" title="Discord">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8.5C9.5 7 14.5 7 17 8.5"/><path d="M6.5 16c3.5 1.5 7.5 1.5 11 0"/><path d="M8 9.5c-2 1-3 3-3 6.5 0 0 1.5 1.5 3.5 2l.7-1.4"/><path d="M16 9.5c2 1 3 3 3 6.5 0 0-1.5 1.5-3.5 2l-.7-1.4"/><circle cx="9.5" cy="14" r="1"/><circle cx="14.5" cy="14" r="1"/></svg>
+            <span>Discord</span>
           </a>
-          <a class="social-btn" id="edc-link" href="#" target="_blank" rel="noopener" aria-label="EDC Corp" title="EDC Corp">
+          <a class="social-btn edc" id="edc-link" href="#" target="_blank" rel="noopener" aria-label="EDC Corp" title="EDC Corp">
             <img src="logo-edc.png" alt="">
+            <span>EDC Corp</span>
           </a>
         </div>
       </div>
@@ -111,9 +108,9 @@
           </button>
           <span class="topbar-title" id="topbar-title">Nouvelle conversation</span>
         </div>
-        <div class="status">
-          <span class="status-dot"></span>
-          <span class="status-text">Noyau en ligne</span>
+        <div class="live-counter">
+          <span class="live-dot"></span>
+          <span><span class="live-count-num" id="live-count-num">12</span> connectés</span>
         </div>
       </header>
 
@@ -143,6 +140,30 @@
 
       <footer class="composer">
         <div class="composer-form-wrap">
+          <div class="style-picker" id="style-picker">
+            <button type="button" class="style-btn" id="style-btn" aria-haspopup="true" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M4 12h16M4 18h7"/><circle cx="17" cy="6" r="2"/><circle cx="9" cy="18" r="2"/></svg>
+              <span id="style-label">Équilibré</span>
+            </button>
+            <div class="style-popover" id="style-popover">
+              <button type="button" class="style-option active" data-style="balanced">
+                <span class="style-option-head">Équilibré</span>
+                <span class="style-option-desc">Réponses claires, ni trop longues ni trop courtes.</span>
+              </button>
+              <button type="button" class="style-option" data-style="detailed">
+                <span class="style-option-head">Détaillé</span>
+                <span class="style-option-desc">Plus long : explique davantage, avec exemples et contexte.</span>
+              </button>
+              <button type="button" class="style-option" data-style="concise">
+                <span class="style-option-head">Concis</span>
+                <span class="style-option-desc">Va droit au but, réponses courtes et directes.</span>
+              </button>
+              <button type="button" class="style-option" data-style="visual">
+                <span class="style-option-head">Visuel</span>
+                <span class="style-option-desc">Privilégie analogies, exemples imagés et structure claire.</span>
+              </button>
+            </div>
+          </div>
           <form id="composer-form" autocomplete="off">
             <div class="composer-input-wrap">
               <input type="text" id="composer-input" maxlength="600">
@@ -161,7 +182,7 @@
   </div>
 
   <!-- ============ TEMPLATES (referenced by script.js) ============ -->
-  <template id="ai-avatar-template"><img src="delamain-profile.png" alt="Delamain"></template>
+  <template id="ai-avatar-template"><img src="delamain-profile.png" alt="Delamain" decoding="async"></template>
   <template id="typing-indicator-template">
     <div class="typing-indicator"><span></span><span></span><span></span></div>
   </template>
