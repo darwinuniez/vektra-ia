@@ -23,18 +23,15 @@
   <div class="ambient-grain" aria-hidden="true"></div>
   <div id="cursor-glow" aria-hidden="true"></div>
 
-  <!-- ============ INTRO SPLASH — short & intense ============ -->
+  <!-- ============ INTRO SPLASH — logo only, fast & fluid ============ -->
   <div id="intro-splash">
-    <div class="intro-flare" aria-hidden="true"></div>
-    <div class="intro-ring" aria-hidden="true"></div>
-    <div class="intro-photo-wrap">
-      <img src="delamain-intro.png" alt="Delamain">
-      <div class="intro-glass-edge" aria-hidden="true"></div>
-      <div class="intro-sheen" aria-hidden="true"></div>
-      <div class="intro-word">
-        <span class="intro-wordmark">DELAMAIN</span>
-        <span class="intro-tagline">NOYAU AUTONOME — INSTANCE LOCALE</span>
-      </div>
+    <div class="intro-orbit">
+      <div class="intro-logo-glow" aria-hidden="true"></div>
+      <svg class="intro-ring-svg" viewBox="0 0 200 200" aria-hidden="true">
+        <circle class="intro-ring-track" cx="100" cy="100" r="86"/>
+        <circle class="intro-ring-draw" cx="100" cy="100" r="86"/>
+      </svg>
+      <img class="intro-logo" src="logo-edc.png" alt="Delamain">
     </div>
     <button class="intro-enter" id="intro-enter-btn">Passer</button>
   </div>
@@ -72,15 +69,28 @@
         Limite de 5 conversations gratuites atteinte. <a href="#" id="limit-upgrade-link">Passez à Delamain Plus</a> pour un historique illimité.
       </div>
 
-      <div class="search-wrap">
+      <div class="search-wrap" id="search-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input type="text" id="conv-search" placeholder="Rechercher dans l'historique…">
+        <button type="button" class="search-clear-btn" id="search-clear-btn" aria-label="Effacer la recherche" title="Effacer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="search-mic-wrap">
+          <button type="button" class="search-mic-btn" id="search-mic-btn" aria-label="Recherche vocale" title="Recherche vocale">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          </button>
+          <span class="mic-tooltip" id="mic-tooltip">Bientôt disponible — en cours de développement</span>
+        </div>
       </div>
 
       <div class="sidebar-section-label">Historique</div>
       <nav class="conv-list" id="conv-list"></nav>
 
       <div class="sidebar-bottom">
+        <div class="account-row">
+          <div class="account-avatar" id="account-avatar">?</div>
+          <input type="text" id="account-name-input" class="account-name-input" maxlength="24" placeholder="Votre nom" autocomplete="off">
+        </div>
         <p class="legal-note">
           En utilisant Delamain, vous acceptez nos <a href="#" id="terms-link">conditions d'utilisation</a>.
           Créé par ErvinDigitalCorporation (EDC).
@@ -140,27 +150,32 @@
 
       <footer class="composer">
         <div class="composer-form-wrap">
-          <div class="style-picker" id="style-picker">
-            <button type="button" class="style-btn" id="style-btn" aria-haspopup="true" aria-expanded="false">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M4 12h16M4 18h7"/><circle cx="17" cy="6" r="2"/><circle cx="9" cy="18" r="2"/></svg>
-              <span id="style-label">Équilibré</span>
+          <div class="version-picker" id="version-picker">
+            <button type="button" class="version-btn" id="version-btn" aria-haspopup="true" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18 3.5 3.5 0 0 0 0-7 1.8 1.8 0 0 1 0-3.6A3.5 3.5 0 0 0 12 3z"/><circle cx="8" cy="10" r=".8" fill="currentColor" stroke="none"/><circle cx="9" cy="15" r=".8" fill="currentColor" stroke="none"/><circle cx="14" cy="16" r=".8" fill="currentColor" stroke="none"/></svg>
+              <span id="version-label">MAIN 1</span>
             </button>
-            <div class="style-popover" id="style-popover">
-              <button type="button" class="style-option active" data-style="balanced">
-                <span class="style-option-head">Équilibré</span>
-                <span class="style-option-desc">Réponses claires, ni trop longues ni trop courtes.</span>
+            <div class="version-popover" id="version-popover">
+              <button type="button" class="version-option active" data-theme="main1">
+                <span class="version-swatch swatch-main1"></span>
+                <span class="version-option-text">
+                  <span class="version-option-head">MAIN 1</span>
+                  <span class="version-option-desc">Le thème original, bleu &amp; violet.</span>
+                </span>
               </button>
-              <button type="button" class="style-option" data-style="detailed">
-                <span class="style-option-head">Détaillé</span>
-                <span class="style-option-desc">Plus long : explique davantage, avec exemples et contexte.</span>
+              <button type="button" class="version-option" data-theme="pro">
+                <span class="version-swatch swatch-pro"></span>
+                <span class="version-option-text">
+                  <span class="version-option-head">MAIN 1 PRO</span>
+                  <span class="version-option-desc">Teintes dorées, allure premium.</span>
+                </span>
               </button>
-              <button type="button" class="style-option" data-style="concise">
-                <span class="style-option-head">Concis</span>
-                <span class="style-option-desc">Va droit au but, réponses courtes et directes.</span>
-              </button>
-              <button type="button" class="style-option" data-style="visual">
-                <span class="style-option-head">Visuel</span>
-                <span class="style-option-desc">Privilégie analogies, exemples imagés et structure claire.</span>
+              <button type="button" class="version-option" data-theme="dark">
+                <span class="version-swatch swatch-dark"></span>
+                <span class="version-option-text">
+                  <span class="version-option-head">MAIN 1 DARK</span>
+                  <span class="version-option-desc">Monochrome, ultra sobre.</span>
+                </span>
               </button>
             </div>
           </div>
