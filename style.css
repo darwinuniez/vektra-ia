@@ -114,48 +114,59 @@ img{ max-width:100%; display:block; }
 @media (hover:hover) and (pointer:fine){ #cursor-glow.active{ opacity:1; } }
 
 /* =========================================================
-   Intro — logo-only reveal: glow bloom + drawn ring + scale-in
+   Intro — short & punchy, Rockstar-style logo hit:
+   white shutter flash → shockwave rings → logo slam-in
    ========================================================= */
 #intro-splash{
   position:fixed; inset:0; z-index:300;
   background:#000;
   display:flex; align-items:center; justify-content:center;
   overflow:hidden;
-  transition:opacity .55s var(--ease-soft), visibility .55s var(--ease-soft);
+  transition:opacity .35s ease, visibility .35s ease;
 }
 #intro-splash.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
 
-.intro-orbit{ position:relative; width:180px; height:180px; display:flex; align-items:center; justify-content:center; }
+.intro-flash{
+  position:absolute; inset:0; background:#fff;
+  opacity:0;
+  animation:shutterFlash .22s ease-out 0.03s forwards;
+}
+@keyframes shutterFlash{ 0%{ opacity:0; } 35%{ opacity:0.85; } 100%{ opacity:0; } }
+
+.intro-orbit{ position:relative; width:170px; height:170px; display:flex; align-items:center; justify-content:center; }
 
 .intro-logo-glow{
-  position:absolute; width:230px; height:230px; border-radius:50%;
+  position:absolute; width:220px; height:220px; border-radius:50%;
   background:radial-gradient(circle, var(--blue-glow), var(--violet-glow) 45%, transparent 72%);
-  filter:blur(28px);
+  filter:blur(26px);
   opacity:0;
   will-change:transform, opacity;
-  animation:glowBloom 1.3s var(--ease-soft) 0.05s forwards;
+  animation:glowBloom .55s var(--ease-soft) 0.1s forwards;
 }
-@keyframes glowBloom{ 0%{ opacity:0; transform:scale(0.6); } 65%{ opacity:1; } 100%{ opacity:0.85; transform:scale(1); } }
+@keyframes glowBloom{ 0%{ opacity:0; transform:scale(0.5); } 70%{ opacity:1; } 100%{ opacity:0.85; transform:scale(1); } }
 
-.intro-ring-svg{ position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg); }
-.intro-ring-track{ fill:none; stroke:rgba(255,255,255,0.08); stroke-width:1.5; }
-.intro-ring-draw{
-  fill:none; stroke:var(--blue); stroke-width:1.5; stroke-linecap:round;
-  stroke-dasharray:540.35; stroke-dashoffset:540.35;
-  filter:drop-shadow(0 0 5px var(--blue-glow));
-  will-change:stroke-dashoffset;
-  animation:ringDraw 1.05s var(--ease-soft) 0.1s forwards;
+.intro-shock{
+  position:absolute; width:54px; height:54px; border-radius:50%;
+  border:2px solid var(--blue);
+  opacity:0;
+  will-change:transform, opacity;
+  animation:shockBurst .55s cubic-bezier(.16,.84,.44,1) 0.18s forwards;
 }
-@keyframes ringDraw{ to{ stroke-dashoffset:0; } }
+.intro-shock.delay{ animation-delay:0.28s; border-color:var(--violet); }
+@keyframes shockBurst{ 0%{ opacity:0.95; transform:scale(0.3); } 100%{ opacity:0; transform:scale(6.4); } }
 
 .intro-logo{
-  position:relative; width:100px; height:100px; object-fit:contain;
-  opacity:0; transform:scale(0.72);
-  filter:drop-shadow(0 0 22px rgba(127,168,255,0.3));
+  position:relative; width:92px; height:92px; object-fit:contain;
+  opacity:0; transform:scale(2.4) rotate(-8deg);
+  filter:drop-shadow(0 0 28px rgba(127,168,255,0.45));
   will-change:transform, opacity;
-  animation:logoReveal 0.85s var(--ease-soft) 0.18s forwards;
+  animation:logoSlam .5s cubic-bezier(.2,1.5,.4,1) 0.14s forwards;
 }
-@keyframes logoReveal{ to{ opacity:1; transform:scale(1); } }
+@keyframes logoSlam{
+  0%{ opacity:0; transform:scale(2.4) rotate(-8deg); }
+  55%{ opacity:1; transform:scale(0.9) rotate(2deg); }
+  100%{ opacity:1; transform:scale(1) rotate(0deg); }
+}
 
 .intro-enter{
   position:absolute; top:22px; right:22px;
@@ -165,13 +176,44 @@ img{ max-width:100%; display:block; }
   backdrop-filter:blur(10px);
   font-size:11.5px; color:var(--text-dim);
   opacity:0;
-  animation:introFadeUp 0.45s var(--ease-soft) 0.4s forwards;
+  animation:introFadeUp 0.4s var(--ease-soft) 0.35s forwards;
   transition:border-color .2s ease, color .2s ease, background .2s ease;
 }
 @keyframes introFadeUp{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
 .intro-enter:hover{ border-color:var(--glass-border-strong); color:var(--text); background:var(--glass-strong); }
 
 @media (prefers-reduced-motion: reduce){ #intro-splash{ display:none; } }
+
+/* =========================================================
+   Logo sting — quick non-blocking branding hit, replayed
+   every time a new conversation is created
+   ========================================================= */
+#logo-sting{
+  position:fixed; inset:0; z-index:250;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+  opacity:0;
+}
+#logo-sting.play{ animation:stingShow .78s ease-out forwards; }
+@keyframes stingShow{ 0%{ opacity:0; } 8%{ opacity:1; } 76%{ opacity:1; } 100%{ opacity:0; } }
+.sting-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,0.42); backdrop-filter:blur(2px); }
+.sting-orbit{ position:relative; width:120px; height:120px; display:flex; align-items:center; justify-content:center; }
+.sting-glow{
+  position:absolute; width:150px; height:150px; border-radius:50%;
+  background:radial-gradient(circle, var(--blue-glow), var(--violet-glow) 45%, transparent 72%);
+  filter:blur(20px); opacity:0;
+}
+#logo-sting.play .sting-glow{ animation:glowBloom .5s var(--ease-soft) 0.05s forwards; }
+.sting-shock{ position:absolute; width:38px; height:38px; border-radius:50%; border:2px solid var(--blue); opacity:0; }
+.sting-shock.delay{ border-color:var(--violet); }
+#logo-sting.play .sting-shock{ animation:shockBurst .5s cubic-bezier(.16,.84,.44,1) 0.08s forwards; }
+#logo-sting.play .sting-shock.delay{ animation-delay:0.17s; }
+.sting-logo{
+  position:relative; width:56px; height:56px; object-fit:contain;
+  opacity:0; transform:scale(2.1) rotate(-8deg);
+  filter:drop-shadow(0 0 20px rgba(127,168,255,0.45));
+}
+#logo-sting.play .sting-logo{ animation:logoSlam .42s cubic-bezier(.2,1.5,.4,1) 0.04s forwards; }
 
 /* =========================================================
    Shell — sidebar + main (single viewport, no page scroll)
@@ -304,27 +346,64 @@ img{ max-width:100%; display:block; }
 
 .sidebar-bottom{ flex:0 0 auto; border-top:1px solid var(--glass-border); padding:12px 16px 14px; display:flex; flex-direction:column; gap:10px; }
 
-.account-row{ display:flex; align-items:center; gap:10px; }
-.account-avatar{
-  width:34px; height:34px; border-radius:50%; flex:0 0 auto;
+.account-menu-wrap{ position:relative; }
+.account-trigger{
+  width:100%; display:flex; align-items:center; gap:10px;
+  padding:7px 8px; border-radius:var(--radius-sm);
+  transition:background .15s ease;
+}
+.account-trigger:hover{ background:var(--glass); }
+.account-menu-wrap.open .account-trigger{ background:var(--glass-strong); }
+.account-trigger-text{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:1px; }
+.account-trigger-name{ font-size:13px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.account-trigger-sub{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.04em; color:var(--text-faint); }
+.account-chevron{ width:14px; height:14px; flex:0 0 auto; color:var(--text-faint); transition:transform .2s var(--ease-soft); }
+.account-menu-wrap.open .account-chevron{ transform:rotate(180deg); }
+
+.account-avatar, .account-avatar-lg{
+  border-radius:50%; flex:0 0 auto;
   display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-display); font-weight:600; font-size:14px;
-  color:#0a1420;
+  overflow:hidden;
   background:linear-gradient(135deg, var(--blue), var(--violet));
   box-shadow:0 4px 14px -4px rgba(127,168,255,0.5);
   transition:background .35s ease;
-  text-transform:uppercase;
 }
+.account-avatar{ width:34px; height:34px; }
+.account-avatar-lg{ width:52px; height:52px; box-shadow:0 6px 20px -6px rgba(127,168,255,0.55); }
+.avatar-silhouette{ width:64%; height:64%; color:rgba(10,20,30,0.82); }
+.avatar-silhouette svg{ width:100%; height:100%; }
+
+.account-menu{
+  position:absolute; bottom:calc(100% + 8px); left:0; right:0; z-index:20;
+  background:rgba(16,16,18,0.85); backdrop-filter:blur(24px) saturate(160%);
+  border:1px solid var(--glass-border-strong);
+  border-radius:var(--radius-md);
+  padding:14px; display:none; flex-direction:column; gap:12px;
+  box-shadow:0 20px 50px -14px rgba(0,0,0,0.7);
+  animation:popIn .16s var(--ease-soft);
+}
+.account-menu-wrap.open .account-menu{ display:flex; }
+.account-menu-preview{ display:flex; align-items:center; gap:12px; }
 .account-name-input{
   flex:1 1 auto; min-width:0;
-  background:transparent; border:1px solid transparent; outline:none;
-  color:var(--text); font-size:13px; font-weight:500;
-  padding:7px 9px; border-radius:8px;
-  transition:background .15s ease, border-color .15s ease;
+  background:var(--glass); border:1px solid var(--glass-border-strong); outline:none;
+  color:var(--text); font-size:13.5px; font-weight:500;
+  padding:9px 11px; border-radius:9px;
+  transition:background .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
-.account-name-input:hover{ background:var(--glass); }
-.account-name-input:focus{ background:var(--glass-strong); border-color:var(--glass-border-strong); }
+.account-name-input:focus{ background:var(--glass-strong); border-color:rgba(150,180,255,0.4); box-shadow:0 0 0 3px rgba(127,168,255,0.12); }
 .account-name-input::placeholder{ color:var(--text-faint); font-weight:400; }
+.account-menu-label{ font-family:var(--font-mono); font-size:10px; letter-spacing:0.08em; color:var(--text-faint); }
+.avatar-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
+.avatar-option{
+  position:relative; width:100%; aspect-ratio:1; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 10px -4px rgba(0,0,0,0.5);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.avatar-option:hover{ transform:translateY(-1px) scale(1.05); }
+.avatar-option.active{ box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--blue), 0 6px 16px -6px rgba(127,168,255,0.6); }
+.avatar-option .avatar-silhouette{ width:58%; height:58%; }
 
 .legal-note{ font-size:10.5px; line-height:1.5; color:var(--text-faint); }
 .legal-note a{ color:var(--text-dim); text-decoration:underline; text-underline-offset:2px; }

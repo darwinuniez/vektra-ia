@@ -23,17 +23,27 @@
   <div class="ambient-grain" aria-hidden="true"></div>
   <div id="cursor-glow" aria-hidden="true"></div>
 
-  <!-- ============ INTRO SPLASH — logo only, fast & fluid ============ -->
+  <!-- ============ INTRO SPLASH — short, punchy, Rockstar-style logo hit ============ -->
   <div id="intro-splash">
+    <div class="intro-flash" aria-hidden="true"></div>
     <div class="intro-orbit">
       <div class="intro-logo-glow" aria-hidden="true"></div>
-      <svg class="intro-ring-svg" viewBox="0 0 200 200" aria-hidden="true">
-        <circle class="intro-ring-track" cx="100" cy="100" r="86"/>
-        <circle class="intro-ring-draw" cx="100" cy="100" r="86"/>
-      </svg>
+      <div class="intro-shock" aria-hidden="true"></div>
+      <div class="intro-shock delay" aria-hidden="true"></div>
       <img class="intro-logo" src="logo-edc.png" alt="Delamain">
     </div>
     <button class="intro-enter" id="intro-enter-btn">Passer</button>
+  </div>
+
+  <!-- ============ LOGO STING — replayed on every new conversation ============ -->
+  <div id="logo-sting" aria-hidden="true">
+    <div class="sting-backdrop"></div>
+    <div class="sting-orbit">
+      <div class="sting-glow"></div>
+      <div class="sting-shock"></div>
+      <div class="sting-shock delay"></div>
+      <img class="sting-logo" src="logo-edc.png" alt="">
+    </div>
   </div>
 
   <div id="app">
@@ -87,9 +97,23 @@
       <nav class="conv-list" id="conv-list"></nav>
 
       <div class="sidebar-bottom">
-        <div class="account-row">
-          <div class="account-avatar" id="account-avatar">?</div>
-          <input type="text" id="account-name-input" class="account-name-input" maxlength="24" placeholder="Votre nom" autocomplete="off">
+        <div class="account-menu-wrap" id="account-menu-wrap">
+          <button type="button" class="account-trigger" id="account-trigger" aria-haspopup="true" aria-expanded="false">
+            <div class="account-avatar" id="account-avatar"></div>
+            <div class="account-trigger-text">
+              <span class="account-trigger-name" id="account-trigger-name">Invité</span>
+              <span class="account-trigger-sub">Modifier le profil</span>
+            </div>
+            <svg class="account-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="account-menu" id="account-menu">
+            <div class="account-menu-preview">
+              <div class="account-avatar-lg" id="account-avatar-lg"></div>
+              <input type="text" id="account-name-input" class="account-name-input" maxlength="24" placeholder="Votre nom" autocomplete="off">
+            </div>
+            <div class="account-menu-label">Photo de profil</div>
+            <div class="avatar-grid" id="avatar-grid"></div>
+          </div>
         </div>
         <p class="legal-note">
           En utilisant Delamain, vous acceptez nos <a href="#" id="terms-link">conditions d'utilisation</a>.

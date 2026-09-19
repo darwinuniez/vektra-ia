@@ -3,7 +3,7 @@
    ========================================================= */
 
 /* =========================================================
-   Intro splash
+   Intro splash — short, skippable, respects reduced motion
    ========================================================= */
 const introSplash   = document.getElementById("intro-splash");
 const introEnterBtn = document.getElementById("intro-enter-btn");
@@ -14,36 +14,62 @@ function dismissIntro(){
   if (introDismissed) return;
   introDismissed = true;
   introSplash.classList.add("hidden");
-  setTimeout(() => { introSplash.style.display = "none"; }, 950);
+  setTimeout(() => { introSplash.style.display = "none"; }, 650);
 }
 
 if (reducedMotion){
-  dismissIntro();
   introSplash.style.display = "none";
+  introDismissed = true;
 } else {
-  // auto-dismiss once the reveal sequence has played out
-  setTimeout(dismissIntro, 4200);
+  setTimeout(dismissIntro, 1750); // short & intense — auto-dismiss quickly
   introEnterBtn.addEventListener("click", dismissIntro);
   introSplash.addEventListener("click", (e) => {
     if (e.target === introSplash) dismissIntro();
   });
   document.addEventListener("keydown", (e) => {
     if (!introDismissed && (e.key === "Enter" || e.key === "Escape")) dismissIntro();
-  }, { once: false });
+  });
+}
+
+/* =========================================================
+   Ambient cursor glow — subtle blue/violet drift, desktop only
+   ========================================================= */
+const cursorGlow = document.getElementById("cursor-glow");
+if (!reducedMotion && window.matchMedia("(hover: hover) and (pointer: fine)").matches){
+  let glowX = window.innerWidth / 2, glowY = window.innerHeight / 2;
+  let targetX = glowX, targetY = glowY;
+  let glowLoopRunning = false;
+
+  function glowLoop(){
+    glowX += (targetX - glowX) * 0.08;
+    glowY += (targetY - glowY) * 0.08;
+    cursorGlow.style.transform = `translate(${glowX}px, ${glowY}px)`;
+    const settled = Math.abs(targetX - glowX) < 0.4 && Math.abs(targetY - glowY) < 0.4;
+    if (settled){ glowLoopRunning = false; return; } // stop once caught up — saves cycles at rest
+    requestAnimationFrame(glowLoop);
+  }
+  window.addEventListener("pointermove", (e) => {
+    targetX = e.clientX; targetY = e.clientY;
+    cursorGlow.classList.add("active");
+    if (!glowLoopRunning){ glowLoopRunning = true; requestAnimationFrame(glowLoop); }
+  }, { passive: true });
+  window.addEventListener("pointerleave", () => cursorGlow.classList.remove("active"), { passive: true });
 }
 
 /* =========================================================
    Elements
    ========================================================= */
-const appEl        = document.getElementById("app");
-const threadEl      = document.getElementById("thread");
-const formEl        = document.getElementById("composer-form");
-const inputEl       = document.getElementById("composer-input");
-const placeholderEl = document.getElementById("composer-placeholder");
-const sendBtn       = formEl.querySelector(".send-btn");
-const chipsEl       = document.getElementById("chips");
-const topbarTitleEl = document.getElementById("topbar-title");
+const appEl          = document.getElementById("app");
+const chatScrollEl   = document.getElementById("chat-scroll");
+const threadEl       = document.getElementById("thread");
+const formEl         = document.getElementById("composer-form");
+const inputEl        = document.getElementById("composer-input");
+const placeholderEl  = document.getElementById("composer-placeholder");
+const sendBtn        = formEl.querySelector(".send-btn");
+const chipsEl        = document.getElementById("chips");
+const topbarTitleEl  = document.getElementById("topbar-title");
 const avatarTemplate = document.getElementById("ai-avatar-template");
+const typingTemplate = document.getElementById("typing-indicator-template");
 
 const sidebarEl          = document.getElementById("sidebar");
 const sidebarScrimEl     = document.getElementById("sidebar-scrim");
@@ -55,12 +81,12 @@ const convLimitNote      = document.getElementById("conv-limit-note");
 const convSearchInput    = document.getElementById("conv-search");
 const limitUpgradeLink   = document.getElementById("limit-upgrade-link");
 
-const upgradeBtn      = document.getElementById("upgrade-btn");
-const upgradeModal     = document.getElementById("upgrade-modal");
-const upgradeContextMsg = document.getElementById("upgrade-context-msg");
-const unlockCodeInput  = document.getElementById("unlock-code-input");
-const unlockSubmitBtn  = document.getElementById("unlock-submit-btn");
-const unlockStatus     = document.getElementById("unlock-status");
+const upgradeBtn         = document.getElementById("upgrade-btn");
+const upgradeModal       = document.getElementById("upgrade-modal");
+const upgradeContextMsg  = document.getElementById("upgrade-context-msg");
+const unlockCodeInput    = document.getElementById("unlock-code-input");
+const unlockSubmitBtn    = document.getElementById("unlock-submit-btn");
+const unlockStatus       = document.getElementById("unlock-status");
 
 const termsLink  = document.getElementById("terms-link");
 const termsModal = document.getElementById("terms-modal");
@@ -68,6 +94,19 @@ const termsModal = document.getElementById("terms-modal");
 const confirmModal     = document.getElementById("confirm-modal");
 const confirmBody      = document.getElementById("confirm-body");
 const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
+
+const stylePickerEl = document.getElementById("version-picker");
+const styleBtn       = document.getElementById("version-btn");
+const stylePopover   = document.getElementById("version-popover");
+const styleLabelEl   = document.getElementById("version-label");
+
+const accountAvatarEl    = document.getElementById("account-avatar");
+const accountNameInput   = document.getElementById("account-name-input");
+
+const searchWrapEl    = document.getElementById("search-wrap");
+const searchClearBtn  = document.getElementById("search-clear-btn");
+const searchMicBtn    = document.getElementById("search-mic-btn");
+const micTooltip      = document.getElementById("mic-tooltip");
 
 const DEFAULT_UPGRADE_MSG = "Delamain Plus est encore en cours de développement. Conversations illimitées, réponses prioritaires et bien plus arrivent bientôt.";
 
@@ -99,6 +138,7 @@ const PLACEHOLDERS = [
 ];
 let placeholderIdx = 0;
 function rotatePlaceholder(){
+  if (inputEl.value) return;
   placeholderEl.style.opacity = "0";
   setTimeout(() => {
     placeholderIdx = (placeholderIdx + 1) % PLACEHOLDERS.length;
@@ -109,7 +149,127 @@ function rotatePlaceholder(){
 setInterval(rotatePlaceholder, 3200);
 inputEl.addEventListener("input", () => {
   placeholderEl.style.opacity = inputEl.value ? "0" : "1";
+  sendBtn.classList.toggle("ready", inputEl.value.trim().length > 0);
 });
+
+/* =========================================================
+   Visual version — purely cosmetic theme switcher
+   (MAIN 1 / MAIN 1 PRO / MAIN 1 DARK)
+   ========================================================= */
+const VERSIONS = {
+  main1: { label: "MAIN 1" },
+  pro:   { label: "MAIN 1 PRO" },
+  dark:  { label: "MAIN 1 DARK" }
+};
+const THEME_STORAGE_KEY = "delamain.theme";
+
+function loadTheme(){
+  const saved = localStorage.getItem(THEME_STORAGE_KEY);
+  return VERSIONS[saved] ? saved : "main1";
+}
+let currentTheme = loadTheme();
+
+function applyTheme(){
+  if (currentTheme === "main1") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", currentTheme);
+  styleLabelEl.textContent = VERSIONS[currentTheme].label;
+  stylePopover.querySelectorAll(".version-option").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.theme === currentTheme);
+  });
+}
+applyTheme();
+
+function toggleStylePopover(open){
+  const next = open !== undefined ? open : !stylePickerEl.classList.contains("open");
+  stylePickerEl.classList.toggle("open", next);
+  styleBtn.setAttribute("aria-expanded", String(next));
+}
+styleBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleStylePopover();
+});
+stylePopover.querySelectorAll(".version-option").forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentTheme = btn.dataset.theme;
+    try { localStorage.setItem(THEME_STORAGE_KEY, currentTheme); } catch (_) {}
+    applyTheme();
+    toggleStylePopover(false);
+  });
+});
+document.addEventListener("click", (e) => {
+  if (stylePickerEl.classList.contains("open") && !e.target.closest("#version-picker")){
+    toggleStylePopover(false);
+  }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && stylePickerEl.classList.contains("open")) toggleStylePopover(false);
+});
+
+/* =========================================================
+   Account — editable display name, avatar is just its initial
+   ========================================================= */
+const ACCOUNT_NAME_KEY = "delamain.profileName";
+function loadAccountName(){
+  try { return localStorage.getItem(ACCOUNT_NAME_KEY) || ""; } catch (_) { return ""; }
+}
+function applyAccountAvatar(name){
+  const trimmed = name.trim();
+  accountAvatarEl.textContent = trimmed ? trimmed.charAt(0) : "?";
+}
+let accountSaveTimeout;
+function initAccount(){
+  const saved = loadAccountName();
+  accountNameInput.value = saved;
+  applyAccountAvatar(saved);
+}
+accountNameInput.addEventListener("input", () => {
+  applyAccountAvatar(accountNameInput.value);
+  clearTimeout(accountSaveTimeout);
+  accountSaveTimeout = setTimeout(() => {
+    try { localStorage.setItem(ACCOUNT_NAME_KEY, accountNameInput.value.trim()); } catch (_) {}
+  }, 300);
+});
+accountNameInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") accountNameInput.blur();
+});
+initAccount();
+
+/* =========================================================
+   Search bar — clear button + "coming soon" voice search
+   ========================================================= */
+searchClearBtn.addEventListener("click", () => {
+  convSearchInput.value = "";
+  searchTerm = "";
+  searchWrapEl.classList.remove("has-text");
+  renderSidebar();
+  convSearchInput.focus();
+});
+let micTooltipTimeout;
+searchMicBtn.addEventListener("click", () => {
+  micTooltip.classList.add("show");
+  clearTimeout(micTooltipTimeout);
+  micTooltipTimeout = setTimeout(() => micTooltip.classList.remove("show"), 2200);
+});
+
+/* =========================================================
+   Chat scroll containment
+   ------------------------------------------------------------
+   Everything scrolls inside #chat-scroll only. The rest of the
+   shell (sidebar, topbar, composer) never moves. We only auto-
+   follow new content when the user is already near the bottom,
+   so replying never yanks the page or interrupts someone who
+   scrolled up to reread something.
+   ========================================================= */
+let stickToBottom = true;
+chatScrollEl.addEventListener("scroll", () => {
+  const distanceFromBottom = chatScrollEl.scrollHeight - chatScrollEl.scrollTop - chatScrollEl.clientHeight;
+  stickToBottom = distanceFromBottom < 120;
+}, { passive: true });
+
+function scrollToBottom(smooth){
+  if (!stickToBottom) return;
+  chatScrollEl.scrollTo({ top: chatScrollEl.scrollHeight, behavior: smooth ? "smooth" : "auto" });
+}
 
 /* =========================================================
    State: conversations, persisted to localStorage
@@ -249,6 +409,7 @@ function renderSidebar(){
     return;
   }
 
+  const frag = document.createDocumentFragment();
   visible.forEach(conv => {
     const item = document.createElement("div");
     item.className = "conv-item" + (conv.id === currentId ? " current" : "");
@@ -301,8 +462,9 @@ function renderSidebar(){
     item.appendChild(titleBtn);
     item.appendChild(menuBtn);
     item.appendChild(popover);
-    convListEl.appendChild(item);
+    frag.appendChild(item);
   });
+  convListEl.appendChild(frag);
 }
 
 function startRename(itemEl, conv){
@@ -337,12 +499,14 @@ document.addEventListener("click", (e) => {
 
 convSearchInput.addEventListener("input", () => {
   searchTerm = convSearchInput.value;
+  searchWrapEl.classList.toggle("has-text", searchTerm.length > 0);
   renderSidebar();
 });
 
 /* ---------- Sidebar open/collapse ---------- */
 sidebarCollapseBtn.addEventListener("click", () => {
-  appEl.classList.toggle("sidebar-collapsed");
+  const collapsed = appEl.classList.toggle("sidebar-collapsed");
+  sidebarCollapseBtn.classList.toggle("rotated", collapsed);
 });
 sidebarOpenBtn.addEventListener("click", () => {
   if (window.matchMedia("(max-width:860px)").matches){
@@ -365,7 +529,13 @@ newConvBtn.addEventListener("click", () => createConversation());
    ========================================================= */
 function updateTopbarTitle(){
   const conv = getCurrentConv();
-  topbarTitleEl.textContent = conv ? conv.title : "Nouvelle conversation";
+  const nextTitle = conv ? conv.title : "Nouvelle conversation";
+  if (topbarTitleEl.textContent === nextTitle) return;
+  topbarTitleEl.style.opacity = "0";
+  setTimeout(() => {
+    topbarTitleEl.textContent = nextTitle;
+    topbarTitleEl.style.opacity = "1";
+  }, 160);
 }
 
 function addUserMessage(text){
@@ -374,41 +544,167 @@ function addUserMessage(text){
   msg.innerHTML = `<div class="msg-col"><span class="msg-label">VOUS</span><div class="msg-bubble"></div></div>`;
   msg.querySelector(".msg-bubble").textContent = text;
   threadEl.appendChild(msg);
-  scrollToBottom();
+  scrollToBottom(true);
 }
 
 function buildAiAvatar(){
   return avatarTemplate.content.firstElementChild.cloneNode(true);
 }
 
-function addAiMessage(text){
+function addAiMessage(text, index){
   const msg = document.createElement("div");
   msg.className = "msg ai";
+  msg.dataset.msgIndex = index;
   const avatarWrap = document.createElement("div");
   avatarWrap.className = "msg-avatar";
   avatarWrap.appendChild(buildAiAvatar());
   msg.innerHTML = `<div class="msg-col"><span class="msg-label">DELAMAIN</span><div class="msg-bubble"></div></div>`;
   msg.prepend(avatarWrap);
   msg.querySelector(".msg-bubble").textContent = text;
+  msg.querySelector(".msg-col").appendChild(buildMessageActionsEl(index));
   threadEl.appendChild(msg);
-  scrollToBottom();
+  scrollToBottom(false);
 }
 
-function addAiMessagePlaceholder(){
+/* ---------- Message actions: feedback, retry, copy ---------- */
+function buildMessageActionsEl(index){
+  const wrap = document.createElement("div");
+  wrap.className = "msg-actions";
+
+  const upBtn = document.createElement("button");
+  upBtn.type = "button"; upBtn.className = "msg-action"; upBtn.dataset.action = "up";
+  upBtn.setAttribute("aria-label", "Bonne réponse"); upBtn.title = "Bonne réponse";
+  upBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11v9H4v-9h3Zm0 0 4.5-7.5a1.7 1.7 0 0 1 3 1l-1 5.5h5.8a2 2 0 0 1 1.95 2.4l-1.35 6.5A2 2 0 0 1 18 20H8.5"/></svg>`;
+
+  const downBtn = document.createElement("button");
+  downBtn.type = "button"; downBtn.className = "msg-action"; downBtn.dataset.action = "down";
+  downBtn.setAttribute("aria-label", "Mauvaise réponse"); downBtn.title = "Mauvaise réponse";
+  downBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 13V4h3v9h-3Zm0 0-4.5 7.5a1.7 1.7 0 0 1-3-1l1-5.5H4.7a2 2 0 0 1-1.95-2.4l1.35-6.5A2 2 0 0 1 6 4h9.5"/></svg>`;
+
+  const retryBtn = document.createElement("button");
+  retryBtn.type = "button"; retryBtn.className = "msg-action"; retryBtn.dataset.action = "retry";
+  retryBtn.setAttribute("aria-label", "Réessayer"); retryBtn.title = "Réessayer";
+  retryBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.9-6.6"/><path d="M21 3v6h-6"/></svg>`;
+
+  const copyBtn = document.createElement("button");
+  copyBtn.type = "button"; copyBtn.className = "msg-action"; copyBtn.dataset.action = "copy";
+  copyBtn.setAttribute("aria-label", "Copier"); copyBtn.title = "Copier";
+  const copyIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5v-9A1.5 1.5 0 0 1 4.5 3h9A1.5 1.5 0 0 1 15 4.5V5"/></svg>`;
+  const checkIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+  copyBtn.innerHTML = copyIcon;
+
+  function refreshFeedbackUI(){
+    const conv = getCurrentConv();
+    const entry = conv && conv.messages[index];
+    const fb = entry ? entry.feedback : null;
+    upBtn.classList.toggle("active", fb === "up");
+    downBtn.classList.toggle("active", fb === "down");
+  }
+  refreshFeedbackUI();
+
+  function setFeedback(value){
+    const conv = getCurrentConv();
+    if (!conv || !conv.messages[index]) return;
+    const entry = conv.messages[index];
+    entry.feedback = entry.feedback === value ? null : value;
+    saveState();
+    refreshFeedbackUI();
+  }
+  upBtn.addEventListener("click", () => setFeedback("up"));
+  downBtn.addEventListener("click", () => setFeedback("down"));
+
+  copyBtn.addEventListener("click", async () => {
+    const conv = getCurrentConv();
+    const entry = conv && conv.messages[index];
+    if (!entry) return;
+    try {
+      await navigator.clipboard.writeText(entry.content);
+    } catch (_) {
+      const ta = document.createElement("textarea");
+      ta.value = entry.content;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch (_) { /* clipboard unavailable */ }
+      ta.remove();
+    }
+    copyBtn.classList.add("copied");
+    copyBtn.innerHTML = checkIcon;
+    setTimeout(() => { copyBtn.innerHTML = copyIcon; copyBtn.classList.remove("copied"); }, 1300);
+  });
+
+  retryBtn.addEventListener("click", () => retryMessage(index, retryBtn));
+
+  wrap.appendChild(upBtn);
+  wrap.appendChild(downBtn);
+  wrap.appendChild(retryBtn);
+  wrap.appendChild(copyBtn);
+  return wrap;
+}
+
+async function retryMessage(index, retryBtn){
+  const conv = getCurrentConv();
+  if (!conv) return;
+  const userIndex = index - 1;
+  if (userIndex < 0 || !conv.messages[userIndex] || conv.messages[userIndex].role !== "user") return;
+
+  const msgEl = threadEl.querySelector(`.msg.ai[data-msg-index="${index}"]`);
+  if (!msgEl) return;
+
+  retryBtn.classList.add("retrying");
+  retryBtn.disabled = true;
+
+  const userText = conv.messages[userIndex].content;
+  const historyBefore = conv.messages.slice(0, userIndex).map(m => ({ role: m.role, content: m.content }));
+  const reply = await getDelamainReply(userText, historyBefore);
+
+  conv.messages[index] = { role: "assistant", content: reply, feedback: null };
+  saveState();
+
+  const bubbleEl = msgEl.querySelector(".msg-bubble");
+  const avatarEl = msgEl.querySelector(".msg-avatar");
+  const oldActions = msgEl.querySelector(".msg-actions");
+  if (oldActions) oldActions.remove();
+  bubbleEl.innerHTML = `<span class="typed"></span><span class="cursor"></span>`;
+  const typedEl = bubbleEl.querySelector(".typed");
+  stickToBottom = true;
+
+  typeOut(typedEl, reply, avatarEl, () => {
+    const newActions = buildMessageActionsEl(index);
+    newActions.classList.add("enter");
+    msgEl.querySelector(".msg-col").appendChild(newActions);
+  });
+}
+
+function addTypingIndicator(){
   const msg = document.createElement("div");
   msg.className = "msg ai";
+  const avatarWrap = document.createElement("div");
+  avatarWrap.className = "msg-avatar";
+  avatarWrap.appendChild(buildAiAvatar());
+  const col = document.createElement("div");
+  col.className = "msg-col";
+  col.appendChild(typingTemplate.content.firstElementChild.cloneNode(true));
+  msg.appendChild(avatarWrap);
+  msg.appendChild(col);
+  threadEl.appendChild(msg);
+  scrollToBottom(true);
+  return msg;
+}
+
+function addAiMessagePlaceholder(index){
+  const msg = document.createElement("div");
+  msg.className = "msg ai";
+  msg.dataset.msgIndex = index;
   const avatarWrap = document.createElement("div");
   avatarWrap.className = "msg-avatar";
   avatarWrap.appendChild(buildAiAvatar());
   msg.innerHTML = `<div class="msg-col"><span class="msg-label">DELAMAIN</span><div class="msg-bubble"><span class="typed"></span><span class="cursor"></span></div></div>`;
   msg.prepend(avatarWrap);
   threadEl.appendChild(msg);
-  scrollToBottom();
-  return msg.querySelector(".typed");
-}
-
-function scrollToBottom(){
-  window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  scrollToBottom(false);
+  return { typedEl: msg.querySelector(".typed"), avatarEl: avatarWrap, msgColEl: msg.querySelector(".msg-col") };
 }
 
 /* Render the full stored history of the active conversation instantly
@@ -422,38 +718,55 @@ function renderConversation(){
   updateTopbarTitle();
 
   if (!conv) return;
-  conv.messages.forEach(m => {
+  conv.messages.forEach((m, i) => {
     if (m.role === "user") addUserMessage(m.content);
-    else addAiMessage(m.content);
+    else addAiMessage(m.content, i);
   });
+  stickToBottom = true;
+  chatScrollEl.scrollTop = chatScrollEl.scrollHeight;
 }
 
-/* ---------- Typewriter ---------- */
-function typeOut(targetEl, fullText, onDone){
-  let idx = 0;
-  function step(){
-    if (idx < fullText.length){
-      targetEl.textContent += fullText[idx];
-      idx++;
-      scrollToBottom();
-      const delay = 10 + Math.random() * 16;
-      setTimeout(step, delay);
+/* ---------- Typewriter — rAF-driven, batches characters per frame
+   for smoothness instead of one setTimeout per character. Also
+   toggles a "speaking" pulse on the avatar for the duration. ---------- */
+function typeOut(targetEl, fullText, avatarEl, onDone){
+  const CHARS_PER_SECOND = 55;
+  let start = null;
+  let shown = 0;
+
+  if (avatarEl) avatarEl.classList.add("speaking");
+
+  function frame(ts){
+    if (start === null) start = ts;
+    const elapsed = (ts - start) / 1000;
+    const targetChars = Math.min(fullText.length, Math.floor(elapsed * CHARS_PER_SECOND));
+    if (targetChars > shown){
+      shown = targetChars;
+      targetEl.textContent = fullText.slice(0, shown);
+      scrollToBottom(false);
+    }
+    if (shown < fullText.length){
+      requestAnimationFrame(frame);
     } else {
       const cursorEl = targetEl.parentElement.querySelector(".cursor");
       if (cursorEl) cursorEl.remove();
+      if (avatarEl) avatarEl.classList.remove("speaking");
       if (onDone) onDone();
     }
   }
-  step();
+  requestAnimationFrame(frame);
 }
 
 /* ---------- Response engine (Connected to /api/chat) ---------- */
 async function getDelamainReply(userText, history){
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25000);
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: userText, history })
+      body: JSON.stringify({ message: userText, history }),
+      signal: controller.signal
     });
 
     if (!response.ok) {
@@ -464,7 +777,12 @@ async function getDelamainReply(userText, history){
     return data.reply || data.message || "Requête traitée, mais aucun détail renvoyé par le serveur.";
   } catch (error) {
     console.error("Erreur API:", error);
+    if (error.name === "AbortError"){
+      return "Le noyau met trop de temps à répondre. Réessayez dans un instant.";
+    }
     return "Connexion au sous-réseau instable. Mes capteurs indiquent une perturbation temporaire du signal.";
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -486,20 +804,27 @@ async function sendMessage(text){
 
   appEl.classList.add("chat-active");
   updateTopbarTitle();
+  stickToBottom = true;
   addUserMessage(clean);
   inputEl.value = "";
   placeholderEl.style.opacity = "1";
+  sendBtn.classList.remove("ready");
   sendBtn.disabled = true;
 
+  const typingMsgEl = addTypingIndicator();
   const reply = await getDelamainReply(clean, historyBeforeThisTurn);
-  conv.messages.push({ role: "assistant", content: reply });
+  conv.messages.push({ role: "assistant", content: reply, feedback: null });
   saveState();
+  const aiIndex = conv.messages.length - 1;
 
-  const target = addAiMessagePlaceholder();
-
-  setTimeout(() => {
-    typeOut(target, reply, () => { sendBtn.disabled = false; });
-  }, 350);
+  typingMsgEl.remove();
+  const { typedEl, avatarEl, msgColEl } = addAiMessagePlaceholder(aiIndex);
+  typeOut(typedEl, reply, avatarEl, () => {
+    sendBtn.disabled = false;
+    const actions = buildMessageActionsEl(aiIndex);
+    actions.classList.add("enter");
+    msgColEl.appendChild(actions);
+  });
 }
 
 formEl.addEventListener("submit", (e) => {
