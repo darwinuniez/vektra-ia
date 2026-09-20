@@ -7,21 +7,25 @@
    ========================================================= */
 const introSplash   = document.getElementById("intro-splash");
 const introEnterBtn = document.getElementById("intro-enter-btn");
-const reducedMotion  = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reducedMotion  = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  || (() => { try { return localStorage.getItem("delamain.reduceMotion") === "1"; } catch (_) { return false; } })();
 
 let introDismissed = false;
 function dismissIntro(){
   if (introDismissed) return;
   introDismissed = true;
-  introSplash.classList.add("hidden");
-  setTimeout(() => { introSplash.style.display = "none"; }, 650);
+  const logoEl = introSplash.querySelector(".intro-logo");
+  if (logoEl) logoEl.classList.add("zoom-out");
+  introSplash.classList.add("exiting");
+  setTimeout(() => introSplash.classList.add("hidden"), 90);
+  setTimeout(() => { introSplash.style.display = "none"; }, 620);
 }
 
 if (reducedMotion){
   introSplash.style.display = "none";
   introDismissed = true;
 } else {
-  setTimeout(dismissIntro, 1750); // short & intense — auto-dismiss quickly
+  setTimeout(dismissIntro, 950); // short & punchy — auto-dismiss fast
   introEnterBtn.addEventListener("click", dismissIntro);
   introSplash.addEventListener("click", (e) => {
     if (e.target === introSplash) dismissIntro();
@@ -29,6 +33,21 @@ if (reducedMotion){
   document.addEventListener("keydown", (e) => {
     if (!introDismissed && (e.key === "Enter" || e.key === "Escape")) dismissIntro();
   });
+}
+
+/* =========================================================
+   Logo sting — quick, non-blocking branding hit replayed
+   every time a new conversation is created
+   ========================================================= */
+const logoSting = document.getElementById("logo-sting");
+let stingTimeout;
+function playLogoSting(){
+  if (reducedMotion) return;
+  clearTimeout(stingTimeout);
+  logoSting.classList.remove("play");
+  void logoSting.offsetWidth; // force reflow so the animation restarts cleanly
+  logoSting.classList.add("play");
+  stingTimeout = setTimeout(() => logoSting.classList.remove("play"), 820);
 }
 
 /* =========================================================
@@ -95,13 +114,27 @@ const confirmModal     = document.getElementById("confirm-modal");
 const confirmBody      = document.getElementById("confirm-body");
 const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
 
-const stylePickerEl = document.getElementById("version-picker");
-const styleBtn       = document.getElementById("version-btn");
-const stylePopover   = document.getElementById("version-popover");
-const styleLabelEl   = document.getElementById("version-label");
+const modelPickerEl = document.getElementById("model-picker");
+const modelBtn       = document.getElementById("model-btn");
+const modelPopover   = document.getElementById("model-popover");
+const modelLabelEl   = document.getElementById("model-label");
 
+const accountMenuWrap    = document.getElementById("account-menu-wrap");
+const accountTrigger     = document.getElementById("account-trigger");
+const accountTriggerName = document.getElementById("account-trigger-name");
 const accountAvatarEl    = document.getElementById("account-avatar");
+const accountAvatarLgEl  = document.getElementById("account-avatar-lg");
 const accountNameInput   = document.getElementById("account-name-input");
+const avatarGridEl       = document.getElementById("avatar-grid");
+const accountSettingsBtn = document.getElementById("account-settings-btn");
+const accountHelpBtn     = document.getElementById("account-help-btn");
+const accountResetBtn    = document.getElementById("account-reset-btn");
+
+const settingsModal      = document.getElementById("settings-modal");
+const settingsThemeGrid  = document.getElementById("settings-theme-grid");
+const settingsTextSize   = document.getElementById("settings-textsize");
+const settingsMotionSwitch = document.getElementById("settings-motion-switch");
+const settingsResetBtn   = document.getElementById("settings-reset-btn");
 
 const searchWrapEl    = document.getElementById("search-wrap");
 const searchClearBtn  = document.getElementById("search-clear-btn");
@@ -153,77 +186,210 @@ inputEl.addEventListener("input", () => {
 });
 
 /* =========================================================
-   Visual version — purely cosmetic theme switcher
-   (MAIN 1 / MAIN 1 PRO / MAIN 1 DARK)
+   AI model — purely cosmetic choice of which "model" answers
+   (MAIN 1 / MAIN 1 PRO / MAIN 1 DARK), sent along with requests
    ========================================================= */
-const VERSIONS = {
+const MODELS = {
   main1: { label: "MAIN 1" },
   pro:   { label: "MAIN 1 PRO" },
   dark:  { label: "MAIN 1 DARK" }
 };
-const THEME_STORAGE_KEY = "delamain.theme";
+const MODEL_STORAGE_KEY = "delamain.aiModel";
 
+function loadModel(){
+  const saved = localStorage.getItem(MODEL_STORAGE_KEY);
+  return MODELS[saved] ? saved : "main1";
+}
+let currentModel = loadModel();
+
+function applyModelUI(){
+  modelLabelEl.textContent = MODELS[currentModel].label;
+  modelPopover.querySelectorAll(".model-option").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.model === currentModel);
+  });
+}
+applyModelUI();
+
+function toggleModelPopover(open){
+  const next = open !== undefined ? open : !modelPickerEl.classList.contains("open");
+  modelPickerEl.classList.toggle("open", next);
+  modelBtn.setAttribute("aria-expanded", String(next));
+}
+modelBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleModelPopover();
+});
+modelPopover.querySelectorAll(".model-option").forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentModel = btn.dataset.model;
+    try { localStorage.setItem(MODEL_STORAGE_KEY, currentModel); } catch (_) {}
+    applyModelUI();
+    toggleModelPopover(false);
+  });
+});
+document.addEventListener("click", (e) => {
+  if (modelPickerEl.classList.contains("open") && !e.target.closest("#model-picker")){
+    toggleModelPopover(false);
+  }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && modelPickerEl.classList.contains("open")) toggleModelPopover(false);
+});
+
+/* =========================================================
+   Settings — site color, text size, motion, local data
+   ========================================================= */
+const THEMES = { main1: true, pro: true, dark: true };
+const THEME_STORAGE_KEY = "delamain.theme";
 function loadTheme(){
   const saved = localStorage.getItem(THEME_STORAGE_KEY);
-  return VERSIONS[saved] ? saved : "main1";
+  return THEMES[saved] ? saved : "main1";
 }
 let currentTheme = loadTheme();
-
 function applyTheme(){
   if (currentTheme === "main1") document.documentElement.removeAttribute("data-theme");
   else document.documentElement.setAttribute("data-theme", currentTheme);
-  styleLabelEl.textContent = VERSIONS[currentTheme].label;
-  stylePopover.querySelectorAll(".version-option").forEach(btn => {
+  settingsThemeGrid.querySelectorAll(".settings-theme-option").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.theme === currentTheme);
   });
 }
-applyTheme();
-
-function toggleStylePopover(open){
-  const next = open !== undefined ? open : !stylePickerEl.classList.contains("open");
-  stylePickerEl.classList.toggle("open", next);
-  styleBtn.setAttribute("aria-expanded", String(next));
-}
-styleBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  toggleStylePopover();
-});
-stylePopover.querySelectorAll(".version-option").forEach(btn => {
+settingsThemeGrid.querySelectorAll(".settings-theme-option").forEach(btn => {
   btn.addEventListener("click", () => {
     currentTheme = btn.dataset.theme;
     try { localStorage.setItem(THEME_STORAGE_KEY, currentTheme); } catch (_) {}
     applyTheme();
-    toggleStylePopover(false);
   });
 });
-document.addEventListener("click", (e) => {
-  if (stylePickerEl.classList.contains("open") && !e.target.closest("#version-picker")){
-    toggleStylePopover(false);
-  }
+applyTheme();
+
+const TEXTSIZE_STORAGE_KEY = "delamain.textSize";
+const TEXTSIZE_PX = { sm: "13.5px", md: "14.5px", lg: "16px" };
+function loadTextSize(){
+  const saved = localStorage.getItem(TEXTSIZE_STORAGE_KEY);
+  return TEXTSIZE_PX[saved] ? saved : "md";
+}
+let currentTextSize = loadTextSize();
+function applyTextSize(){
+  document.documentElement.style.setProperty("--msg-font-size", TEXTSIZE_PX[currentTextSize]);
+  settingsTextSize.querySelectorAll(".settings-segment").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.size === currentTextSize);
+  });
+}
+settingsTextSize.querySelectorAll(".settings-segment").forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentTextSize = btn.dataset.size;
+    try { localStorage.setItem(TEXTSIZE_STORAGE_KEY, currentTextSize); } catch (_) {}
+    applyTextSize();
+  });
 });
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && stylePickerEl.classList.contains("open")) toggleStylePopover(false);
+applyTextSize();
+
+const MOTION_STORAGE_KEY = "delamain.reduceMotion";
+function loadReduceMotion(){
+  try { return localStorage.getItem(MOTION_STORAGE_KEY) === "1"; } catch (_) { return false; }
+}
+let reduceMotionOn = loadReduceMotion();
+function applyReduceMotion(){
+  document.documentElement.classList.toggle("reduce-motion", reduceMotionOn);
+  settingsMotionSwitch.setAttribute("aria-checked", String(reduceMotionOn));
+}
+settingsMotionSwitch.addEventListener("click", () => {
+  reduceMotionOn = !reduceMotionOn;
+  try { localStorage.setItem(MOTION_STORAGE_KEY, reduceMotionOn ? "1" : "0"); } catch (_) {}
+  applyReduceMotion();
 });
+applyReduceMotion();
+
+settingsResetBtn.addEventListener("click", () => {
+  pendingConfirmAction = () => {
+    try { localStorage.clear(); } catch (_) {}
+    window.location.reload();
+  };
+  confirmBody.textContent = "Vos conversations, votre profil et vos préférences seront définitivement effacés de cet appareil.";
+  document.getElementById("confirm-title").textContent = "Réinitialiser les données locales";
+  confirmDeleteBtn.textContent = "Réinitialiser";
+  openModal(confirmModal);
+});
+function openSettingsModal(){
+  toggleAccountMenu(false);
+  openModal(settingsModal);
+}
+accountSettingsBtn.addEventListener("click", openSettingsModal);
 
 /* =========================================================
-   Account — editable display name, avatar is just its initial
+   Account — real menu: editable name + a gallery of default
+   profile pictures (Instagram/TikTok-style generic avatars)
    ========================================================= */
-const ACCOUNT_NAME_KEY = "delamain.profileName";
+const ACCOUNT_NAME_KEY   = "delamain.profileName";
+const ACCOUNT_AVATAR_KEY = "delamain.avatarPreset";
+
+const AVATAR_PRESETS = [
+  { id: "p1", from: "#7fa8ff", to: "#b98bff" },
+  { id: "p2", from: "#ff9a8b", to: "#ff6a88" },
+  { id: "p3", from: "#8effc1", to: "#2fb37f" },
+  { id: "p4", from: "#ffd88a", to: "#ff9d5c" },
+  { id: "p5", from: "#9ea6ff", to: "#5865f2" },
+  { id: "p6", from: "#ff8ac8", to: "#c86bff" },
+  { id: "p7", from: "#8ad9ff", to: "#3aa0ff" },
+  { id: "p8", from: "#d9d9de", to: "#9c9ca6" }
+];
+const SILHOUETTE_SVG = `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="4"/><path d="M3.5 20.2c0-4.7 3.8-8.4 8.5-8.4s8.5 3.7 8.5 8.4v.3H3.5v-.3Z"/></svg>`;
+
 function loadAccountName(){
   try { return localStorage.getItem(ACCOUNT_NAME_KEY) || ""; } catch (_) { return ""; }
 }
-function applyAccountAvatar(name){
-  const trimmed = name.trim();
-  accountAvatarEl.textContent = trimmed ? trimmed.charAt(0) : "?";
+function loadAccountAvatarId(){
+  try {
+    const saved = localStorage.getItem(ACCOUNT_AVATAR_KEY);
+    return AVATAR_PRESETS.some(p => p.id === saved) ? saved : AVATAR_PRESETS[0].id;
+  } catch (_) { return AVATAR_PRESETS[0].id; }
 }
+let currentAvatarId = loadAccountAvatarId();
+
+function paintAvatarEl(el, preset){
+  el.style.background = `linear-gradient(135deg, ${preset.from}, ${preset.to})`;
+  el.innerHTML = `<span class="avatar-silhouette">${SILHOUETTE_SVG}</span>`;
+}
+function applyAccountAvatar(){
+  const preset = AVATAR_PRESETS.find(p => p.id === currentAvatarId) || AVATAR_PRESETS[0];
+  paintAvatarEl(accountAvatarEl, preset);
+  paintAvatarEl(accountAvatarLgEl, preset);
+  avatarGridEl.querySelectorAll(".avatar-option").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.presetId === currentAvatarId);
+  });
+}
+function buildAvatarGrid(){
+  const frag = document.createDocumentFragment();
+  AVATAR_PRESETS.forEach(preset => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "avatar-option";
+    btn.dataset.presetId = preset.id;
+    btn.setAttribute("aria-label", "Choisir cette photo de profil");
+    paintAvatarEl(btn, preset);
+    btn.addEventListener("click", () => {
+      currentAvatarId = preset.id;
+      try { localStorage.setItem(ACCOUNT_AVATAR_KEY, currentAvatarId); } catch (_) {}
+      applyAccountAvatar();
+    });
+    frag.appendChild(btn);
+  });
+  avatarGridEl.appendChild(frag);
+}
+
 let accountSaveTimeout;
+function applyAccountName(name){
+  accountTriggerName.textContent = name.trim() || "Invité";
+}
 function initAccount(){
-  const saved = loadAccountName();
-  accountNameInput.value = saved;
-  applyAccountAvatar(saved);
+  const savedName = loadAccountName();
+  accountNameInput.value = savedName;
+  applyAccountName(savedName);
+  buildAvatarGrid();
+  applyAccountAvatar();
 }
 accountNameInput.addEventListener("input", () => {
-  applyAccountAvatar(accountNameInput.value);
+  applyAccountName(accountNameInput.value);
   clearTimeout(accountSaveTimeout);
   accountSaveTimeout = setTimeout(() => {
     try { localStorage.setItem(ACCOUNT_NAME_KEY, accountNameInput.value.trim()); } catch (_) {}
@@ -233,6 +399,49 @@ accountNameInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") accountNameInput.blur();
 });
 initAccount();
+
+function toggleAccountMenu(open){
+  const next = open !== undefined ? open : !accountMenuWrap.classList.contains("open");
+  accountMenuWrap.classList.toggle("open", next);
+  accountTrigger.setAttribute("aria-expanded", String(next));
+  if (next) setTimeout(() => accountNameInput.focus(), 60);
+}
+accountTrigger.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleAccountMenu();
+});
+document.addEventListener("click", (e) => {
+  if (accountMenuWrap.classList.contains("open") && !e.target.closest("#account-menu-wrap")){
+    toggleAccountMenu(false);
+  }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && accountMenuWrap.classList.contains("open")) toggleAccountMenu(false);
+});
+
+accountHelpBtn.addEventListener("click", () => {
+  toggleAccountMenu(false);
+  const discordLink = document.getElementById("discord-link");
+  if (discordLink) window.open(discordLink.href, "_blank", "noopener");
+});
+
+accountResetBtn.addEventListener("click", () => {
+  pendingConfirmAction = () => {
+    currentAvatarId = AVATAR_PRESETS[0].id;
+    try {
+      localStorage.removeItem(ACCOUNT_NAME_KEY);
+      localStorage.removeItem(ACCOUNT_AVATAR_KEY);
+    } catch (_) {}
+    accountNameInput.value = "";
+    applyAccountName("");
+    applyAccountAvatar();
+  };
+  document.getElementById("confirm-title").textContent = "Réinitialiser le profil";
+  confirmBody.textContent = "Votre nom et votre photo de profil reviendront à leurs valeurs par défaut.";
+  confirmDeleteBtn.textContent = "Réinitialiser";
+  toggleAccountMenu(false);
+  openModal(confirmModal);
+});
 
 /* =========================================================
    Search bar — clear button + "coming soon" voice search
@@ -283,7 +492,7 @@ const FREE_CONVERSATION_LIMIT = 5;
 let conversations = [];
 let currentId = null;
 let openMenuId = null;
-let pendingDeleteId = null;
+let pendingConfirmAction = null;
 let searchTerm = "";
 
 function uid(){
@@ -340,6 +549,7 @@ function createConversation({ focus = true } = {}){
   saveState();
   renderSidebar();
   renderConversation();
+  playLogoSting();
   if (focus) inputEl.focus();
   closeSidebarOnMobile();
   return conv;
@@ -451,7 +661,9 @@ function renderSidebar(){
     deleteBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       closeAllMenus();
-      pendingDeleteId = conv.id;
+      pendingConfirmAction = () => deleteConversation(conv.id);
+      document.getElementById("confirm-title").textContent = "Supprimer la conversation";
+      confirmDeleteBtn.textContent = "Supprimer";
       confirmBody.textContent = `« ${conv.title} » sera définitivement supprimée avec tout son historique.`;
       openModal(confirmModal);
     });
@@ -765,7 +977,7 @@ async function getDelamainReply(userText, history){
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: userText, history }),
+      body: JSON.stringify({ message: userText, history, model: currentModel }),
       signal: controller.signal
     });
 
@@ -848,6 +1060,7 @@ function openModal(modalEl){
 function closeModal(modalEl){
   modalEl.classList.remove("open");
   document.removeEventListener("keydown", escCloses);
+  if (modalEl.id === "upgrade-modal") clearInterval(plusAutoTimer);
 }
 function escCloses(e){
   if (e.key === "Escape"){
@@ -861,11 +1074,53 @@ document.querySelectorAll(".modal-scrim").forEach(scrim => {
   });
 });
 
+/* ---------- Plus feature carousel — auto-advance + manual nav ---------- */
+const plusCarouselEl = document.getElementById("plus-carousel");
+const plusTrackEl    = document.getElementById("plus-carousel-track");
+const plusPrevBtn    = document.getElementById("plus-carousel-prev");
+const plusNextBtn    = document.getElementById("plus-carousel-next");
+const plusDotsEl     = document.getElementById("plus-carousel-dots");
+const plusSlideCount = plusTrackEl.children.length;
+let plusSlideIndex = 0;
+let plusAutoTimer;
+
+function buildPlusDots(){
+  plusDotsEl.innerHTML = "";
+  for (let i = 0; i < plusSlideCount; i++){
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "plus-carousel-dot" + (i === 0 ? " active" : "");
+    dot.setAttribute("aria-label", `Diapositive ${i + 1}`);
+    dot.addEventListener("click", () => goToPlusSlide(i, true));
+    plusDotsEl.appendChild(dot);
+  }
+}
+buildPlusDots();
+
+function goToPlusSlide(index, manual){
+  plusSlideIndex = (index + plusSlideCount) % plusSlideCount;
+  plusTrackEl.style.transform = `translateX(-${plusSlideIndex * 100}%)`;
+  plusDotsEl.querySelectorAll(".plus-carousel-dot").forEach((dot, i) => {
+    dot.classList.toggle("active", i === plusSlideIndex);
+  });
+  if (manual) restartPlusAuto();
+}
+function restartPlusAuto(){
+  clearInterval(plusAutoTimer);
+  plusAutoTimer = setInterval(() => goToPlusSlide(plusSlideIndex + 1), 3800);
+}
+plusPrevBtn.addEventListener("click", () => goToPlusSlide(plusSlideIndex - 1, true));
+plusNextBtn.addEventListener("click", () => goToPlusSlide(plusSlideIndex + 1, true));
+plusCarouselEl.addEventListener("mouseenter", () => clearInterval(plusAutoTimer));
+plusCarouselEl.addEventListener("mouseleave", restartPlusAuto);
+
 /* ---------- Upgrade / Delamain Plus ---------- */
 function openUpgradeModal(contextMessage){
   upgradeContextMsg.textContent = contextMessage || DEFAULT_UPGRADE_MSG;
   unlockCodeInput.value = "";
   unlockStatus.textContent = "";
+  goToPlusSlide(0);
+  restartPlusAuto();
   openModal(upgradeModal);
   setTimeout(() => unlockCodeInput.focus(), 50);
 }
@@ -892,11 +1147,11 @@ termsLink.addEventListener("click", (e) => {
   openModal(termsModal);
 });
 
-/* ---------- Delete confirmation ---------- */
+/* ---------- Generic confirm modal (delete conversation, reset data…) ---------- */
 confirmDeleteBtn.addEventListener("click", () => {
-  if (pendingDeleteId){
-    deleteConversation(pendingDeleteId);
-    pendingDeleteId = null;
+  if (pendingConfirmAction){
+    pendingConfirmAction();
+    pendingConfirmAction = null;
   }
   closeModal(confirmModal);
 });
