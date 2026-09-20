@@ -113,6 +113,19 @@
             </div>
             <div class="account-menu-label">Photo de profil</div>
             <div class="avatar-grid" id="avatar-grid"></div>
+            <div class="account-menu-divider"></div>
+            <button type="button" class="account-menu-item" id="account-settings-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 8.96 19a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.04-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.56 1.04H21a2 2 0 0 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg>
+              <span>Paramètres</span>
+            </button>
+            <button type="button" class="account-menu-item" id="account-help-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>
+              <span>Aide &amp; support</span>
+            </button>
+            <button type="button" class="account-menu-item danger" id="account-reset-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+              <span>Réinitialiser le profil</span>
+            </button>
           </div>
         </div>
         <p class="legal-note">
@@ -174,31 +187,31 @@
 
       <footer class="composer">
         <div class="composer-form-wrap">
-          <div class="version-picker" id="version-picker">
-            <button type="button" class="version-btn" id="version-btn" aria-haspopup="true" aria-expanded="false">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18 3.5 3.5 0 0 0 0-7 1.8 1.8 0 0 1 0-3.6A3.5 3.5 0 0 0 12 3z"/><circle cx="8" cy="10" r=".8" fill="currentColor" stroke="none"/><circle cx="9" cy="15" r=".8" fill="currentColor" stroke="none"/><circle cx="14" cy="16" r=".8" fill="currentColor" stroke="none"/></svg>
-              <span id="version-label">MAIN 1</span>
+          <div class="model-picker" id="model-picker">
+            <button type="button" class="model-btn" id="model-btn" aria-haspopup="true" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2.5"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>
+              <span id="model-label">MAIN 1</span>
             </button>
-            <div class="version-popover" id="version-popover">
-              <button type="button" class="version-option active" data-theme="main1">
-                <span class="version-swatch swatch-main1"></span>
-                <span class="version-option-text">
-                  <span class="version-option-head">MAIN 1</span>
-                  <span class="version-option-desc">Le thème original, bleu &amp; violet.</span>
+            <div class="model-popover" id="model-popover">
+              <button type="button" class="model-option active" data-model="main1">
+                <span class="model-dot dot-main1"></span>
+                <span class="model-option-text">
+                  <span class="model-option-head">MAIN 1</span>
+                  <span class="model-option-desc">Modèle standard : rapide et polyvalent au quotidien.</span>
                 </span>
               </button>
-              <button type="button" class="version-option" data-theme="pro">
-                <span class="version-swatch swatch-pro"></span>
-                <span class="version-option-text">
-                  <span class="version-option-head">MAIN 1 PRO</span>
-                  <span class="version-option-desc">Teintes dorées, allure premium.</span>
+              <button type="button" class="model-option" data-model="pro">
+                <span class="model-dot dot-pro"></span>
+                <span class="model-option-text">
+                  <span class="model-option-head">MAIN 1 PRO</span>
+                  <span class="model-option-desc">Raisonnement plus poussé pour les tâches complexes.</span>
                 </span>
               </button>
-              <button type="button" class="version-option" data-theme="dark">
-                <span class="version-swatch swatch-dark"></span>
-                <span class="version-option-text">
-                  <span class="version-option-head">MAIN 1 DARK</span>
-                  <span class="version-option-desc">Monochrome, ultra sobre.</span>
+              <button type="button" class="model-option" data-model="dark">
+                <span class="model-dot dot-dark"></span>
+                <span class="model-option-text">
+                  <span class="model-option-head">MAIN 1 DARK</span>
+                  <span class="model-option-desc">Réponses courtes et directes, sans détour.</span>
                 </span>
               </button>
             </div>
@@ -228,15 +241,62 @@
 
   <!-- ============ UPGRADE MODAL — DELAMAIN PLUS ============ -->
   <div class="modal-scrim" id="upgrade-modal">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="upgrade-title">
+    <div class="modal plus-modal" role="dialog" aria-modal="true" aria-labelledby="upgrade-title">
+      <div class="plus-modal-glow" aria-hidden="true"></div>
       <div class="modal-head">
-        <h2 id="upgrade-title"><span class="premium-badge">✦ Delamain Plus</span></h2>
+        <h2 id="upgrade-title">
+          <span class="plus-badge-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
+          </span>
+          Delamain <span class="plus-word">Plus</span>
+        </h2>
         <button class="icon-btn" data-close-modal aria-label="Fermer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
       </div>
       <div class="modal-body">
         <p id="upgrade-context-msg">Delamain Plus est encore en cours de développement. Conversations illimitées, réponses prioritaires et bien plus arrivent bientôt.</p>
+
+        <div class="plus-carousel" id="plus-carousel">
+          <div class="plus-carousel-track" id="plus-carousel-track">
+            <div class="plus-slide">
+              <div class="plus-slide-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18.5 12a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1-7 0 3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1 7 0Z"/></svg>
+              </div>
+              <div class="plus-slide-title">Historique illimité</div>
+              <div class="plus-slide-desc">Fini la limite de 5 conversations : gardez tout votre historique, aussi longtemps que vous le souhaitez.</div>
+            </div>
+            <div class="plus-slide">
+              <div class="plus-slide-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+              </div>
+              <div class="plus-slide-title">Réponses prioritaires</div>
+              <div class="plus-slide-desc">Une file d'attente dédiée pour des temps de réponse plus rapides, même aux heures de pointe.</div>
+            </div>
+            <div class="plus-slide">
+              <div class="plus-slide-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18 3.5 3.5 0 0 0 0-7 1.8 1.8 0 0 1 0-3.6A3.5 3.5 0 0 0 12 3z"/></svg>
+              </div>
+              <div class="plus-slide-title">Thèmes exclusifs</div>
+              <div class="plus-slide-desc">Des palettes visuelles additionnelles, réservées aux membres Plus, pour personnaliser Delamain.</div>
+            </div>
+            <div class="plus-slide">
+              <div class="plus-slide-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13a8 8 0 0 1 16 0"/><path d="M4 13v4a2 2 0 0 0 2 2h1v-6H5a1 1 0 0 0-1 1Z"/><path d="M20 13v4a2 2 0 0 1-2 2h-1v-6h1a1 1 0 0 1 2 1Z"/></svg>
+              </div>
+              <div class="plus-slide-title">Support prioritaire</div>
+              <div class="plus-slide-desc">Un accès direct à l'équipe EDC pour vos retours, suggestions et demandes d'assistance.</div>
+            </div>
+          </div>
+          <button type="button" class="plus-carousel-nav prev" id="plus-carousel-prev" aria-label="Précédent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button type="button" class="plus-carousel-nav next" id="plus-carousel-next" aria-label="Suivant">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        <div class="plus-carousel-dots" id="plus-carousel-dots"></div>
+
         <div>
           <label class="field-label" for="unlock-code-input">Code de déblocage</label>
           <input type="text" id="unlock-code-input" class="field-input" placeholder="XXXX-XXXX-XXXX" autocomplete="off">
@@ -246,6 +306,72 @@
           <button class="btn btn-ghost" data-close-modal>Fermer</button>
           <button class="btn btn-premium" id="unlock-submit-btn">Valider le code</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SETTINGS MODAL ============ -->
+  <div class="modal-scrim" id="settings-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-head">
+        <h2 id="settings-title">Paramètres</h2>
+        <button class="icon-btn" data-close-modal aria-label="Fermer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <span class="settings-section-title">Couleur du site</span>
+            <span class="settings-section-desc">Change l'accent visuel de toute l'interface.</span>
+          </div>
+          <div class="settings-theme-grid" id="settings-theme-grid">
+            <button type="button" class="settings-theme-option active" data-theme="main1">
+              <span class="version-swatch swatch-main1"></span>
+              <span class="settings-theme-name">MAIN 1</span>
+            </button>
+            <button type="button" class="settings-theme-option" data-theme="pro">
+              <span class="version-swatch swatch-pro"></span>
+              <span class="settings-theme-name">MAIN 1 PRO</span>
+            </button>
+            <button type="button" class="settings-theme-option" data-theme="dark">
+              <span class="version-swatch swatch-dark"></span>
+              <span class="settings-theme-name">MAIN 1 DARK</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <span class="settings-section-title">Taille du texte</span>
+            <span class="settings-section-desc">Ajuste la taille des messages dans la conversation.</span>
+          </div>
+          <div class="settings-segmented" id="settings-textsize">
+            <button type="button" class="settings-segment" data-size="sm">Petit</button>
+            <button type="button" class="settings-segment active" data-size="md">Moyen</button>
+            <button type="button" class="settings-segment" data-size="lg">Grand</button>
+          </div>
+        </div>
+
+        <div class="settings-section settings-row">
+          <div class="settings-section-head">
+            <span class="settings-section-title">Réduire les animations</span>
+            <span class="settings-section-desc">Désactive les effets décoratifs pour plus de sobriété.</span>
+          </div>
+          <button type="button" class="settings-switch" id="settings-motion-switch" role="switch" aria-checked="false" aria-label="Réduire les animations">
+            <span class="settings-switch-knob"></span>
+          </button>
+        </div>
+
+        <div class="settings-section settings-row">
+          <div class="settings-section-head">
+            <span class="settings-section-title">Données locales</span>
+            <span class="settings-section-desc">Efface vos conversations, votre profil et vos préférences sur cet appareil.</span>
+          </div>
+          <button type="button" class="btn btn-ghost btn-danger-ghost" id="settings-reset-btn">Réinitialiser</button>
+        </div>
+
       </div>
     </div>
   </div>
