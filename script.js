@@ -868,10 +868,10 @@ async function retryMessage(index, retryBtn){
   retryBtn.disabled = true;
 
   const userText = conv.messages[userIndex].content;
-  const historyBefore = conv.messages.slice(0, userIndex).map(m => ({ role: m.role, content: m.content }));
-  const reply = await getDelamainReply(userText, historyBefore);
+  const historyBefore = toHistory(conv.messages.slice(0, userIndex));
+  const { text: reply, error: replyFailed } = await getDelamainReply(userText, historyBefore);
 
-  conv.messages[index] = { role: "assistant", content: reply, feedback: null };
+  conv.messages[index] = { role: "assistant", content: reply, feedback: null, error: replyFailed };
   saveState();
 
   const bubbleEl = msgEl.querySelector(".msg-bubble");
@@ -969,10 +969,24 @@ function typeOut(targetEl, fullText, avatarEl, onDone){
   requestAnimationFrame(frame);
 }
 
-/* ---------- Response engine (Connected to /api/chat) ---------- */
+/* ---------- Response engine (Connected to /api/chat) ----------
+   Renvoie { text, error }. Les réponses d'erreur sont marquées (error: true)
+   et JAMAIS renvoyées au serveur comme historique : sinon elles polluent
+   les tours suivants. */
+const LEGACY_ERROR_TEXTS = [
+  "Connexion au sous-réseau instable. Mes capteurs indiquent une perturbation temporaire du signal.",
+  "Le noyau met trop de temps à répondre. Réessayez dans un instant."
+];
+
+function toHistory(messages){
+  return messages
+    .filter(m => m && !m.error && !LEGACY_ERROR_TEXTS.includes(m.content))
+    .map(m => ({ role: m.role, content: m.content }));
+}
+
 async function getDelamainReply(userText, history){
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
+  const timeout = setTimeout(() => controller.abort(), 40000);
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
@@ -981,18 +995,26 @@ async function getDelamainReply(userText, history){
       signal: controller.signal
     });
 
+    let data = null;
+    try { data = await response.json(); } catch (_) { /* réponse non-JSON (page d'erreur) */ }
+
     if (!response.ok) {
-      throw new Error("Erreur de communication avec le noyau Delamain.");
+      console.error("Erreur API /api/chat :", response.status, data);
+      if (response.status === 404){
+        return { error: true, text: "Le service de discussion est introuvable : la route /api/chat n'est pas déployée." };
+      }
+      const detail = data && typeof data.error === "string" ? data.error : null;
+      return { error: true, text: detail || `Le noyau Delamain a renvoyé une erreur (code ${response.status}). Consultez les journaux du serveur.` };
     }
 
-    const data = await response.json();
-    return data.reply || data.message || "Requête traitée, mais aucun détail renvoyé par le serveur.";
+    return { error: false, text: (data && (data.reply || data.message)) || "Requête traitée, mais aucun détail renvoyé par le serveur." };
   } catch (error) {
     console.error("Erreur API:", error);
     if (error.name === "AbortError"){
-      return "Le noyau met trop de temps à répondre. Réessayez dans un instant.";
+      return { error: true, text: "Le noyau met trop de temps à répondre. Réessayez dans un instant." };
     }
-    return "Connexion au sous-réseau instable. Mes capteurs indiquent une perturbation temporaire du signal.";
+    // Vraie coupure réseau (fetch impossible)
+    return { error: true, text: "Connexion au sous-réseau instable. Mes capteurs indiquent une perturbation temporaire du signal." };
   } finally {
     clearTimeout(timeout);
   }
@@ -1006,7 +1028,7 @@ async function sendMessage(text){
   const conv = getCurrentConv() || createConversation({ focus: false });
   if (!conv) return; // blocked by the free-tier limit, upgrade modal already shown
 
-  const historyBeforeThisTurn = conv.messages.map(m => ({ role: m.role, content: m.content }));
+  const historyBeforeThisTurn = toHistory(conv.messages);
   const isFirstMessage = conv.messages.length === 0;
 
   conv.messages.push({ role: "user", content: clean });
@@ -1024,8 +1046,8 @@ async function sendMessage(text){
   sendBtn.disabled = true;
 
   const typingMsgEl = addTypingIndicator();
-  const reply = await getDelamainReply(clean, historyBeforeThisTurn);
-  conv.messages.push({ role: "assistant", content: reply, feedback: null });
+  const { text: reply, error: replyFailed } = await getDelamainReply(clean, historyBeforeThisTurn);
+  conv.messages.push({ role: "assistant", content: reply, feedback: null, error: replyFailed });
   saveState();
   const aiIndex = conv.messages.length - 1;
 

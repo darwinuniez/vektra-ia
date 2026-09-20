@@ -1,0 +1,8 @@
+{
+  "name": "delamain-ia",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "groq-sdk": "latest"
+  }
+}

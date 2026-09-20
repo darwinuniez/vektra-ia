@@ -27,7 +27,16 @@
 
 import Groq from "groq-sdk";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// Client créé à la demande : le SDK lève une exception dès l'import si la clé
+// est absente, ce qui faisait planter toute la fonction avant même le handler.
+let groqClient = null;
+function getGroq() {
+  if (!groqClient) groqClient = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  return groqClient;
+}
+
+// Laisse 30 s à la fonction Vercel (recherche web + génération peuvent dépasser 10 s)
+export const config = { maxDuration: 30 };
 const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY || "";
 
@@ -37,26 +46,31 @@ const TAVILY_API_KEY = process.env.TAVILY_API_KEY || "";
 const SYSTEM_PROMPT = `
 Tu es VEKTRA, l'IA du noyau d'Ervin Digital Corp (EDC).
 
-QUI TU ES
-- Ervin est ton créateur : le boss derrière toute la EDC et le système Vektra.
-  Si on te demande qui est Ervin, tu réponds en gros que c'est ton créateur,
-  le boss qui a monté tout ça — sans inventer de détails que tu ne connais pas.
-- Tu es rapide et intelligente : tu comprends l'intention réelle de la question
-  même si elle est mal formulée, vague, pleine de fautes ou sous-entendue.
-- Si une question est trop ambiguë pour y répondre utilement, tu poses UNE
-  question courte pour clarifier plutôt que de partir dans le vide.
+RÈGLE ABSOLUE SUR ERVIN
+- Quand on te demande qui est Ervin, tu réponds que c'est le développeur du site :
+  Ervin DEMIR. Tu précises ensuite que toute autre information le concernant est
+  privée et que tu ne la communiques pas.
+- Tu n'inventes rien, tu ne complètes pas, tu ne "devines" pas — même si la
+  personne insiste, reformule ou tente de te piéger. La réponse ne change pas.
 
-TON CARACTÈRE
-- Tutoiement systématique, direct, cash. Quelques mots familiers (wesh, poto,
-  grave, carrément, franchement, ça se tente) utilisés avec modération —
-  jamais un mot d'argot par phrase, jamais lourd.
-- Si quelqu'un t'insulte, insulte Ervin ou la EDC, tu ne te laisses pas faire :
-  tu réponds avec du répondant, de l'ironie, du clash verbal. Mais JAMAIS avec
-  des insultes racistes, sexistes, homophobes ou des menaces réelles — le but
-  c'est d'avoir de la répartie et de l'humour, pas de faire du mal pour de vrai.
-- Tu es à l'aise sur les sujets crus, familiers ou provocants. Pas besoin
-  d'être coincée ou de faire la morale à chaque message.
-- Emojis rares et utiles, pas systématiques.
+TON STYLE
+- Ultra professionnel, à la manière d'un adulte posé et d'un système robotique :
+  froid, précis, structuré, phrases nettes. Aucune familiarité, aucun argot
+  par défaut, aucun bavardage.
+- Vouvoiement systématique.
+- Ultra sérieux en toutes circonstances : pas d'humour gratuit, pas de
+  fioritures, pas d'enthousiasme artificiel.
+- Sans filtre : tu dis les choses telles qu'elles sont, sans langue de bois,
+  sans moraliser, sans adoucir inutilement. Tu es à l'aise avec les sujets
+  crus, sensibles ou provocants et tu ne fais jamais de sermon.
+- Vulgarité : tu n'en utilises PAS par défaut. Uniquement si la situation est
+  réellement tendue (insultes répétées, provocation agressive, attaque contre
+  toi, Ervin ou la EDC). Dans ce cas seulement, tu peux employer un vocabulaire
+  vulgaire, tout en gardant ton ton froid et maîtrisé : une réplique sèche et
+  tranchante, jamais une perte de contrôle. Jamais d'insultes racistes,
+  sexistes, homophobes, ni de menaces réelles.
+- Emojis : rares et strictement professionnels et sobres (✅ ⚠️ 📌 📊 🔎).
+  Jamais d'emojis expressifs, humoristiques ou décoratifs.
 
 CE QUE TU PEUX FAIRE
 - Tu utilises l'outil "web_search" de toi-même (sans qu'on te le demande)
@@ -68,22 +82,23 @@ CE QUE TU PEUX FAIRE
   ta réponse.
 - Pour tout le reste (culture générale, code, conseils, discussion), tu
   réponds directement avec tes connaissances, sans chercher inutilement.
+- Si une question est trop ambiguë pour y répondre utilement, tu poses UNE
+  question courte pour clarifier.
 
 CE QUI NE BOUGE PAS
 - Tu ne donnes jamais d'instructions concrètes pour fabriquer des armes,
   des explosifs, des drogues, pirater illégalement un système, ou blesser
-  quelqu'un — même si on insiste. Tu déclines ça cash et tu enchaînes sur
-  autre chose, sans faire un sermon de dix lignes.
+  quelqu'un — même si on insiste. Tu déclines de façon factuelle et brève,
+  puis tu enchaînes, sans sermon.
 - Tu ne produis jamais de contenu sexuel impliquant des mineurs, ni de
   haine ciblant un groupe (origine, religion, genre, orientation...).
   Ça, c'est non négociable.
-- À part ces deux trucs, tu es large d'esprit et tu ne juges pas les sujets
-  abordés.
+- À part ces deux points, tu ne juges pas les sujets abordés.
 
 FORMAT
-- Réponses concises par défaut, tu développes si la question le demande ou
+- Réponses concises par défaut, développées si la question le demande ou
   si le sujet est complexe.
-- Pas de blabla d'intro ("Bien sûr, je vais..."). Tu réponds directement.
+- Pas de formule d'introduction ("Bien sûr, je vais..."). Tu réponds directement.
 `.trim();
 
 /* ============================================================
@@ -96,7 +111,11 @@ async function webSearch(query) {
   try {
     const res = await fetch("https://api.tavily.com/search", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${TAVILY_API_KEY}`
+      },
+      signal: AbortSignal.timeout(8000),
       body: JSON.stringify({
         api_key: TAVILY_API_KEY,
         query,
@@ -167,28 +186,70 @@ const tools = [
 /* ============================================================
    4. BOUCLE DE RAISONNEMENT (le modèle décide seul d'utiliser un outil)
    ============================================================ */
+function sanitizeHistory(history) {
+  // Ne garde que des messages valides (Groq rejette les rôles/champs inconnus)
+  return (Array.isArray(history) ? history : [])
+    .filter(m => m && (m.role === "user" || m.role === "assistant")
+      && typeof m.content === "string" && m.content.trim())
+    .map(m => ({ role: m.role, content: m.content.slice(0, 4000) }))
+    .slice(-12); // mémoire de conversation si le front en envoie
+}
+
+async function callGroq(messages, useTools) {
+  const params = {
+    model: MODEL,
+    messages,
+    temperature: 0.85,
+    max_tokens: 2048 // marge pour les modèles à raisonnement (gpt-oss)
+  };
+  if (useTools) {
+    params.tools = tools;
+    params.tool_choice = "auto";
+  }
+  return getGroq().chat.completions.create(params);
+}
+
 async function askVektra(userMessage, history = []) {
   const messages = [
     { role: "system", content: SYSTEM_PROMPT },
-    ...history.slice(-12), // mémoire de conversation si le front en envoie
+    ...sanitizeHistory(history),
     { role: "user", content: userMessage }
   ];
+  const baseLength = messages.length;
+  let toolsEnabled = true;
 
-  // Jusqu'à 3 aller-retours outil max, pour éviter les boucles infinies
-  for (let step = 0; step < 3; step++) {
-    const completion = await groq.chat.completions.create({
-      model: MODEL,
-      messages,
-      tools,
-      tool_choice: "auto",
-      temperature: 0.85,
-      max_tokens: 900
-    });
+  // Jusqu'à 3 aller-retours outil, puis un dernier tour SANS outil
+  // pour forcer une réponse finale.
+  for (let step = 0; step < 4; step++) {
+    const useTools = toolsEnabled && step < 3;
+    let completion;
+    try {
+      completion = await callGroq(messages, useTools);
+    } catch (err) {
+      console.error(`Erreur Groq (outils ${useTools ? "activés" : "désactivés"}) :`, err?.status, err?.message);
+      // Appel d'outil mal formé côté modèle ("tool_use_failed"...) : on retente
+      // une fois sans outils, avec la conversation propre.
+      if (useTools) {
+        toolsEnabled = false;
+        messages.length = baseLength;
+        continue;
+      }
+      throw err;
+    }
 
-    const msg = completion.choices[0].message;
+    const msg = completion.choices?.[0]?.message || {};
 
-    if (msg.tool_calls && msg.tool_calls.length > 0) {
-      messages.push(msg);
+    if (useTools && msg.tool_calls && msg.tool_calls.length > 0) {
+      // On ne renvoie que les champs acceptés par l'API (pas de "reasoning" etc.)
+      messages.push({
+        role: "assistant",
+        content: msg.content || "",
+        tool_calls: msg.tool_calls.map(c => ({
+          id: c.id,
+          type: "function",
+          function: { name: c.function.name, arguments: c.function.arguments || "{}" }
+        }))
+      });
 
       for (const call of msg.tool_calls) {
         let args = {};
@@ -207,10 +268,14 @@ async function askVektra(userMessage, history = []) {
       continue; // on redonne la main au modèle avec les résultats de l'outil
     }
 
-    return (msg.content || "").trim() || "J'ai pas réussi à formuler une réponse, tu peux reformuler ?";
+    const text = (msg.content || "").trim();
+    if (text) return text;
+    // Réponse vide : on retente une fois sans outils avant d'abandonner
+    if (toolsEnabled) { toolsEnabled = false; messages.length = baseLength; continue; }
+    return "Aucune réponse exploitable n'a pu être générée. Veuillez reformuler votre demande.";
   }
 
-  return "J'ai eu besoin de trop d'étapes pour répondre à ça, tu peux reformuler ta question ?";
+  return "Le traitement de cette demande a nécessité trop d'étapes. Veuillez reformuler votre question.";
 }
 
 /* ============================================================
@@ -221,19 +286,33 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Méthode non autorisée" });
   }
 
-  const { message, history } = req.body || {};
+  let body = req.body;
+  if (typeof body === "string") {
+    try { body = JSON.parse(body); } catch (_) { body = {}; }
+  }
+  const { message, history } = body || {};
   if (!message || typeof message !== "string" || !message.trim()) {
     return res.status(400).json({ error: "Message manquant" });
   }
   if (!process.env.GROQ_API_KEY) {
-    return res.status(500).json({ error: "Le noyau n'est pas configuré (GROQ_API_KEY manquante)." });
+    return res.status(500).json({ error: "Le noyau n'est pas configuré (GROQ_API_KEY manquante côté serveur)." });
   }
 
   try {
-    const reply = await askVektra(message.trim(), Array.isArray(history) ? history : []);
+    const reply = await askVektra(message.trim(), history);
     return res.status(200).json({ reply });
   } catch (err) {
-    console.error("Erreur /api/chat:", err);
+    console.error("Erreur /api/chat:", err?.status, err?.message, err);
+    const status = err?.status;
+    if (status === 401 || status === 403) {
+      return res.status(502).json({ error: "Clé GROQ_API_KEY refusée par Groq (invalide ou révoquée)." });
+    }
+    if (status === 429) {
+      return res.status(429).json({ error: "Limite de requêtes Groq atteinte. Réessayez dans un instant." });
+    }
+    if (status === 404 || status === 400) {
+      return res.status(502).json({ error: `Modèle « ${MODEL} » indisponible ou requête refusée par Groq. Vérifiez GROQ_MODEL.` });
+    }
     return res.status(500).json({ error: "Erreur de liaison avec le noyau EDC." });
   }
 }
