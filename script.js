@@ -23,13 +23,10 @@
   } catch (_) { /* stockage indisponible : on continue sans migration */ }
 })();
 
-const HUB_URL = "https://edc-corp-hub.vercel.app";
-
 /* =========================================================
-   Intro EDC AI — logo + nom, passable, respecte "réduire les animations"
+   Intro — courte et simple (≈1,3 s), passable au clic / Entrée
    ========================================================= */
 const introSplash   = document.getElementById("intro-splash");
-const introEnterBtn = document.getElementById("intro-enter-btn");
 const reducedMotion  = window.matchMedia("(prefers-reduced-motion: reduce)").matches
   || (() => { try { return localStorage.getItem("edcai.reduceMotion") === "1"; } catch (_) { return false; } })();
 
@@ -37,63 +34,18 @@ let introDismissed = false;
 function dismissIntro(){
   if (introDismissed) return;
   introDismissed = true;
-  introSplash.classList.add("exiting");
-  setTimeout(() => introSplash.classList.add("hidden"), 220);
-  setTimeout(() => { introSplash.style.display = "none"; }, 900);
+  introSplash.classList.add("hidden");
+  setTimeout(() => { introSplash.style.display = "none"; }, 450);
 }
-
 if (reducedMotion){
   introSplash.style.display = "none";
   introDismissed = true;
 } else {
-  setTimeout(dismissIntro, 2500);
-  introEnterBtn.addEventListener("click", dismissIntro);
-  introSplash.addEventListener("click", (e) => {
-    if (e.target === introSplash) dismissIntro();
-  });
+  setTimeout(dismissIntro, 1300);
+  introSplash.addEventListener("click", dismissIntro);
   document.addEventListener("keydown", (e) => {
     if (!introDismissed && (e.key === "Enter" || e.key === "Escape")) dismissIntro();
   });
-}
-
-/* =========================================================
-   Logo sting — quick, non-blocking branding hit replayed
-   every time a new conversation is created
-   ========================================================= */
-const logoSting = document.getElementById("logo-sting");
-let stingTimeout;
-function playLogoSting(){
-  if (reducedMotion) return;
-  clearTimeout(stingTimeout);
-  logoSting.classList.remove("play");
-  void logoSting.offsetWidth; // force reflow so the animation restarts cleanly
-  logoSting.classList.add("play");
-  stingTimeout = setTimeout(() => logoSting.classList.remove("play"), 820);
-}
-
-/* =========================================================
-   Ambient cursor glow — subtle blue/violet drift, desktop only
-   ========================================================= */
-const cursorGlow = document.getElementById("cursor-glow");
-if (!reducedMotion && window.matchMedia("(hover: hover) and (pointer: fine)").matches){
-  let glowX = window.innerWidth / 2, glowY = window.innerHeight / 2;
-  let targetX = glowX, targetY = glowY;
-  let glowLoopRunning = false;
-
-  function glowLoop(){
-    glowX += (targetX - glowX) * 0.08;
-    glowY += (targetY - glowY) * 0.08;
-    cursorGlow.style.transform = `translate(${glowX}px, ${glowY}px)`;
-    const settled = Math.abs(targetX - glowX) < 0.4 && Math.abs(targetY - glowY) < 0.4;
-    if (settled){ glowLoopRunning = false; return; } // stop once caught up — saves cycles at rest
-    requestAnimationFrame(glowLoop);
-  }
-  window.addEventListener("pointermove", (e) => {
-    targetX = e.clientX; targetY = e.clientY;
-    cursorGlow.classList.add("active");
-    if (!glowLoopRunning){ glowLoopRunning = true; requestAnimationFrame(glowLoop); }
-  }, { passive: true });
-  window.addEventListener("pointerleave", () => cursorGlow.classList.remove("active"), { passive: true });
 }
 
 /* =========================================================
@@ -107,7 +59,6 @@ const inputEl        = document.getElementById("composer-input");
 const placeholderEl  = document.getElementById("composer-placeholder");
 const sendBtn        = formEl.querySelector(".send-btn");
 const chipsEl        = document.getElementById("chips");
-const topbarTitleEl  = document.getElementById("topbar-title");
 const avatarTemplate = document.getElementById("ai-avatar-template");
 const typingTemplate = document.getElementById("typing-indicator-template");
 
@@ -130,6 +81,7 @@ const unlockStatus       = document.getElementById("unlock-status");
 
 const termsLink  = document.getElementById("terms-link");
 const termsModal = document.getElementById("terms-modal");
+const helpModal  = document.getElementById("help-modal");
 
 const confirmModal     = document.getElementById("confirm-modal");
 const confirmBody      = document.getElementById("confirm-body");
@@ -165,63 +117,26 @@ const micTooltip      = document.getElementById("mic-tooltip");
 const DEFAULT_UPGRADE_MSG = "EDC AI Plus est encore en cours de développement. Conversations illimitées, réponses prioritaires et bien plus arrivent bientôt.";
 
 /* =========================================================
-   Service connecté — pastille « EDC Workspace » (haut gauche)
+   Toast + fonctionnalités « en cours de développement »
    ========================================================= */
-const workspaceEl      = document.getElementById("workspace");
-const workspaceBtn     = document.getElementById("workspace-btn");
-function toggleWorkspace(open){
-  const next = open !== undefined ? open : !workspaceEl.classList.contains("open");
-  workspaceEl.classList.toggle("open", next);
-  workspaceBtn.setAttribute("aria-expanded", String(next));
+const toastEl = document.getElementById("toast");
+let toastTimer;
+function showToast(message){
+  toastEl.textContent = message;
+  toastEl.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2400);
 }
-workspaceBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  toggleWorkspace();
-});
-document.addEventListener("click", (e) => {
-  if (workspaceEl.classList.contains("open") && !e.target.closest("#workspace")) toggleWorkspace(false);
-});
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && workspaceEl.classList.contains("open")) toggleWorkspace(false);
+document.querySelectorAll("[data-soon]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    showToast(btn.dataset.soon + " est en cours de développement.");
+    closeSidebarOnMobile();
+  });
 });
 
 /* =========================================================
-   Live "connectés récemment" counter — oscillates 10-16
+   Composer — placeholder fixe (masqué dès qu'il y a du texte)
    ========================================================= */
-const liveCountEl = document.getElementById("live-count-num");
-let liveCount = 12;
-function stepLiveCount(){
-  const delta = Math.random() < 0.5 ? -1 : 1;
-  liveCount = Math.min(16, Math.max(10, liveCount + delta));
-  liveCountEl.style.opacity = "0";
-  setTimeout(() => {
-    liveCountEl.textContent = liveCount;
-    liveCountEl.style.opacity = "1";
-  }, 220);
-}
-setInterval(stepLiveCount, 3600 + Math.random() * 1400);
-
-/* =========================================================
-   Composer — rotating placeholder (hidden once input has text)
-   ========================================================= */
-const PLACEHOLDERS = [
-  "Écrire à EDC AI…",
-  "EDC AI vous écoute…",
-  "Bienvenue sur EDC AI…",
-  "Posez votre question…",
-  "Que puis-je faire pour vous ?"
-];
-let placeholderIdx = 0;
-function rotatePlaceholder(){
-  if (inputEl.value) return;
-  placeholderEl.style.opacity = "0";
-  setTimeout(() => {
-    placeholderIdx = (placeholderIdx + 1) % PLACEHOLDERS.length;
-    placeholderEl.textContent = PLACEHOLDERS[placeholderIdx];
-    placeholderEl.style.opacity = inputEl.value ? "0" : "1";
-  }, 350);
-}
-setInterval(rotatePlaceholder, 3200);
 inputEl.addEventListener("input", () => {
   placeholderEl.style.opacity = inputEl.value ? "0" : "1";
   sendBtn.classList.toggle("ready", inputEl.value.trim().length > 0);
@@ -229,20 +144,20 @@ inputEl.addEventListener("input", () => {
 
 /* =========================================================
    AI model — purely cosmetic choice of which "model" answers
-   (MAIN 1 / MAIN 1 PRO / MAIN 1 DARK), envoyé avec les requêtes
+   (Léger / Équilibré / Complexe), envoyé avec les requêtes
    ========================================================= */
 const MODELS = {
-  main1: { label: "MAIN 1" },
-  pro:   { label: "MAIN 1 PRO" },
-  dark:  { label: "MAIN 1 DARK" }
+  light:    { label: "Léger" },
+  balanced: { label: "Équilibré" },
+  complex:  { label: "Complexe" }
 };
 const MODEL_STORAGE_KEY = "edcai.aiModel";
 
 function loadModel(){
   try {
     const saved = localStorage.getItem(MODEL_STORAGE_KEY);
-    return MODELS[saved] ? saved : "main1";
-  } catch (_) { return "main1"; }
+    return MODELS[saved] ? saved : "balanced";
+  } catch (_) { return "balanced"; }
 }
 let currentModel = loadModel();
 
@@ -285,7 +200,7 @@ document.addEventListener("keydown", (e) => {
    ========================================================= */
 const THEMES = { dark: true, light: true };
 const THEME_STORAGE_KEY = "edcai.theme";
-const THEME_COLORS = { dark: "#06060d", light: "#f3f4fd" };
+const THEME_COLORS = { dark: "#000000", light: "#ffffff" };
 function loadTheme(){
   try {
     const saved = localStorage.getItem(THEME_STORAGE_KEY);
@@ -473,9 +388,15 @@ document.addEventListener("keydown", (e) => {
 
 accountHelpBtn.addEventListener("click", () => {
   toggleAccountMenu(false);
-  const discordLink = document.getElementById("discord-link");
-  const href = discordLink ? discordLink.getAttribute("href") : "";
-  window.open(href && href !== "#" ? href : HUB_URL, "_blank", "noopener");
+  openModal(helpModal);
+});
+const discordLinkEl = document.getElementById("discord-link");
+discordLinkEl.addEventListener("click", (e) => {
+  const href = discordLinkEl.getAttribute("href");
+  if (!href || href === "#"){
+    e.preventDefault();
+    showToast("Le lien Discord sera bientôt disponible.");
+  }
 });
 
 accountResetBtn.addEventListener("click", () => {
@@ -602,7 +523,6 @@ function createConversation({ focus = true } = {}){
   saveState();
   renderSidebar();
   renderConversation();
-  playLogoSting();
   if (focus) inputEl.focus();
   closeSidebarOnMobile();
   return conv;
@@ -794,19 +714,13 @@ newConvBtn.addEventListener("click", () => createConversation());
    ========================================================= */
 function updateTopbarTitle(){
   const conv = getCurrentConv();
-  const nextTitle = conv ? conv.title : "Nouvelle conversation";
-  if (topbarTitleEl.textContent === nextTitle) return;
-  topbarTitleEl.style.opacity = "0";
-  setTimeout(() => {
-    topbarTitleEl.textContent = nextTitle;
-    topbarTitleEl.style.opacity = "1";
-  }, 160);
+  document.title = conv && conv.messages.length ? conv.title + " — EDC AI" : "EDC AI — Assistant intelligent";
 }
 
 function addUserMessage(text){
   const msg = document.createElement("div");
   msg.className = "msg user";
-  msg.innerHTML = `<div class="msg-col"><span class="msg-label">VOUS</span><div class="msg-bubble"></div></div>`;
+  msg.innerHTML = `<div class="msg-col"><div class="msg-bubble"></div></div>`;
   msg.querySelector(".msg-bubble").textContent = text;
   threadEl.appendChild(msg);
   scrollToBottom(true);
@@ -823,7 +737,7 @@ function addAiMessage(text, index){
   const avatarWrap = document.createElement("div");
   avatarWrap.className = "msg-avatar";
   avatarWrap.appendChild(buildAiAvatar());
-  msg.innerHTML = `<div class="msg-col"><span class="msg-label">EDC AI</span><div class="msg-bubble"></div></div>`;
+  msg.innerHTML = `<div class="msg-col"><div class="msg-bubble"></div></div>`;
   msg.prepend(avatarWrap);
   msg.querySelector(".msg-bubble").textContent = text;
   msg.querySelector(".msg-col").appendChild(buildMessageActionsEl(index));
@@ -965,7 +879,7 @@ function addAiMessagePlaceholder(index){
   const avatarWrap = document.createElement("div");
   avatarWrap.className = "msg-avatar";
   avatarWrap.appendChild(buildAiAvatar());
-  msg.innerHTML = `<div class="msg-col"><span class="msg-label">EDC AI</span><div class="msg-bubble"><span class="typed"></span><span class="cursor"></span></div></div>`;
+  msg.innerHTML = `<div class="msg-col"><div class="msg-bubble"><span class="typed"></span><span class="cursor"></span></div></div>`;
   msg.prepend(avatarWrap);
   threadEl.appendChild(msg);
   scrollToBottom(false);

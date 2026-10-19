@@ -4,11 +4,9 @@ EDC AI — ERVIN DIGITAL CORP
 CONTENU DU DOSSIER (à déposer tel quel à la racine du projet Vercel)
 - index.html, style.css, script.js
     -> le site (front-end complet)
-- logo-edc-ai-dark.png / logo-edc-ai-light.png
-    -> logo EDC AI (variantes thème sombre / thème clair) : intro, accueil, barre latérale
-- logo-edc-full.png / logo-edc-mark.png
-    -> logo EDC simple (noir, inversé automatiquement en blanc en thème sombre) :
-       bouton "Créé par" (renvoie vers le hub) et avatar de l'IA dans les messages
+- logo-edc-mark.png
+    -> logo EDC (noir, inversé automatiquement en blanc en thème sombre) :
+       logo "EDC AI" (le "AI" est du texte), avatar de l'IA, lien EDC
 - favicon.ico, favicon-32.png, favicon-192.png, favicon-512.png,
   apple-touch-icon.png, site.webmanifest
     -> favicon / icônes d'application
@@ -17,9 +15,10 @@ CONTENU DU DOSSIER (à déposer tel quel à la racine du projet Vercel)
 - package.json
     -> dépendance groq-sdk
 
-CHANGER LES LOGOS PLUS TARD
-Remplacez simplement les fichiers PNG (fond transparent) en gardant les mêmes noms.
-Le logo EDC AI existe en deux versions : _dark (pour fond sombre) et _light.
+CHANGER LE LOGO PLUS TARD
+Remplacez logo-edc-mark.png (PNG transparent, lettres noires) en gardant le nom.
+Les favicons (favicon.ico, favicon-*.png, apple-touch-icon.png) sont à remplacer
+séparément.
 
 INSTALLATION RAPIDE (Vercel)
 1. Déposer le contenu de ce dossier dans le projet (ou glisser-déposer le dossier).

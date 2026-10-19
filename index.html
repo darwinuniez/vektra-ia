@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>EDC AI — Assistant intelligent</title>
 <meta name="description" content="EDC AI, l'assistant intelligent d'Ervin Digital Corp.">
-<meta name="theme-color" content="#06060d">
+<meta name="theme-color" content="#000000">
 <meta property="og:title" content="EDC AI">
 <meta property="og:description" content="L'assistant intelligent d'Ervin Digital Corp.">
 <meta property="og:image" content="favicon-512.png">
@@ -14,7 +14,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
-<!-- applique le thème avant le premier rendu (évite le flash clair/sombre) -->
+<!-- applique le thème avant le premier rendu (évite le flash) -->
 <script>
 (function(){
   try {
@@ -22,52 +22,26 @@
     if (t !== "light" && t !== "dark") t = "dark";
     document.documentElement.setAttribute("data-theme", t);
     var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute("content", t === "light" ? "#f3f4fd" : "#06060d");
+    if (m) m.setAttribute("content", t === "light" ? "#ffffff" : "#000000");
   } catch (e) {}
 })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- fond ambiant : lueurs violet/bleu + grain + lueur qui suit le curseur -->
-  <div class="ambient" aria-hidden="true">
-    <span class="g1"></span>
-    <span class="g2"></span>
-    <span class="g3"></span>
-    <span class="g4"></span>
-    <span class="g5"></span>
-  </div>
-  <div class="ambient-grain" aria-hidden="true"></div>
-  <div id="cursor-glow" aria-hidden="true"></div>
+  <!-- lueurs légères en fond (fixes) -->
+  <div class="ambient" aria-hidden="true"></div>
 
-  <!-- ============ INTRO — EDC AI ============ -->
+  <!-- ============ INTRO — courte et sobre ============ -->
   <div id="intro-splash">
-    <div class="intro-aura" aria-hidden="true"></div>
-    <div class="intro-center">
-      <div class="intro-emblem">
-        <span class="intro-halo" aria-hidden="true"></span>
-        <span class="intro-ring r1" aria-hidden="true"></span>
-        <span class="intro-ring r2" aria-hidden="true"></span>
-        <span class="logo-ai intro-logo"><img class="logo-ai-dark" src="logo-edc-ai-dark.png" alt="EDC AI"><img class="logo-ai-light" src="logo-edc-ai-light.png" alt="" aria-hidden="true"></span>
-      </div>
-      <div class="intro-bar" aria-hidden="true"><span></span></div>
-    </div>
-    <button class="intro-enter" id="intro-enter-btn">Passer</button>
-  </div>
-
-  <!-- ============ LOGO STING — rejoué à chaque nouvelle conversation ============ -->
-  <div id="logo-sting" aria-hidden="true">
-    <div class="sting-backdrop"></div>
-    <div class="sting-orbit">
-      <div class="sting-glow"></div>
-      <div class="sting-shock"></div>
-      <div class="sting-shock delay"></div>
-      <span class="logo-ai sting-logo"><img class="logo-ai-dark" src="logo-edc-ai-dark.png" alt="EDC AI"><img class="logo-ai-light" src="logo-edc-ai-light.png" alt="" aria-hidden="true"></span>
-    </div>
+    <span class="wordmark lg intro-mark" role="img" aria-label="EDC AI">
+      <img class="logo-mono" src="logo-edc-mark.png" alt="">
+      <span class="wm-ai">AI</span>
+    </span>
   </div>
 
   <div id="app">
@@ -78,22 +52,37 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-top">
         <a class="sidebar-brand" href="./" aria-label="EDC AI">
-          <span class="logo-ai sidebar-logo"><img class="logo-ai-dark" src="logo-edc-ai-dark.png" alt="EDC AI"><img class="logo-ai-light" src="logo-edc-ai-light.png" alt="" aria-hidden="true"></span>
+          <span class="wordmark sm" role="img" aria-label="EDC AI">
+            <img class="logo-mono" src="logo-edc-mark.png" alt="">
+            <span class="wm-ai">AI</span>
+          </span>
         </a>
         <button class="icon-btn" id="sidebar-collapse-btn" aria-label="Réduire la barre latérale" title="Réduire">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><line x1="9.5" y1="4" x2="9.5" y2="20"/></svg>
         </button>
       </div>
 
-      <button class="upgrade-btn" id="upgrade-btn">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
-        <span>Mettre à niveau</span>
-      </button>
-
-      <button class="new-conv-btn" id="new-conv-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        Nouvelle conversation
-      </button>
+      <nav class="nav" aria-label="Navigation principale">
+        <button class="nav-item" id="new-conv-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          <span>Nouvelle conversation</span>
+        </button>
+        <button class="nav-item" type="button" data-soon="Plugins">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v5M15 2v5"/><path d="M6 7h12v4a6 6 0 0 1-12 0V7Z"/><path d="M12 17v5"/></svg>
+          <span>Plugins</span>
+          <em class="soon-tag">Bientôt</em>
+        </button>
+        <button class="nav-item" type="button" data-soon="CorpCode">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5"/><path d="m16 7 5 5-5 5"/><path d="m14 4-4 16"/></svg>
+          <span>CorpCode</span>
+          <em class="soon-tag">Bientôt</em>
+        </button>
+        <button class="nav-item" type="button" data-soon="Images">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.8"/><path d="m21 15-5-5L5 21"/></svg>
+          <span>Images</span>
+          <em class="soon-tag">Bientôt</em>
+        </button>
+      </nav>
 
       <div class="conv-limit-note" id="conv-limit-note">
         Limite de 5 conversations gratuites atteinte. <a href="#" id="limit-upgrade-link">Passez à EDC AI Plus</a> pour un historique illimité.
@@ -101,7 +90,7 @@
 
       <div class="search-wrap" id="search-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" id="conv-search" placeholder="Rechercher dans l'historique…">
+        <input type="text" id="conv-search" placeholder="Rechercher" aria-label="Rechercher dans l'historique">
         <button type="button" class="search-clear-btn" id="search-clear-btn" aria-label="Effacer la recherche" title="Effacer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -152,16 +141,6 @@
           En utilisant EDC AI, vous acceptez nos <a href="#" id="terms-link">conditions d'utilisation</a>.
           Créé par ErvinDigitalCorporation (EDC).
         </p>
-        <div class="social-row">
-          <a class="social-btn discord" id="discord-link" href="#" target="_blank" rel="noopener" aria-label="Rejoindre le Discord" title="Discord">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8.5C9.5 7 14.5 7 17 8.5"/><path d="M6.5 16c3.5 1.5 7.5 1.5 11 0"/><path d="M8 9.5c-2 1-3 3-3 6.5 0 0 1.5 1.5 3.5 2l.7-1.4"/><path d="M16 9.5c2 1 3 3 3 6.5 0 0-1.5 1.5-3.5 2l-.7-1.4"/><circle cx="9.5" cy="14" r="1"/><circle cx="14.5" cy="14" r="1"/></svg>
-            <span>Discord</span>
-          </a>
-          <a class="social-btn edc" id="edc-link" href="https://edc-corp-hub.vercel.app" target="_blank" rel="noopener" aria-label="Créé par Ervin Digital Corporation — ouvrir le hub EDC" title="Ervin Digital Corporation">
-            <span class="edc-by">Créé par</span>
-            <img class="logo-mono" src="logo-edc-full.png" alt="Ervin Digital Corporation">
-          </a>
-        </div>
       </div>
     </aside>
 
@@ -174,67 +153,64 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><line x1="9.5" y1="4" x2="9.5" y2="20"/></svg>
           </button>
 
-          <!-- service connecté -->
-          <div class="workspace" id="workspace">
-            <button type="button" class="workspace-btn" id="workspace-btn" aria-haspopup="true" aria-expanded="false">
-              <span class="ws-dot" aria-hidden="true"></span>
-              <span class="ws-label">Connecté</span>
-              <span class="ws-sep" aria-hidden="true">·</span>
-              <span class="ws-name">EDC Workspace</span>
-              <svg class="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          <!-- mode de réponse -->
+          <div class="model-picker" id="model-picker">
+            <button type="button" class="model-btn" id="model-btn" aria-haspopup="true" aria-expanded="false">
+              <span id="model-label">Équilibré</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
             </button>
-            <div class="workspace-popover" id="workspace-popover">
-              <div class="ws-head">
-                <span class="ws-dot" aria-hidden="true"></span>
-                <div class="ws-head-text">
-                  <span class="ws-head-title">EDC Workspace</span>
-                  <span class="ws-head-sub">Service connecté</span>
-                </div>
-              </div>
-              <a class="ws-link" href="https://edc-corp-hub.vercel.app" target="_blank" rel="noopener">
-                <span>Ouvrir le hub EDC</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
-              </a>
+            <div class="model-popover" id="model-popover">
+              <button type="button" class="model-option" data-model="light">
+                <span class="model-option-text">
+                  <span class="model-option-head">Léger</span>
+                  <span class="model-option-desc">Réponses rapides et concises.</span>
+                </span>
+              </button>
+              <button type="button" class="model-option active" data-model="balanced">
+                <span class="model-option-text">
+                  <span class="model-option-head">Équilibré</span>
+                  <span class="model-option-desc">Le bon compromis entre vitesse et précision.</span>
+                </span>
+              </button>
+              <button type="button" class="model-option" data-model="complex">
+                <span class="model-option-text">
+                  <span class="model-option-head">Complexe</span>
+                  <span class="model-option-desc">Raisonnement approfondi pour les tâches difficiles.</span>
+                </span>
+              </button>
             </div>
           </div>
+        </div>
 
-          <span class="topbar-title" id="topbar-title">Nouvelle conversation</span>
-        </div>
-        <div class="live-counter">
-          <span class="live-dot"></span>
-          <span><span class="live-count-num" id="live-count-num">12</span> connectés</span>
-        </div>
+        <button class="upgrade-btn" id="upgrade-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
+          <span>Mettre à niveau</span>
+        </button>
       </header>
 
-      <!-- seul élément qui défile : le reste de l'interface reste fixe -->
+      <!-- seul élément qui défile -->
       <div class="chat-scroll" id="chat-scroll">
         <div class="stage">
 
-          <!-- état d'accueil : affiché jusqu'au premier message -->
+          <!-- accueil : affiché jusqu'au premier message -->
           <div class="intro" id="intro">
-            <div class="hero-emblem">
-              <span class="hero-halo" aria-hidden="true"></span>
-              <span class="logo-ai hero-logo"><img class="logo-ai-dark" src="logo-edc-ai-dark.png" alt="EDC AI"><img class="logo-ai-light" src="logo-edc-ai-light.png" alt="" aria-hidden="true"></span>
-            </div>
-            <div class="hero-text">
-              <h2 class="hero-title">Que puis-je faire <span class="grad">pour vous&nbsp;?</span></h2>
-            </div>
+            <span class="wordmark md" role="img" aria-label="EDC AI">
+              <img class="logo-mono" src="logo-edc-mark.png" alt="">
+              <span class="wm-ai">AI</span>
+            </span>
+            <h2 class="hero-title">Que puis-je faire pour vous&nbsp;?</h2>
             <div class="chips" id="chips">
               <button class="chip" data-prompt="Résume-moi les grandes lignes de mon dernier document.">
-                <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
-                <span class="chip-text"><b>Résumer un document</b><small>Les grandes lignes, en clair</small></span>
+                <b>Résumer un document</b><small>Les grandes lignes, en clair</small>
               </button>
               <button class="chip" data-prompt="Aide-moi à planifier ma semaine efficacement.">
-                <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span>
-                <span class="chip-text"><b>Planifier ma semaine</b><small>Organiser et prioriser</small></span>
+                <b>Planifier ma semaine</b><small>Organiser et prioriser</small>
               </button>
               <button class="chip" data-prompt="Donne-moi les dernières informations sur l'actualité tech.">
-                <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>
-                <span class="chip-text"><b>Actualité &amp; veille</b><small>Les dernières infos tech</small></span>
+                <b>Actualité &amp; veille</b><small>Les dernières infos tech</small>
               </button>
               <button class="chip" data-prompt="J'ai juste envie de discuter un peu, EDC AI.">
-                <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></span>
-                <span class="chip-text"><b>Discussion libre</b><small>Simplement échanger</small></span>
+                <b>Discussion libre</b><small>Simplement échanger</small>
               </button>
             </div>
           </div>
@@ -247,42 +223,13 @@
 
       <footer class="composer">
         <div class="composer-form-wrap">
-          <div class="model-picker" id="model-picker">
-            <button type="button" class="model-btn" id="model-btn" aria-haspopup="true" aria-expanded="false">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2.5"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>
-              <span id="model-label">MAIN 1</span>
-            </button>
-            <div class="model-popover" id="model-popover">
-              <button type="button" class="model-option active" data-model="main1">
-                <span class="model-dot dot-main1"></span>
-                <span class="model-option-text">
-                  <span class="model-option-head">MAIN 1</span>
-                  <span class="model-option-desc">Modèle standard : rapide et polyvalent au quotidien.</span>
-                </span>
-              </button>
-              <button type="button" class="model-option" data-model="pro">
-                <span class="model-dot dot-pro"></span>
-                <span class="model-option-text">
-                  <span class="model-option-head">MAIN 1 PRO</span>
-                  <span class="model-option-desc">Raisonnement plus poussé pour les tâches complexes.</span>
-                </span>
-              </button>
-              <button type="button" class="model-option" data-model="dark">
-                <span class="model-dot dot-dark"></span>
-                <span class="model-option-text">
-                  <span class="model-option-head">MAIN 1 DARK</span>
-                  <span class="model-option-desc">Réponses courtes et directes, sans détour.</span>
-                </span>
-              </button>
-            </div>
-          </div>
           <form id="composer-form" autocomplete="off">
             <div class="composer-input-wrap">
               <input type="text" id="composer-input" maxlength="600" aria-label="Votre message">
               <span class="composer-placeholder" id="composer-placeholder">Écrire à EDC AI…</span>
             </div>
             <button type="submit" class="send-btn" aria-label="Envoyer">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
             </button>
           </form>
         </div>
@@ -293,8 +240,9 @@
 
   </div>
 
+  <div id="toast" role="status" aria-live="polite"></div>
+
   <!-- ============ TEMPLATES (utilisés par script.js) ============ -->
-  <!-- l'IA n'a plus de photo : uniquement le logo EDC -->
   <template id="ai-avatar-template"><img class="logo-mono" src="logo-edc-mark.png" alt="EDC AI" decoding="async"></template>
   <template id="typing-indicator-template">
     <div class="typing-indicator"><span></span><span></span><span></span></div>
@@ -302,15 +250,9 @@
 
   <!-- ============ MODALE — EDC AI PLUS ============ -->
   <div class="modal-scrim" id="upgrade-modal">
-    <div class="modal plus-modal" role="dialog" aria-modal="true" aria-labelledby="upgrade-title">
-      <div class="plus-modal-glow" aria-hidden="true"></div>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="upgrade-title">
       <div class="modal-head">
-        <h2 id="upgrade-title">
-          <span class="plus-badge-icon">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
-          </span>
-          EDC AI <span class="plus-word">Plus</span>
-        </h2>
+        <h2 id="upgrade-title">EDC AI Plus</h2>
         <button class="icon-btn" data-close-modal aria-label="Fermer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -365,7 +307,7 @@
         </div>
         <div class="modal-actions">
           <button class="btn btn-ghost" data-close-modal>Fermer</button>
-          <button class="btn btn-premium" id="unlock-submit-btn">Valider le code</button>
+          <button class="btn btn-primary" id="unlock-submit-btn">Valider le code</button>
         </div>
       </div>
     </div>
@@ -385,7 +327,7 @@
         <div class="settings-section">
           <div class="settings-section-head">
             <span class="settings-section-title">Thème</span>
-            <span class="settings-section-desc">Choisissez l'apparence d'EDC AI. La lueur violet/bleu reste identique.</span>
+            <span class="settings-section-desc">Choisissez l'apparence d'EDC AI.</span>
           </div>
           <div class="settings-theme-grid" id="settings-theme-grid">
             <button type="button" class="settings-theme-option active" data-theme="dark" aria-pressed="true">
@@ -418,7 +360,7 @@
         <div class="settings-section settings-row">
           <div class="settings-section-head">
             <span class="settings-section-title">Réduire les animations</span>
-            <span class="settings-section-desc">Désactive les effets décoratifs pour plus de sobriété.</span>
+            <span class="settings-section-desc">Désactive les transitions et l'intro.</span>
           </div>
           <button type="button" class="settings-switch" id="settings-motion-switch" role="switch" aria-checked="false" aria-label="Réduire les animations">
             <span class="settings-switch-knob"></span>
@@ -433,6 +375,35 @@
           <button type="button" class="btn btn-ghost btn-danger-ghost" id="settings-reset-btn">Réinitialiser</button>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODALE — AIDE & SUPPORT ============ -->
+  <div class="modal-scrim" id="help-modal">
+    <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <div class="modal-head">
+        <h2 id="help-title">Aide &amp; support</h2>
+        <button class="icon-btn" data-close-modal aria-label="Fermer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Une question, un retour ou un problème ? Retrouvez-nous ici.</p>
+        <div class="help-links">
+          <a class="help-link" id="discord-link" href="#" target="_blank" rel="noopener">
+            <span class="help-link-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8.5C9.5 7 14.5 7 17 8.5"/><path d="M6.5 16c3.5 1.5 7.5 1.5 11 0"/><path d="M8 9.5c-2 1-3 3-3 6.5 0 0 1.5 1.5 3.5 2l.7-1.4"/><path d="M16 9.5c2 1 3 3 3 6.5 0 0-1.5 1.5-3.5 2l-.7-1.4"/><circle cx="9.5" cy="14" r="1"/><circle cx="14.5" cy="14" r="1"/></svg>
+            </span>
+            <span class="help-link-text"><b>Discord</b><small>Rejoindre la communauté</small></span>
+            <svg class="help-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
+          </a>
+          <a class="help-link" id="edc-link" href="https://edc-corp-hub.vercel.app" target="_blank" rel="noopener">
+            <span class="help-link-ico"><img class="logo-mono" src="logo-edc-mark.png" alt=""></span>
+            <span class="help-link-text"><b>EDC</b><small>Ouvrir le hub EDC</small></span>
+            <svg class="help-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
+          </a>
+        </div>
       </div>
     </div>
   </div>
