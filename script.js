@@ -1,31 +1,52 @@
 /* =========================================================
-   DELAMAIN IA — front-end logic (Connected to /api/chat)
+   EDC AI — front-end logic (connecté à /api/chat)
    ========================================================= */
 
 /* =========================================================
-   Intro splash — short, skippable, respects reduced motion
+   Migration — reprend les données locales de l'ancienne
+   version ("delamain.*") sous le nouveau préfixe "edcai.*"
+   ========================================================= */
+(function migrateLegacyStorage(){
+  try {
+    if (localStorage.getItem("edcai.migrated")) return;
+    const legacy = [];
+    for (let i = 0; i < localStorage.length; i++){
+      const k = localStorage.key(i);
+      if (k && k.indexOf("delamain.") === 0) legacy.push(k);
+    }
+    legacy.forEach(k => {
+      const next = "edcai." + k.slice("delamain.".length);
+      if (localStorage.getItem(next) === null) localStorage.setItem(next, localStorage.getItem(k));
+      localStorage.removeItem(k);
+    });
+    localStorage.setItem("edcai.migrated", "1");
+  } catch (_) { /* stockage indisponible : on continue sans migration */ }
+})();
+
+const HUB_URL = "https://edc-corp-hub.vercel.app";
+
+/* =========================================================
+   Intro EDC AI — logo + nom, passable, respecte "réduire les animations"
    ========================================================= */
 const introSplash   = document.getElementById("intro-splash");
 const introEnterBtn = document.getElementById("intro-enter-btn");
 const reducedMotion  = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  || (() => { try { return localStorage.getItem("delamain.reduceMotion") === "1"; } catch (_) { return false; } })();
+  || (() => { try { return localStorage.getItem("edcai.reduceMotion") === "1"; } catch (_) { return false; } })();
 
 let introDismissed = false;
 function dismissIntro(){
   if (introDismissed) return;
   introDismissed = true;
-  const logoEl = introSplash.querySelector(".intro-logo");
-  if (logoEl) logoEl.classList.add("zoom-out");
   introSplash.classList.add("exiting");
-  setTimeout(() => introSplash.classList.add("hidden"), 90);
-  setTimeout(() => { introSplash.style.display = "none"; }, 620);
+  setTimeout(() => introSplash.classList.add("hidden"), 220);
+  setTimeout(() => { introSplash.style.display = "none"; }, 900);
 }
 
 if (reducedMotion){
   introSplash.style.display = "none";
   introDismissed = true;
 } else {
-  setTimeout(dismissIntro, 950); // short & punchy — auto-dismiss fast
+  setTimeout(dismissIntro, 2500);
   introEnterBtn.addEventListener("click", dismissIntro);
   introSplash.addEventListener("click", (e) => {
     if (e.target === introSplash) dismissIntro();
@@ -141,7 +162,28 @@ const searchClearBtn  = document.getElementById("search-clear-btn");
 const searchMicBtn    = document.getElementById("search-mic-btn");
 const micTooltip      = document.getElementById("mic-tooltip");
 
-const DEFAULT_UPGRADE_MSG = "Delamain Plus est encore en cours de développement. Conversations illimitées, réponses prioritaires et bien plus arrivent bientôt.";
+const DEFAULT_UPGRADE_MSG = "EDC AI Plus est encore en cours de développement. Conversations illimitées, réponses prioritaires et bien plus arrivent bientôt.";
+
+/* =========================================================
+   Service connecté — pastille « EDC Workspace » (haut gauche)
+   ========================================================= */
+const workspaceEl      = document.getElementById("workspace");
+const workspaceBtn     = document.getElementById("workspace-btn");
+function toggleWorkspace(open){
+  const next = open !== undefined ? open : !workspaceEl.classList.contains("open");
+  workspaceEl.classList.toggle("open", next);
+  workspaceBtn.setAttribute("aria-expanded", String(next));
+}
+workspaceBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleWorkspace();
+});
+document.addEventListener("click", (e) => {
+  if (workspaceEl.classList.contains("open") && !e.target.closest("#workspace")) toggleWorkspace(false);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && workspaceEl.classList.contains("open")) toggleWorkspace(false);
+});
 
 /* =========================================================
    Live "connectés récemment" counter — oscillates 10-16
@@ -163,9 +205,9 @@ setInterval(stepLiveCount, 3600 + Math.random() * 1400);
    Composer — rotating placeholder (hidden once input has text)
    ========================================================= */
 const PLACEHOLDERS = [
-  "Écrire à Delamain…",
-  "Delamain vous écoute…",
-  "Bienvenue sur Delamain…",
+  "Écrire à EDC AI…",
+  "EDC AI vous écoute…",
+  "Bienvenue sur EDC AI…",
   "Posez votre question…",
   "Que puis-je faire pour vous ?"
 ];
@@ -187,18 +229,20 @@ inputEl.addEventListener("input", () => {
 
 /* =========================================================
    AI model — purely cosmetic choice of which "model" answers
-   (MAIN 1 / MAIN 1 PRO / MAIN 1 DARK), sent along with requests
+   (MAIN 1 / MAIN 1 PRO / MAIN 1 DARK), envoyé avec les requêtes
    ========================================================= */
 const MODELS = {
   main1: { label: "MAIN 1" },
   pro:   { label: "MAIN 1 PRO" },
   dark:  { label: "MAIN 1 DARK" }
 };
-const MODEL_STORAGE_KEY = "delamain.aiModel";
+const MODEL_STORAGE_KEY = "edcai.aiModel";
 
 function loadModel(){
-  const saved = localStorage.getItem(MODEL_STORAGE_KEY);
-  return MODELS[saved] ? saved : "main1";
+  try {
+    const saved = localStorage.getItem(MODEL_STORAGE_KEY);
+    return MODELS[saved] ? saved : "main1";
+  } catch (_) { return "main1"; }
 }
 let currentModel = loadModel();
 
@@ -237,20 +281,26 @@ document.addEventListener("keydown", (e) => {
 });
 
 /* =========================================================
-   Settings — site color, text size, motion, local data
+   Paramètres — thème (sombre / clair), taille du texte, animations, données
    ========================================================= */
-const THEMES = { main1: true, pro: true, dark: true };
-const THEME_STORAGE_KEY = "delamain.theme";
+const THEMES = { dark: true, light: true };
+const THEME_STORAGE_KEY = "edcai.theme";
+const THEME_COLORS = { dark: "#06060d", light: "#f3f4fd" };
 function loadTheme(){
-  const saved = localStorage.getItem(THEME_STORAGE_KEY);
-  return THEMES[saved] ? saved : "main1";
+  try {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    return THEMES[saved] ? saved : "dark";
+  } catch (_) { return "dark"; }
 }
 let currentTheme = loadTheme();
 function applyTheme(){
-  if (currentTheme === "main1") document.documentElement.removeAttribute("data-theme");
-  else document.documentElement.setAttribute("data-theme", currentTheme);
+  document.documentElement.setAttribute("data-theme", currentTheme);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", THEME_COLORS[currentTheme]);
   settingsThemeGrid.querySelectorAll(".settings-theme-option").forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.theme === currentTheme);
+    const on = btn.dataset.theme === currentTheme;
+    btn.classList.toggle("active", on);
+    btn.setAttribute("aria-pressed", String(on));
   });
 }
 settingsThemeGrid.querySelectorAll(".settings-theme-option").forEach(btn => {
@@ -262,11 +312,13 @@ settingsThemeGrid.querySelectorAll(".settings-theme-option").forEach(btn => {
 });
 applyTheme();
 
-const TEXTSIZE_STORAGE_KEY = "delamain.textSize";
+const TEXTSIZE_STORAGE_KEY = "edcai.textSize";
 const TEXTSIZE_PX = { sm: "13.5px", md: "14.5px", lg: "16px" };
 function loadTextSize(){
-  const saved = localStorage.getItem(TEXTSIZE_STORAGE_KEY);
-  return TEXTSIZE_PX[saved] ? saved : "md";
+  try {
+    const saved = localStorage.getItem(TEXTSIZE_STORAGE_KEY);
+    return TEXTSIZE_PX[saved] ? saved : "md";
+  } catch (_) { return "md"; }
 }
 let currentTextSize = loadTextSize();
 function applyTextSize(){
@@ -284,7 +336,7 @@ settingsTextSize.querySelectorAll(".settings-segment").forEach(btn => {
 });
 applyTextSize();
 
-const MOTION_STORAGE_KEY = "delamain.reduceMotion";
+const MOTION_STORAGE_KEY = "edcai.reduceMotion";
 function loadReduceMotion(){
   try { return localStorage.getItem(MOTION_STORAGE_KEY) === "1"; } catch (_) { return false; }
 }
@@ -320,8 +372,8 @@ accountSettingsBtn.addEventListener("click", openSettingsModal);
    Account — real menu: editable name + a gallery of default
    profile pictures (Instagram/TikTok-style generic avatars)
    ========================================================= */
-const ACCOUNT_NAME_KEY   = "delamain.profileName";
-const ACCOUNT_AVATAR_KEY = "delamain.avatarPreset";
+const ACCOUNT_NAME_KEY   = "edcai.profileName";
+const ACCOUNT_AVATAR_KEY = "edcai.avatarPreset";
 
 const AVATAR_PRESETS = [
   { id: "p1", from: "#7fa8ff", to: "#b98bff" },
@@ -422,7 +474,8 @@ document.addEventListener("keydown", (e) => {
 accountHelpBtn.addEventListener("click", () => {
   toggleAccountMenu(false);
   const discordLink = document.getElementById("discord-link");
-  if (discordLink) window.open(discordLink.href, "_blank", "noopener");
+  const href = discordLink ? discordLink.getAttribute("href") : "";
+  window.open(href && href !== "#" ? href : HUB_URL, "_blank", "noopener");
 });
 
 accountResetBtn.addEventListener("click", () => {
@@ -484,8 +537,8 @@ function scrollToBottom(smooth){
    State: conversations, persisted to localStorage
    ========================================================= */
 const STORAGE_KEYS = {
-  conversations: "delamain.conversations",
-  currentId:     "delamain.currentId"
+  conversations: "edcai.conversations",
+  currentId:     "edcai.currentId"
 };
 const FREE_CONVERSATION_LIMIT = 5;
 
@@ -506,7 +559,7 @@ function loadState(){
   } catch (_) {
     conversations = [];
   }
-  currentId = localStorage.getItem(STORAGE_KEYS.currentId) || null;
+  try { currentId = localStorage.getItem(STORAGE_KEYS.currentId) || null; } catch (_) { currentId = null; }
   if (!conversations.some(c => c.id === currentId)){
     currentId = conversations.length ? conversations[0].id : null;
   }
@@ -540,7 +593,7 @@ function createConversation({ focus = true } = {}){
     return existing;
   }
   if (isAtFreeLimit()){
-    openUpgradeModal("Vous avez atteint la limite de 5 conversations gratuites. Passez à Delamain Plus pour un historique illimité.");
+    openUpgradeModal("Vous avez atteint la limite de 5 conversations gratuites. Passez à EDC AI Plus pour un historique illimité.");
     return null;
   }
   const conv = { id: uid(), title: "Nouvelle conversation", createdAt: Date.now(), messages: [] };
@@ -770,7 +823,7 @@ function addAiMessage(text, index){
   const avatarWrap = document.createElement("div");
   avatarWrap.className = "msg-avatar";
   avatarWrap.appendChild(buildAiAvatar());
-  msg.innerHTML = `<div class="msg-col"><span class="msg-label">DELAMAIN</span><div class="msg-bubble"></div></div>`;
+  msg.innerHTML = `<div class="msg-col"><span class="msg-label">EDC AI</span><div class="msg-bubble"></div></div>`;
   msg.prepend(avatarWrap);
   msg.querySelector(".msg-bubble").textContent = text;
   msg.querySelector(".msg-col").appendChild(buildMessageActionsEl(index));
@@ -869,7 +922,7 @@ async function retryMessage(index, retryBtn){
 
   const userText = conv.messages[userIndex].content;
   const historyBefore = toHistory(conv.messages.slice(0, userIndex));
-  const { text: reply, error: replyFailed } = await getDelamainReply(userText, historyBefore);
+  const { text: reply, error: replyFailed } = await getAiReply(userText, historyBefore);
 
   conv.messages[index] = { role: "assistant", content: reply, feedback: null, error: replyFailed };
   saveState();
@@ -912,7 +965,7 @@ function addAiMessagePlaceholder(index){
   const avatarWrap = document.createElement("div");
   avatarWrap.className = "msg-avatar";
   avatarWrap.appendChild(buildAiAvatar());
-  msg.innerHTML = `<div class="msg-col"><span class="msg-label">DELAMAIN</span><div class="msg-bubble"><span class="typed"></span><span class="cursor"></span></div></div>`;
+  msg.innerHTML = `<div class="msg-col"><span class="msg-label">EDC AI</span><div class="msg-bubble"><span class="typed"></span><span class="cursor"></span></div></div>`;
   msg.prepend(avatarWrap);
   threadEl.appendChild(msg);
   scrollToBottom(false);
@@ -940,7 +993,7 @@ function renderConversation(){
 
 /* ---------- Typewriter — rAF-driven, batches characters per frame
    for smoothness instead of one setTimeout per character. Also
-   toggles a "speaking" pulse on the avatar for the duration. ---------- */
+   toggles a "speaking" pulse on the logo avatar for the duration. ---------- */
 function typeOut(targetEl, fullText, avatarEl, onDone){
   const CHARS_PER_SECOND = 55;
   let start = null;
@@ -984,7 +1037,7 @@ function toHistory(messages){
     .map(m => ({ role: m.role, content: m.content }));
 }
 
-async function getDelamainReply(userText, history){
+async function getAiReply(userText, history){
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 40000);
   try {
@@ -1004,7 +1057,7 @@ async function getDelamainReply(userText, history){
         return { error: true, text: "Le service de discussion est introuvable : la route /api/chat n'est pas déployée." };
       }
       const detail = data && typeof data.error === "string" ? data.error : null;
-      return { error: true, text: detail || `Le noyau Delamain a renvoyé une erreur (code ${response.status}). Consultez les journaux du serveur.` };
+      return { error: true, text: detail || `Le noyau EDC AI a renvoyé une erreur (code ${response.status}). Consultez les journaux du serveur.` };
     }
 
     return { error: false, text: (data && (data.reply || data.message)) || "Requête traitée, mais aucun détail renvoyé par le serveur." };
@@ -1046,7 +1099,7 @@ async function sendMessage(text){
   sendBtn.disabled = true;
 
   const typingMsgEl = addTypingIndicator();
-  const { text: reply, error: replyFailed } = await getDelamainReply(clean, historyBeforeThisTurn);
+  const { text: reply, error: replyFailed } = await getAiReply(clean, historyBeforeThisTurn);
   conv.messages.push({ role: "assistant", content: reply, feedback: null, error: replyFailed });
   saveState();
   const aiIndex = conv.messages.length - 1;
@@ -1136,7 +1189,7 @@ plusNextBtn.addEventListener("click", () => goToPlusSlide(plusSlideIndex + 1, tr
 plusCarouselEl.addEventListener("mouseenter", () => clearInterval(plusAutoTimer));
 plusCarouselEl.addEventListener("mouseleave", restartPlusAuto);
 
-/* ---------- Upgrade / Delamain Plus ---------- */
+/* ---------- Upgrade / EDC AI Plus ---------- */
 function openUpgradeModal(contextMessage){
   upgradeContextMsg.textContent = contextMessage || DEFAULT_UPGRADE_MSG;
   unlockCodeInput.value = "";
@@ -1157,7 +1210,7 @@ unlockSubmitBtn.addEventListener("click", () => {
     unlockStatus.textContent = "Entrez un code pour continuer.";
     return;
   }
-  unlockStatus.textContent = "Delamain Plus n'est pas encore ouvert au public : votre code a été enregistré et sera vérifié dès son lancement.";
+  unlockStatus.textContent = "EDC AI Plus n'est pas encore ouvert au public : votre code a été enregistré et sera vérifié dès son lancement.";
 });
 unlockCodeInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter"){ e.preventDefault(); unlockSubmitBtn.click(); }
