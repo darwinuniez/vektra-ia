@@ -39,6 +39,7 @@ function getGroq() {
 export const config = { maxDuration: 30 };
 const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY || "";
+const PROMPT_VERSION = "edc-pro-2"; // change à chaque mise à jour du ton
 
 /* ============================================================
    1. PERSONNALITÉ D'EDC AI
@@ -323,6 +324,20 @@ async function askAI(userMessage, history = []) {
    5. HANDLER — route POST /api/chat (inchangée côté front)
    ============================================================ */
 export default async function handler(req, res) {
+  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("X-EDC-Version", PROMPT_VERSION);
+
+  // Page de contrôle : ouvrir https://VOTRE-SITE/api/chat dans le navigateur
+  // permet de vérifier quelle version est réellement déployée.
+  if (req.method === "GET") {
+    return res.status(200).json({
+      ok: true,
+      version: PROMPT_VERSION,
+      model: MODEL,
+      groqKey: Boolean(process.env.GROQ_API_KEY),
+      webSearch: Boolean(TAVILY_API_KEY)
+    });
+  }
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Méthode non autorisée" });
   }
