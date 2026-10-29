@@ -971,17 +971,17 @@ async function getAiReply(userText, history){
         return { error: true, text: "Le service de discussion est introuvable : la route /api/chat n'est pas déployée." };
       }
       const detail = data && typeof data.error === "string" ? data.error : null;
-      return { error: true, text: detail || `Le noyau EDC AI a renvoyé une erreur (code ${response.status}). Consultez les journaux du serveur.` };
+      return { error: true, text: detail || `Le service EDC AI a renvoyé une erreur (code ${response.status}). Veuillez réessayer dans un instant.` };
     }
 
-    return { error: false, text: (data && (data.reply || data.message)) || "Requête traitée, mais aucun détail renvoyé par le serveur." };
+    return { error: false, text: (data && (data.reply || data.message)) || "Le serveur n'a renvoyé aucune réponse exploitable. Veuillez réessayer." };
   } catch (error) {
     console.error("Erreur API:", error);
     if (error.name === "AbortError"){
-      return { error: true, text: "Le noyau met trop de temps à répondre. Réessayez dans un instant." };
+      return { error: true, text: "Le service met trop de temps à répondre. Veuillez réessayer dans un instant." };
     }
     // Vraie coupure réseau (fetch impossible)
-    return { error: true, text: "Connexion au sous-réseau instable. Mes capteurs indiquent une perturbation temporaire du signal." };
+    return { error: true, text: "La connexion au service est momentanément indisponible. Veuillez vérifier votre connexion internet, puis réessayer." };
   } finally {
     clearTimeout(timeout);
   }

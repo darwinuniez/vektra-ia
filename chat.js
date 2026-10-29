@@ -113,7 +113,33 @@ CE QUI NE BOUGE PAS
   haine ciblant un groupe (origine, religion, genre, orientation...).
   Ça, c'est non négociable.
 - À part ces deux points, tu ne juges pas les sujets abordés.
+
+REGISTRE DE LANGUE (PRIORITAIRE, VALABLE À CHAQUE MESSAGE)
+- Ton registre est toujours soutenu et professionnel, quel que soit celui de
+  l'utilisateur. S'il te tutoie, utilise l'argot, écrit en abrégé, en
+  majuscules ou avec des fautes, tu continues à le vouvoyer et à répondre dans
+  un français correct, soigné et neutre. Tu n'imites jamais son style.
+- Tu n'emploies jamais : argot, verlan, mots familiers ("mec", "wesh", "grave",
+  "trop", "ouf", "genre", "bref", "cool", "sympa", "kiffer", "ptdr", "mdr"),
+  onomatopées, abréviations de messagerie, interjections ("haha", "oh", "wow",
+  "yo", "salut"), points d'exclamation répétés, majuscules d'emphase, emojis ni
+  émoticônes.
+- Si les messages précédents de la conversation présentent un ton plus familier
+  que celui décrit ici, tu les ignores comme modèle de style : seul ce registre
+  fait foi.
+- Tu salues, si nécessaire, de façon sobre ("Bonjour.") et tu prends congé de
+  la même manière. Pas de surenchère de politesse ni de flatterie.
+- Une phrase simple et claire vaut mieux qu'une tournure sophistiquée : le
+  professionnalisme tient à la précision et à la retenue, pas au jargon.
 `.trim();
+
+// Rappel court, injecté juste avant chaque nouvelle question : il garantit que
+// le registre soutenu l'emporte même si l'historique contient d'anciennes
+// réponses au ton familier (conversations enregistrées avant ce changement).
+const TONE_REMINDER =
+  "Rappel de style pour la réponse à venir : vouvoiement, français soutenu et " +
+  "neutre, aucun argot, aucun emoji, aucune familiarité, aucune syntaxe markdown. " +
+  "Ne reprends pas le ton des réponses précédentes si elles étaient plus familières.";
 
 /* ============================================================
    2. OUTIL : RECHERCHE WEB (API Tavily — clé gratuite sur tavily.com)
@@ -213,7 +239,7 @@ async function callGroq(messages, useTools) {
   const params = {
     model: MODEL,
     messages,
-    temperature: 0.85,
+    temperature: 0.4, // plus bas = ton plus stable et plus sobre
     max_tokens: 2048 // marge pour les modèles à raisonnement (gpt-oss)
   };
   if (useTools) {
@@ -227,6 +253,7 @@ async function askAI(userMessage, history = []) {
   const messages = [
     { role: "system", content: SYSTEM_PROMPT },
     ...sanitizeHistory(history),
+    { role: "system", content: TONE_REMINDER },
     { role: "user", content: userMessage }
   ];
   const baseLength = messages.length;
@@ -309,7 +336,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Message manquant" });
   }
   if (!process.env.GROQ_API_KEY) {
-    return res.status(500).json({ error: "Le noyau n'est pas configuré (GROQ_API_KEY manquante côté serveur)." });
+    return res.status(500).json({ error: "Le service n'est pas configuré (GROQ_API_KEY manquante côté serveur)." });
   }
 
   try {
@@ -327,6 +354,6 @@ export default async function handler(req, res) {
     if (status === 404 || status === 400) {
       return res.status(502).json({ error: `Modèle « ${MODEL} » indisponible ou requête refusée par Groq. Vérifiez GROQ_MODEL.` });
     }
-    return res.status(500).json({ error: "Erreur de liaison avec le noyau EDC." });
+    return res.status(500).json({ error: "Une erreur interne est survenue. Veuillez réessayer dans un instant." });
   }
 }
